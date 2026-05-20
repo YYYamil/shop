@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Admin</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <h1>Administrador</h1>
+
+    <!-- ID OCULTO -->
+    <input type="hidden" id="idProducto">
+
+
+    <input
+        type="text"
+        id="nombre"
+        placeholder="Nombre del producto"
+    >
+
+    <input
+        type="number"
+        id="precio"
+        placeholder="Precio"
+    >
+
+    <input
+        type="number"
+        id="stock"
+        placeholder="Stock"
+    >
+
+    <input
+        type="text"
+        id="imagen"
+        placeholder="URL imagen"
+    >
+
+    <textarea
+        id="descripcion"
+        placeholder="Descripción"
+    ></textarea>
+
+
+    <button onclick="guardarProducto()">
+        Guardar producto
+    </button>
+
+    <hr>
+
+    <div id="listaProductos"></div>
+
+    <script src="admin.js"></script>
+
+</body>
+
+</html>
