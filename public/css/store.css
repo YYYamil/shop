@@ -1,0 +1,313 @@
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+
+body {
+
+    font-family: Arial;
+
+    background: #f4f4f4;
+
+}
+
+
+
+.navbar {
+
+    background: white;
+
+    padding: 15px 30px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+}
+
+
+
+.logo {
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+}
+
+
+
+#busqueda {
+
+    width: 40%;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    border: 1px solid #ccc;
+
+}
+
+
+
+.carrito-btn {
+
+    position: relative;
+
+    text-decoration: none;
+
+    font-size: 28px;
+
+}
+
+
+
+#contadorCarrito {
+
+    position: absolute;
+
+    top: -10px;
+
+    right: -10px;
+
+    background: red;
+
+    color: white;
+
+    border-radius: 50%;
+
+    width: 22px;
+
+    height: 22px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 12px;
+
+}
+
+
+
+.hero {
+
+    background: linear-gradient(
+
+        135deg,
+
+        black,
+
+        #444
+
+    );
+
+    color: white;
+
+    text-align: center;
+
+    padding: 80px 20px;
+
+}
+
+
+
+.hero h1 {
+
+    font-size: 52px;
+
+    margin-bottom: 10px;
+
+}
+
+
+
+.categorias {
+
+    padding: 20px;
+
+    display: flex;
+
+    gap: 10px;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.categorias button {
+
+    padding: 10px 20px;
+
+    border: none;
+
+    border-radius: 30px;
+
+    cursor: pointer;
+
+    background: white;
+
+}
+
+
+
+.productos-grid {
+
+    display: grid;
+
+    grid-template-columns:
+
+        repeat(auto-fit, minmax(260px, 1fr));
+
+    gap: 20px;
+
+    padding: 30px;
+
+}
+
+
+
+.producto {
+
+    background: white;
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+    transition: 0.3s;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+}
+
+
+
+.producto:hover {
+
+    transform: translateY(-5px);
+
+}
+
+
+
+.producto img {
+
+    width: 100%;
+
+    height: 250px;
+
+    object-fit: cover;
+
+}
+
+
+
+.producto-info {
+
+    padding: 15px;
+
+}
+
+
+
+.producto-info h3 {
+
+    margin-bottom: 10px;
+
+}
+
+
+
+.precio {
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+    margin: 15px 0;
+
+}
+
+
+
+.stock {
+
+    color: green;
+
+    margin-bottom: 10px;
+
+}
+
+
+
+.producto button {
+
+    width: 100%;
+
+    padding: 15px;
+
+    border: none;
+
+    background: black;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+}
+
+
+
+@media(max-width: 700px) {
+
+    .navbar {
+
+        flex-direction: column;
+
+        gap: 15px;
+
+    }
+
+
+
+    #busqueda {
+
+        width: 100%;
+
+    }
+
+
+
+    .hero h1 {
+
+        font-size: 36px;
+
+    }
+
+}

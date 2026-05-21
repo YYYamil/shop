@@ -1,116 +1,90 @@
+require('dotenv').config();
+
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+
+const session = require('express-session');
+
+const path = require('path');
+
+const fs = require('fs');
+
+const authMiddleware = require('./middleware/authMiddleware');
+
+
+
+require('./database/db');
+
+
+
+const authRoutes = require('./routes/authRoutes');
+
+const productRoutes = require('./routes/productRoutes');
+
+const pedidoRoutes = require('./routes/pedidoRoutes');
+
+const categoriaRoutes = require('./routes/categoriaRoutes');
+
+
 
 const app = express();
 
-const PORT = 3000;
+
+
+if (!fs.existsSync('uploads')) {
+
+    fs.mkdirSync('uploads');
+
+}
+
+
 
 app.use(express.json());
 
+app.use(express.urlencoded({
+
+    extended: true
+
+}));
+
+
+
+app.use(session({
+
+    secret: process.env.SESSION_SECRET,
+
+    resave: false,
+
+    saveUninitialized: false
+
+}));
+
+
+
+app.use('/uploads', express.static('uploads'));
+
 app.use(express.static('public'));
 
-const db = new sqlite3.Database('./database.db');
 
 
+app.use('/auth', authRoutes);
 
-/* =========================
-   TABLA PRODUCTOS
-========================= */
+app.use('/productos', authMiddleware, productRoutes);
 
-db.serialize(() => {
+app.use('/pedidos', authMiddleware, pedidoRoutes);
 
-    db.run(`
+app.use('/categorias', authMiddleware, categoriaRoutes);
 
-        CREATE TABLE IF NOT EXISTS productos (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            nombre TEXT,
-
-            precio REAL,
-
-            descripcion TEXT,
-
-            imagen TEXT,
-
-            stock INTEGER
-
-        )
-
-    `);
-
+// Ruta para verificar sesión (muy importante)
+app.get('/auth/verificar', authMiddleware, (req, res) => {
+    res.json({ success: true, admin: req.session.admin });
 });
 
 
+app.get('/', (req, res) => {
 
-/* =========================
-   OBTENER PRODUCTOS
-========================= */
+    res.sendFile(
 
-app.get('/productos', (req, res) => {
-
-    db.all(
-        'SELECT * FROM productos',
-        [],
-        (err, rows) => {
-
-            if (err) {
-                return res.status(500).send(err.message);
-            }
-
-            res.json(rows);
-
-        }
-    );
-
-});
-
-
-
-/* =========================
-   AGREGAR PRODUCTO
-========================= */
-
-app.post('/productos', (req, res) => {
-
-    const {
-        nombre,
-        precio,
-        descripcion,
-        imagen,
-        stock
-    } = req.body;
-
-
-
-    db.run(
-
-        `
-        INSERT INTO productos
-        (nombre, precio, descripcion, imagen, stock)
-
-        VALUES (?, ?, ?, ?, ?)
-        `,
-
-        [
-            nombre,
-            precio,
-            descripcion,
-            imagen,
-            stock
-        ],
-
-        function(err) {
-
-            if (err) {
-                return res.status(500).send(err.message);
-            }
-
-            res.send({
-                mensaje: 'Producto agregado'
-            });
-
-        }
+        path.join(__dirname, 'public', 'index.html')
 
     );
 
@@ -118,102 +92,12 @@ app.post('/productos', (req, res) => {
 
 
 
-/* =========================
-   EDITAR PRODUCTO
-========================= */
-
-app.put('/productos/:id', (req, res) => {
-
-    const id = req.params.id;
-
-    const {
-        nombre,
-        precio,
-        descripcion,
-        imagen,
-        stock
-    } = req.body;
-
-
-
-    db.run(
-
-        `
-        UPDATE productos
-
-        SET
-            nombre = ?,
-            precio = ?,
-            descripcion = ?,
-            imagen = ?,
-            stock = ?
-
-        WHERE id = ?
-        `,
-
-        [
-            nombre,
-            precio,
-            descripcion,
-            imagen,
-            stock,
-            id
-        ],
-
-        function(err) {
-
-            if (err) {
-                return res.status(500).send(err.message);
-            }
-
-            res.send({
-                mensaje: 'Producto actualizado'
-            });
-
-        }
-
-    );
-
-});
-
-
-
-/* =========================
-   ELIMINAR PRODUCTO
-========================= */
-
-app.delete('/productos/:id', (req, res) => {
-
-    const id = req.params.id;
-
-    db.run(
-
-        'DELETE FROM productos WHERE id = ?',
-
-        [id],
-
-        function(err) {
-
-            if (err) {
-                return res.status(500).send(err.message);
-            }
-
-            res.send({
-                mensaje: 'Producto eliminado'
-            });
-
-        }
-
-    );
-
-});
-
-
-
-app.listen(PORT, () => {
+app.listen(3000, () => {
 
     console.log(
-        `Servidor funcionando en http://localhost:${PORT}`
+
+        'Servidor funcionando en http://localhost:3000'
+
     );
 
 });

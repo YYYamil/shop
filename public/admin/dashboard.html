@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard</title>
+
+    <link rel="stylesheet"
+          href="/css/admin.css">
+
+</head>
+
+<body>
+
+    <div class="admin-layout">
+
+        <aside class="sidebar">
+
+            <h2>
+
+                Admin
+
+            </h2>
+
+
+
+            <a href="/admin/dashboard.html">
+
+                Dashboard
+
+            </a>
+
+
+
+            <a href="/admin/admin.html">
+
+                Productos
+
+            </a>
+
+
+
+            <a href="/admin/pedidos.html">
+
+                Pedidos
+
+            </a>
+
+        </aside>
+
+
+
+        <main class="admin-content">
+
+            <div class="grid">
+
+                <div class="producto">
+
+                    <div class="producto-info">
+
+                        <h2>
+
+                            Ventas
+
+                        </h2>
+
+
+
+                        <h1 id="ventas">
+
+                            0
+
+                        </h1>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="producto">
+
+                    <div class="producto-info">
+
+                        <h2>
+
+                            Pedidos
+
+                        </h2>
+
+
+
+                        <h1 id="pedidos">
+
+                            0
+
+                        </h1>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="producto">
+
+                    <div class="producto-info">
+
+                        <h2>
+
+                            Productos
+
+                        </h2>
+
+
+
+                        <h1 id="productos">
+
+                            0
+
+                        </h1>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="producto">
+
+                    <div class="producto-info">
+
+                        <h2>
+
+                            Sin stock
+
+                        </h2>
+
+
+
+                        <h1 id="sinStock">
+
+                            0
+
+                        </h1>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script src="/js/auth.js"></script>
+
+<script>
+
+    verificarAuth();
+
+</script>
+
+
+
+    <script src="/js/dashboard.js"></script>
+    
+
+</body>
+
+</html>

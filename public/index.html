@@ -2,27 +2,113 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Tienda</title>
 
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Mi Shop</title>
+
+    <link rel="stylesheet"
+          href="/css/store.css">
+
 </head>
 
 <body>
 
-    <h1>Mi Tienda</h1>
+    <header class="navbar">
 
-    <a href="carrito.html">
-        Ver carrito
-    </a>
+        <div class="logo">
 
-    <hr>
+            Mi Shop
 
-    <div id="productos">
+        </div>
 
-    </div>
 
-    <script src="script.js"></script>
+
+        <input
+            type="text"
+            id="busqueda"
+            placeholder="Buscar productos..."
+            onkeyup="buscarProductos()"
+        >
+
+
+
+        <a href="/carrito.html"
+           class="carrito-btn">
+
+            🛒
+
+            <span id="contadorCarrito">
+
+                0
+
+            </span>
+
+        </a>
+
+    </header>
+
+
+
+    <section class="hero">
+
+        <h1>
+
+            Nueva colección
+
+        </h1>
+
+        <p>
+
+            Ecommerce Node + SQLite
+
+        </p>
+
+    </section>
+
+
+
+    <section class="categorias">
+
+        <button onclick="filtrarCategoria(0)">
+
+            Todos
+
+        </button>
+
+        <button onclick="filtrarCategoria(1)">
+
+            Ropa
+
+        </button>
+
+        <button onclick="filtrarCategoria(2)">
+
+            Calzado
+
+        </button>
+
+        <button onclick="filtrarCategoria(3)">
+
+            Accesorios
+
+        </button>
+
+    </section>
+
+
+
+    <main
+        id="productos"
+        class="productos-grid"
+    ></main>
+
+
+
+    <script src="/js/script.js"></script>
 
 </body>
 

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin</title>
+
+    <link rel="stylesheet"
+          href="/css/admin.css">
+
+</head>
+
+<body>
+
+    <div class="admin-layout">
+
+        <aside class="sidebar">
+
+            <h2>
+
+                Panel Admin
+
+            </h2>
+
+
+            <a href="/admin/dashboard.html">
+
+                Dashboard
+            
+            </a>
+
+
+
+            <a href="/admin/admin.html">
+
+                Productos
+
+            </a>
+
+
+
+            <a href="/admin/pedidos.html">
+
+                Pedidos
+
+            </a>
+
+
+
+            <button onclick="logout()">
+
+                Logout
+
+            </button>
+
+        </aside>
+
+
+
+        <main class="admin-content">
+
+            <input
+                type="hidden"
+                id="idProducto"
+            >
+
+
+
+            <input
+                type="hidden"
+                id="imagenActual"
+            >
+
+
+
+            <input
+                type="text"
+                id="nombre"
+                placeholder="Nombre"
+            >
+
+
+
+            <input
+                type="number"
+                id="precio"
+                placeholder="Precio"
+            >
+
+
+
+            <input
+                type="number"
+                id="stock"
+                placeholder="Stock"
+            >
+
+
+
+            <select id="categoria_id">
+
+                <option value="1">
+
+                    Ropa
+
+                </option>
+
+                <option value="2">
+
+                    Calzado
+
+                </option>
+
+                <option value="3">
+
+                    Accesorios
+
+                </option>
+
+            </select>
+
+
+
+            <textarea
+                id="descripcion"
+                placeholder="Descripcion"
+            ></textarea>
+
+
+
+            <input
+                type="file"
+                id="imagen"
+            >
+
+
+
+            <button onclick="guardarProducto()">
+
+                Guardar producto
+
+            </button>
+
+
+
+            <div
+                id="listaProductos"
+                class="grid"
+            ></div>
+
+        </main>
+
+    </div>
+
+
+
+    <script src="/js/auth.js"></script>
+
+<script>
+
+    verificarAuth();
+
+</script>
+
+    <script src="/js/admin.js"></script>
+
+</body>
+
+</html>

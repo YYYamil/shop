@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Login</title>
+
+    <link rel="stylesheet"
+          href="/css/admin.css">
+
+</head>
+
+<body>
+
+    <div
+        style="
+            max-width:400px;
+            margin:100px auto;
+            background:white;
+            padding:30px;
+            border-radius:15px;
+        "
+    >
+
+        <h1>
+
+            Login Admin
+
+        </h1>
+
+
+
+        <input
+            type="text"
+            id="usuario"
+            placeholder="Usuario"
+        >
+
+
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+        >
+
+
+
+        <button onclick="login()">
+
+            Ingresar
+
+        </button>
+
+    </div>
+
+
+
+    <script>
+
+        async function login() {
+
+            const usuario =
+
+                document.getElementById('usuario').value;
+
+
+
+            const password =
+
+                document.getElementById('password').value;
+
+
+
+            const respuesta = await fetch(
+
+                '/auth/login',
+
+                {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type':
+
+                        'application/json'
+
+                    },
+
+
+
+                    body: JSON.stringify({
+
+                        usuario,
+
+                        password
+
+                    })
+
+                }
+
+            );
+
+
+
+            const data =
+
+                await respuesta.json();
+
+
+
+            if (data.error) {
+
+                alert(data.error);
+
+                return;
+
+            }
+
+
+
+            window.location =
+
+                '/admin/dashboard.html';
+
+        }
+
+    </script>
+
+</body>
+
+</html>

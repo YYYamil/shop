@@ -2,32 +2,76 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Carrito</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+          href="/css/store.css">
+
 </head>
 
 <body>
 
-    <h1>Carrito</h1>
+    <header class="navbar">
 
-    <a href="index.html">
-        Volver
-    </a>
+        <div class="logo">
 
-    <hr>
+            Carrito
 
-    <div id="carrito"></div>
+        </div>
 
-    <h2 id="total"></h2>
+        <a href="/">
 
-    <button onclick="enviarWhatsapp()">
-        Enviar pedido por WhatsApp
-    </button>
+            Volver
 
-    <script src="carrito.js"></script>
+        </a>
+
+    </header>
+
+
+
+    <div style="padding:30px;max-width:900px;margin:auto;">
+
+        <input
+            type="text"
+            id="cliente"
+            placeholder="Nombre"
+        >
+
+
+
+        <input
+            type="text"
+            id="telefono"
+            placeholder="Telefono"
+        >
+
+
+
+        <div id="carrito"></div>
+
+
+
+        <h2 id="total"></h2>
+
+
+
+        <button onclick="finalizarCompra()">
+
+            Finalizar pedido
+
+        </button>
+
+    </div>
+
+
+
+    <script src="/js/carrito.js"></script>
 
 </body>
 
