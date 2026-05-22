@@ -70,7 +70,7 @@ app.use('/auth', authRoutes);
 
 app.use('/productos', productRoutes);
 
-app.use('/pedidos', authMiddleware, pedidoRoutes);
+app.use('/pedidos', pedidoRoutes);
 
 app.use('/categorias', authMiddleware, categoriaRoutes);
 
