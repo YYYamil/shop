@@ -68,7 +68,7 @@ app.use(express.static('public'));
 
 app.use('/auth', authRoutes);
 
-app.use('/productos', authMiddleware, productRoutes);
+app.use('/productos', productRoutes);
 
 app.use('/pedidos', authMiddleware, pedidoRoutes);
 

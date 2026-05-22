@@ -312,7 +312,7 @@ async function finalizarCompra() {
 
     window.open(
 
-        `https://wa.me/54381845360?text=${mensaje}`,
+        `https://wa.me/5493813845360?text=${mensaje}`,
 
         '_blank'
 
