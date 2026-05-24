@@ -1,13 +1,21 @@
 {
   "name": "shop",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Ecommerce Node SQLite",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node createAdmin.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "shop",
+    "sqlite",
+    "node",
+    "express",
+    "ecommerce"
+  ],
+  "author": "Yamil",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -17,5 +25,12 @@
     "multer": "^1.4.5-lts.1",
     "sqlite3": "^6.0.1",
     "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -2,3 +2,5 @@ node_modules
 database.db
 .env
 /uploads
+uploads/*
+shop.sqlite
