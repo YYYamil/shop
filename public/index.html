@@ -11,7 +11,7 @@
     <title>Mi Shop</title>
 
     <link rel="stylesheet"
-          href="/css/store.css?v=2">
+          href="/css/store.css?v=3">
     <link href="/css/output.css" rel="stylesheet">
 
 </head>
@@ -26,29 +26,36 @@
 
         </div>
 
+        <button class="hamburguesa" onclick="toggleMenu()" aria-label="Menú">
+            ☰
+        </button>
 
+        <div class="nav-menu" id="navMenu">
 
-        <input
-            type="text"
-            id="busqueda"
-            placeholder="Buscar productos..."
-            onkeyup="buscarProductos()"
-        >
+            <input
+                type="text"
+                id="busqueda"
+                placeholder="Buscar productos..."
+                onkeyup="buscarProductos()"
+            >
 
+            <div class="carrito-wrapper">
+                <a href="/carrito.html"
+                   class="carrito-btn">
 
+                    🛒
 
-        <a href="/carrito.html"
-           class="carrito-btn">
+                    <span id="contadorCarrito">
 
-            🛒
+                        0
 
-            <span id="contadorCarrito">
+                    </span>
 
-                0
+                </a>
+                <div class="carrito-preview" id="carritoPreview"></div>
+            </div>
 
-            </span>
-
-        </a>
+        </div>
 
     </header>
 
@@ -109,10 +116,13 @@
 
 
 
+    <!-- Modal para imágenes -->
+    <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal()">
+        <span class="modal-cerrar" onclick="cerrarModal()">&times;</span>
+        <img class="modal-imagen" id="modalImagen" src="" alt="Imagen ampliada">
+    </div>
+
     <script src="/js/script.js"></script>
-    <div class="bg-black text-white p-4 rounded-xl">
-        Tailwind funcionando
-      </div>
 </body>
 
 </html>

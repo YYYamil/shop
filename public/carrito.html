@@ -8,10 +8,10 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Carrito</title>
+    <title>Carrito - Mi Shop</title>
 
     <link rel="stylesheet"
-          href="/css/store.css">
+          href="/css/store.css?v=3">
 
 </head>
 
@@ -20,54 +20,81 @@
     <header class="navbar">
 
         <div class="logo">
-
-            Carrito
-
+            <a href="/" style="text-decoration:none;color:inherit;">Mi Shop</a>
         </div>
 
-        <a href="/">
+        <div class="nav-menu" style="display:flex;align-items:center;gap:15px;">
 
-            Volver
+            <a href="/" class="volver-btn">← Volver a la tienda</a>
 
-        </a>
+        </div>
 
     </header>
 
 
 
-    <div style="padding:30px;max-width:900px;margin:auto;">
+    <main class="carrito-page">
 
-        <input
-            type="text"
-            id="cliente"
-            placeholder="Nombre"
-        >
+        <h1 class="carrito-titulo">🛒 Tu Carrito</h1>
 
 
 
-        <input
-            type="text"
-            id="telefono"
-            placeholder="Telefono"
-        >
+        <div id="carrito-vacio" class="carrito-vacio" style="display:none;">
+            <p>Tu carrito está vacío</p>
+            <a href="/" class="btn-ir-tienda">Ir a la tienda</a>
+        </div>
 
 
 
-        <div id="carrito"></div>
+        <div id="carrito-contenido" class="carrito-contenido">
+
+            <div class="carrito-items" id="carrito"></div>
 
 
 
-        <h2 id="total"></h2>
+            <div class="carrito-resumen">
+
+                <h2>Resumen</h2>
+
+                <div class="resumen-linea">
+                    <span>Productos</span>
+                    <span id="resumen-cantidad">0</span>
+                </div>
+
+                <div class="resumen-linea resumen-total">
+                    <span>Total</span>
+                    <span id="total">$ 0</span>
+                </div>
 
 
 
-        <button onclick="finalizarCompra()">
+                <div class="resumen-datos">
+                    <h3>Tus datos</h3>
+                    <input
+                        type="text"
+                        id="cliente"
+                        placeholder="Nombre completo"
+                        class="resumen-input"
+                    >
+                    <input
+                        type="text"
+                        id="telefono"
+                        placeholder="Teléfono"
+                        class="resumen-input"
+                    >
+                </div>
 
-            Finalizar pedido
 
-        </button>
 
-    </div>
+                <button onclick="finalizarCompra()" class="btn-finalizar" id="btnFinalizar">
+                    📱 Finalizar pedido por WhatsApp
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
 
 
 

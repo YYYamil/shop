@@ -20,6 +20,32 @@ function guardarCarrito() {
 
 
 
+function obtenerImagen(producto) {
+
+    // Si tiene el array imagenes, tomar la primera
+
+    if (producto.imagenes && producto.imagenes.length > 0) {
+
+        return producto.imagenes[0];
+
+    }
+
+    // Si tiene imagen singular
+
+    if (producto.imagen) {
+
+        return producto.imagen;
+
+    }
+
+    // Placeholder
+
+    return '';
+
+}
+
+
+
 function cambiarCantidad(id, cambio) {
 
     const producto =
@@ -52,6 +78,28 @@ function cambiarCantidad(id, cambio) {
 
     cargarCarrito();
 
+    actualizarContadorGlobal();
+
+}
+
+
+
+function actualizarContadorGlobal() {
+
+    // Actualizar el contador en la navbar si existe en esta página
+
+    const contador = document.getElementById('contadorCarrito');
+
+    if (contador) {
+
+        let total = 0;
+
+        carrito.forEach(p => { total += p.cantidad; });
+
+        contador.textContent = total;
+
+    }
+
 }
 
 
@@ -62,6 +110,30 @@ function cargarCarrito() {
 
         document.getElementById('carrito');
 
+    const vacio = document.getElementById('carrito-vacio');
+
+    const contenido = document.getElementById('carrito-contenido');
+
+
+
+    if (carrito.length === 0) {
+
+        div.innerHTML = '';
+
+        if (vacio) vacio.style.display = 'block';
+
+        if (contenido) contenido.style.display = 'none';
+
+        return;
+
+    }
+
+
+
+    if (vacio) vacio.style.display = 'none';
+
+    if (contenido) contenido.style.display = 'flex';
+
 
 
     div.innerHTML = '';
@@ -69,6 +141,8 @@ function cargarCarrito() {
 
 
     let total = 0;
+
+    let cantidadTotal = 0;
 
 
 
@@ -84,61 +158,57 @@ function cargarCarrito() {
 
         total += subtotal;
 
+        cantidadTotal += producto.cantidad;
+
+
+
+        const imgSrc = obtenerImagen(producto);
+
 
 
         div.innerHTML += `
 
-            <div class="producto">
+            <div class="carrito-item">
 
-                <img src="${producto.imagen}">
+                <div class="carrito-item-img">
 
+                    ${imgSrc
 
+                        ? `<img src="${imgSrc}" alt="${producto.nombre}">`
 
-                <div class="producto-info">
+                        : `<div class="carrito-item-placeholder">📷</div>`
 
-                    <h3>
-
-                        ${producto.nombre}
-
-                    </h3>
-
-
-
-                    <p>
-
-                        Cantidad:
-
-                        ${producto.cantidad}
-
-                    </p>
-
-
-
-                    <p>
-
-                        Subtotal:
-
-                        $ ${subtotal}
-
-                    </p>
-
-
-
-                    <button onclick="cambiarCantidad(${producto.id},1)">
-
-                        +
-
-                    </button>
-
-
-
-                    <button onclick="cambiarCantidad(${producto.id},-1)">
-
-                        -
-
-                    </button>
+                    }
 
                 </div>
+
+                <div class="carrito-item-info">
+
+                    <h3>${producto.nombre}</h3>
+
+                    <p class="carrito-item-precio">$ ${producto.precio}</p>
+
+                    <div class="carrito-item-controles">
+
+                        <button onclick="cambiarCantidad(${producto.id},-1)" class="btn-cant">−</button>
+
+                        <span class="cantidad-num">${producto.cantidad}</span>
+
+                        <button onclick="cambiarCantidad(${producto.id},1)" class="btn-cant">+</button>
+
+                    </div>
+
+                </div>
+
+                <div class="carrito-item-subtotal">
+
+                    <p class="subtotal-label">Subtotal</p>
+
+                    <p class="subtotal-valor">$ ${subtotal}</p>
+
+                </div>
+
+                <button onclick="cambiarCantidad(${producto.id},-${producto.cantidad})" class="btn-eliminar" title="Eliminar producto">✕</button>
 
             </div>
 
@@ -152,9 +222,13 @@ function cargarCarrito() {
 
         'total'
 
-    ).textContent =
+    ).textContent = '$ ' + total;
 
-        'Total: $ ' + total;
+
+
+    const resumenCant = document.getElementById('resumen-cantidad');
+
+    if (resumenCant) resumenCant.textContent = cantidadTotal + ' producto(s)';
 
 }
 
@@ -182,7 +256,7 @@ async function finalizarCompra() {
 
     ) {
 
-        alert('Completar datos');
+        alert('Completá tu nombre y teléfono para finalizar');
 
         return;
 
@@ -248,49 +322,61 @@ async function finalizarCompra() {
 
     let mensaje =
 
-        '🛒 NUEVO PEDIDO %0A%0A';
+        '🛒 *NUEVO PEDIDO* %0A%0A';
 
 
 
     mensaje +=
 
-        'Pedido: #' +
+        '📋 Pedido: #' +
 
         data.pedidoId +
 
         '%0A';
 
-
-
     mensaje +=
 
-        'Cliente: ' +
+        '👤 Cliente: ' +
 
         cliente +
 
         '%0A';
 
-
-
     mensaje +=
 
-        'Telefono: ' +
+        '📞 Teléfono: ' +
 
         telefono +
 
         '%0A%0A';
 
+    mensaje +=
+
+        '━━━ *PRODUCTOS* ━━━%0A';
+
 
 
     carrito.forEach(producto => {
 
+        const subtotal =
+
+            producto.precio *
+
+            producto.cantidad;
+
         mensaje +=
+
+            '• ' +
 
             producto.nombre +
 
             ' x' +
 
             producto.cantidad +
+
+            ' = $' +
+
+            subtotal +
 
             '%0A';
 
@@ -300,9 +386,15 @@ async function finalizarCompra() {
 
     mensaje +=
 
-        '%0ATOTAL: $ ' +
+        '%0A━━━━━━━━━━━━━%0A';
 
-        total;
+    mensaje +=
+
+        '*TOTAL: $ ' +
+
+        total +
+
+        '*';
 
 
 
