@@ -48,7 +48,7 @@ db.serialize(() => {
 
             descripcion TEXT,
 
-            imagen TEXT,
+            imagenes TEXT DEFAULT '[]',
 
             stock INTEGER,
 

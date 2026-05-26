@@ -2,45 +2,11 @@ const express = require('express');
 
 const router = express.Router();
 
-const multer = require('multer');
-
-const path = require('path');
+const upload = require('../middleware/uploadMiddleware');
 
 const productController = require('../controllers/productController');
 
 const authMiddleware = require('../middleware/authMiddleware');
-
-
-
-const storage = multer.diskStorage({
-
-    destination: function(req, file, cb) {
-
-        cb(null, 'uploads/');
-
-    },
-
-    filename: function(req, file, cb) {
-
-        cb(
-
-            null,
-
-            Date.now() + path.extname(file.originalname)
-
-        );
-
-    }
-
-});
-
-
-
-const upload = multer({
-
-    storage
-
-});
 
 
 
@@ -52,7 +18,7 @@ router.post(
 
     authMiddleware,
 
-    upload.single('imagen'),
+    upload.array('imagenes', 4),
 
     productController.crearProducto
 
@@ -64,7 +30,7 @@ router.put(
 
     authMiddleware,
 
-    upload.single('imagen'),
+    upload.array('imagenes', 4),
 
     productController.editarProducto
 

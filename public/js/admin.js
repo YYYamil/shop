@@ -124,30 +124,20 @@ async function guardarProducto() {
 
     formData.append(
 
-        'imagenActual',
+        'imagenesActual',
 
-        document.getElementById('imagenActual').value
+        document.getElementById('imagenesActual').value
 
     );
 
 
 
-    const imagen =
-
-        document.getElementById('imagen').files[0];
-
-
-
-    if (imagen) {
-
-        formData.append(
-
-            'imagen',
-
-            imagen
-
-        );
-
+    // Agregar hasta 4 imágenes
+    for (let i = 0; i < 4; i++) {
+        const fileInput = document.getElementById('imagen' + i);
+        if (fileInput && fileInput.files[0]) {
+            formData.append('imagenes', fileInput.files[0]);
+        }
     }
 
 
@@ -274,9 +264,9 @@ function editarProducto(id) {
 
 
 
-    document.getElementById('imagenActual').value =
+    document.getElementById('imagenesActual').value =
 
-        producto.imagen;
+        JSON.stringify(producto.imagenes || []);
 
 }
 
@@ -322,6 +312,86 @@ function limpiarFormulario() {
 
     document.getElementById('descripcion').value = '';
 
+    document.getElementById('imagenesActual').value = '';
+
+    // Limpiar inputs file
+    for (let i = 0; i < 4; i++) {
+        const input = document.getElementById('imagen' + i);
+        if (input) input.value = '';
+    }
+
+}
+
+
+
+function renderizarCarrusel(imagenes) {
+    if (!imagenes || imagenes.length === 0) {
+        return '<div class="carrusel-placeholder">Sin imagen</div>';
+    }
+
+    let html = '<div class="carrusel">';
+    html += '<div class="carrusel-track">';
+
+    imagenes.forEach((img, index) => {
+        const active = index === 0 ? 'active' : '';
+        html += `<div class="carrusel-slide ${active}"><img src="${img}"></div>`;
+    });
+
+    html += '</div>';
+
+    // Flechas de navegación solo si hay más de 1 imagen
+    if (imagenes.length > 1) {
+        html += '<button class="carrusel-prev" onclick="carruselNavegar(this, -1)">&#10094;</button>';
+        html += '<button class="carrusel-next" onclick="carruselNavegar(this, 1)">&#10095;</button>';
+
+        // Indicadores
+        html += '<div class="carrusel-indicadores">';
+        imagenes.forEach((_, index) => {
+            const active = index === 0 ? 'active' : '';
+            html += `<span class="carrusel-dot ${active}" onclick="carruselIrA(this, ${index})"></span>`;
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+
+
+function carruselNavegar(btn, direccion) {
+    const carrusel = btn.closest('.carrusel');
+    const slides = carrusel.querySelectorAll('.carrusel-slide');
+    const dots = carrusel.querySelectorAll('.carrusel-dot');
+    let currentIndex = 0;
+
+    slides.forEach((s, i) => {
+        if (s.classList.contains('active')) currentIndex = i;
+    });
+
+    slides[currentIndex].classList.remove('active');
+    if (dots[currentIndex]) dots[currentIndex].classList.remove('active');
+
+    let newIndex = currentIndex + direccion;
+    if (newIndex < 0) newIndex = slides.length - 1;
+    if (newIndex >= slides.length) newIndex = 0;
+
+    slides[newIndex].classList.add('active');
+    if (dots[newIndex]) dots[newIndex].classList.add('active');
+}
+
+
+
+function carruselIrA(dot, index) {
+    const carrusel = dot.closest('.carrusel');
+    const slides = carrusel.querySelectorAll('.carrusel-slide');
+    const dots = carrusel.querySelectorAll('.carrusel-dot');
+
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+
+    slides[index].classList.add('active');
+    dots[index].classList.add('active');
 }
 
 
@@ -360,9 +430,7 @@ async function cargarProductos() {
 
             <div class="producto">
 
-                <img src="${producto.imagen}">
-
-
+                ${renderizarCarrusel(producto.imagenes)}
 
                 <div class="producto-info">
 

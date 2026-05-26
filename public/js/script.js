@@ -62,6 +62,120 @@ async function cargarProductos() {
 
 
 
+function renderizarCarrusel(imagenes) {
+    if (!imagenes || imagenes.length === 0) {
+        return '<div class="carrusel-placeholder">Sin imagen</div>';
+    }
+
+    let html = '<div class="carrusel">';
+    html += '<div class="carrusel-track">';
+
+    imagenes.forEach((img, index) => {
+        const active = index === 0 ? 'active' : '';
+        html += `<div class="carrusel-slide ${active}"><img src="${img}"></div>`;
+    });
+
+    html += '</div>';
+
+    // Indicadores (sin botones de navegación)
+    if (imagenes.length > 1) {
+        html += '<div class="carrusel-indicadores">';
+        imagenes.forEach((_, index) => {
+            const active = index === 0 ? 'active' : '';
+            html += `<span class="carrusel-dot ${active}" onclick="carruselIrA(this, ${index})"></span>`;
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+
+// Intervalos de auto-play por carrusel
+const carruselIntervalos = new Map();
+
+function iniciarAutoPlay(carrusel) {
+    const idCarrusel = carrusel.dataset.carruselId || Math.random().toString(36).substr(2, 9);
+    carrusel.dataset.carruselId = idCarrusel;
+
+    // Limpiar intervalo existente
+    if (carruselIntervalos.has(idCarrusel)) {
+        clearInterval(carruselIntervalos.get(idCarrusel));
+    }
+
+    // Solo auto-play si hay más de 1 slide
+    const slides = carrusel.querySelectorAll('.carrusel-slide');
+    if (slides.length <= 1) return;
+
+    const intervalo = setInterval(() => {
+        const dots = carrusel.querySelectorAll('.carrusel-dot');
+        let currentIndex = 0;
+        dots.forEach((d, i) => {
+            if (d.classList.contains('active')) currentIndex = i;
+        });
+        const nextIndex = (currentIndex + 1) % dots.length;
+        if (dots[nextIndex]) {
+            dots[nextIndex].click();
+        }
+    }, 4000); // Cambia cada 4 segundos
+
+    carruselIntervalos.set(idCarrusel, intervalo);
+}
+
+function detenerAutoPlay(carrusel) {
+    const idCarrusel = carrusel.dataset.carruselId;
+    if (idCarrusel && carruselIntervalos.has(idCarrusel)) {
+        clearInterval(carruselIntervalos.get(idCarrusel));
+        carruselIntervalos.delete(idCarrusel);
+    }
+}
+
+
+
+function carruselNavegar(btn, direccion) {
+    const carrusel = btn.closest('.carrusel');
+    const slides = carrusel.querySelectorAll('.carrusel-slide');
+    const dots = carrusel.querySelectorAll('.carrusel-dot');
+    let currentIndex = 0;
+
+    slides.forEach((s, i) => {
+        if (s.classList.contains('active')) currentIndex = i;
+    });
+
+    slides[currentIndex].classList.remove('active');
+    if (dots[currentIndex]) dots[currentIndex].classList.remove('active');
+
+    let newIndex = currentIndex + direccion;
+    if (newIndex < 0) newIndex = slides.length - 1;
+    if (newIndex >= slides.length) newIndex = 0;
+
+    slides[newIndex].classList.add('active');
+    if (dots[newIndex]) dots[newIndex].classList.add('active');
+
+    // Reiniciar auto-play al navegar manualmente
+    iniciarAutoPlay(carrusel);
+}
+
+
+
+function carruselIrA(dot, index) {
+    const carrusel = dot.closest('.carrusel');
+    const slides = carrusel.querySelectorAll('.carrusel-slide');
+    const dots = carrusel.querySelectorAll('.carrusel-dot');
+
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+
+    slides[index].classList.add('active');
+    dots[index].classList.add('active');
+
+    // Reiniciar auto-play al navegar manualmente
+    iniciarAutoPlay(carrusel);
+}
+
+
+
 function renderizarProductos(productos) {
 
     const contenedor =
@@ -80,9 +194,7 @@ function renderizarProductos(productos) {
 
             <div class="producto">
 
-                <img src="${producto.imagen}">
-
-
+                ${renderizarCarrusel(producto.imagenes)}
 
                 <div class="producto-info">
 
@@ -123,29 +235,29 @@ function renderizarProductos(productos) {
                    
                     ${
                         producto.stock > 0
-                    
+                      
                         ?
-                    
+                      
                         `
-                    
+                      
                         <button onclick="agregarCarrito(${producto.id})">
-                    
+                      
                             Agregar al carrito
-                    
+                      
                         </button>
-                    
+                      
                         `
-                    
+                      
                         :
-                    
+                      
                         `
-                    
+                      
                         <button disabled>
-                    
+                      
                             Sin stock
-                    
+                      
                         </button>
-                    
+                      
                         `
                     }
                 </div>
@@ -154,6 +266,11 @@ function renderizarProductos(productos) {
 
         `;
 
+    });
+
+    // Iniciar auto-play en todos los carruseles
+    document.querySelectorAll('.carrusel').forEach(carrusel => {
+        iniciarAutoPlay(carrusel);
     });
 
 }

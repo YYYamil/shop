@@ -28,7 +28,16 @@ exports.getProductos = (req, res) => {
 
     (err, rows) => {
 
-        res.json(rows);
+        // Parsear el campo imagenes de JSON string a array
+        const productos = rows.map(p => {
+            try {
+                p.imagenes = JSON.parse(p.imagenes || '[]');
+            } catch(e) {
+                p.imagenes = [];
+            }
+            return p;
+        });
+        res.json(productos);
 
     });
 
@@ -74,13 +83,13 @@ exports.crearProducto = (req, res) => {
 
 
 
-    let imagen = '';
+    let imagenes = [];
 
 
 
-    if (req.file) {
+    if (req.files && req.files.length > 0) {
 
-        imagen = '/uploads/' + req.file.filename;
+        imagenes = req.files.map(f => '/uploads/' + f.filename);
 
     }
 
@@ -98,7 +107,7 @@ exports.crearProducto = (req, res) => {
 
             descripcion,
 
-            imagen,
+            imagenes,
 
             stock,
 
@@ -118,7 +127,7 @@ exports.crearProducto = (req, res) => {
 
         descripcion,
 
-        imagen,
+        JSON.stringify(imagenes),
 
         stock,
 
@@ -170,42 +179,50 @@ exports.editarProducto = (req, res) => {
 
         categoria_id,
 
-        imagenActual
+        imagenesActual // viene como JSON string desde el frontend
 
     } = req.body;
 
 
 
-    let imagen = imagenActual;
+    let imagenes = [];
+
+    try {
+        imagenes = JSON.parse(imagenesActual || '[]');
+    } catch(e) {
+        imagenes = [];
+    }
 
 
 
-    if (req.file) {
+    if (req.files && req.files.length > 0) {
 
-        imagen = '/uploads/' + req.file.filename;
+        const nuevasImagenes = req.files.map(f => '/uploads/' + f.filename);
 
-
-
-        if (
-
-            imagenActual &&
-
-            fs.existsSync(
-
-                '.' + imagenActual
-
-            )
-
-        ) {
-
-            fs.unlinkSync(
-
-                '.' + imagenActual
-
-            );
-
+        // Reemplazar slots vacíos o agregar al final (máximo 4)
+        for (let i = 0; i < nuevasImagenes.length; i++) {
+            if (i < 4) {
+                // Buscar primer slot vacío o reemplazar en orden
+                const emptyIndex = imagenes.findIndex(img => !img || img === '');
+                if (emptyIndex !== -1) {
+                    imagenes[emptyIndex] = nuevasImagenes[i];
+                } else if (imagenes.length < 4) {
+                    imagenes.push(nuevasImagenes[i]);
+                }
+            }
         }
 
+        // Eliminar imágenes viejas que fueron reemplazadas
+        const imagenesViejas = (JSON.parse(imagenesActual || '[]'));
+        imagenesViejas.forEach(img => {
+            if (
+                img &&
+                !imagenes.includes(img) &&
+                fs.existsSync('.' + img)
+            ) {
+                fs.unlinkSync('.' + img);
+            }
+        });
     }
 
 
@@ -222,7 +239,7 @@ exports.editarProducto = (req, res) => {
 
             descripcion = ?,
 
-            imagen = ?,
+            imagenes = ?,
 
             stock = ?,
 
@@ -240,7 +257,7 @@ exports.editarProducto = (req, res) => {
 
         descripcion,
 
-        imagen,
+        JSON.stringify(imagenes),
 
         stock,
 
@@ -278,23 +295,21 @@ exports.eliminarProducto = (req, res) => {
 
         (err, producto) => {
 
-            if (
+            if (producto && producto.imagenes) {
 
-                producto.imagen &&
+                let imagenes = [];
+                try {
+                    imagenes = JSON.parse(producto.imagenes || '[]');
+                } catch(e) {}
 
-                fs.existsSync(
-
-                    '.' + producto.imagen
-
-                )
-
-            ) {
-
-                fs.unlinkSync(
-
-                    '.' + producto.imagen
-
-                );
+                imagenes.forEach(img => {
+                    if (
+                        img &&
+                        fs.existsSync('.' + img)
+                    ) {
+                        fs.unlinkSync('.' + img);
+                    }
+                });
 
             }
 
