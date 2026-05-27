@@ -239,47 +239,46 @@ function renderizarCarrusel(imagenes) {
 // Intervalos de auto-play por carrusel
 
 const carruselIntervalos = new Map();
-
 function iniciarAutoPlay(carrusel) {
 
-    const idCarrusel = carrusel.dataset.carruselId || Math.random().toString(36).substr(2, 9);
+    const idCarrusel =
+        carrusel.dataset.carruselId ||
+        Math.random().toString(36).substr(2, 9);
 
-    carrusel.dataset.carruselId = idCarrusel;
+    carrusel.dataset.carruselId =
+        idCarrusel;
 
     if (carruselIntervalos.has(idCarrusel)) {
 
-        clearInterval(carruselIntervalos.get(idCarrusel));
-
+        clearInterval(
+            carruselIntervalos.get(idCarrusel)
+        );
     }
 
-    const slides = carrusel.querySelectorAll('.carrusel-slide');
+    const slides =
+        carrusel.querySelectorAll('.carrusel-slide');
 
     if (slides.length <= 1) return;
 
     const intervalo = setInterval(() => {
 
-        const dots = carrusel.querySelectorAll('.carrusel-dot');
+        const currentIndex =
+            parseInt(carrusel.dataset.index || 0);
 
-        let currentIndex = 0;
+        const nextIndex =
+            (currentIndex + 1) % slides.length;
 
-        dots.forEach((d, i) => {
-
-            if (d.classList.contains('active')) currentIndex = i;
-
-        });
-
-        const nextIndex = (currentIndex + 1) % dots.length;
-
-        if (dots[nextIndex]) {
-
-            dots[nextIndex].click();
-
-        }
+        actualizarCarrusel(
+            carrusel,
+            nextIndex
+        );
 
     }, 4000);
 
-    carruselIntervalos.set(idCarrusel, intervalo);
-
+    carruselIntervalos.set(
+        idCarrusel,
+        intervalo
+    );
 }
 
 function detenerAutoPlay(carrusel) {
@@ -297,28 +296,18 @@ function detenerAutoPlay(carrusel) {
 }
 
 
-
 function carruselIrA(dot, index) {
 
-    const carrusel = dot.closest('.carrusel');
+    const carrusel =
+        dot.closest('.carrusel');
 
-    const slides = carrusel.querySelectorAll('.carrusel-slide');
-
-    const dots = carrusel.querySelectorAll('.carrusel-dot');
-
-    slides.forEach(s => s.classList.remove('active'));
-
-    dots.forEach(d => d.classList.remove('active'));
-
-    slides[index].classList.add('active');
-
-    dots[index].classList.add('active');
+    actualizarCarrusel(
+        carrusel,
+        index
+    );
 
     iniciarAutoPlay(carrusel);
-
 }
-
-
 
 function renderizarProductos(productos) {
 
@@ -460,7 +449,9 @@ function renderizarProductos(productos) {
 
     document.querySelectorAll('.carrusel').forEach(carrusel => {
 
-        iniciarAutoPlay(carrusel);
+        actualizarCarrusel(carrusel, 0);
+
+    iniciarAutoPlay(carrusel);
 
     });
 
@@ -643,7 +634,40 @@ function actualizarPreviewCarrito() {
     preview.innerHTML = html;
 
 }
+function actualizarCarrusel(carrusel, index) {
 
+    const track =
+        carrusel.querySelector('.carrusel-track');
+
+    const slides =
+        carrusel.querySelectorAll('.carrusel-slide');
+
+    const dots =
+        carrusel.querySelectorAll('.carrusel-dot');
+
+    track.style.transform =
+        `translateX(-${index * 100}%)`;
+
+    slides.forEach(s =>
+        s.classList.remove('active')
+    );
+
+    dots.forEach(d =>
+        d.classList.remove('active')
+    );
+
+    if (slides[index]) {
+
+        slides[index].classList.add('active');
+    }
+
+    if (dots[index]) {
+
+        dots[index].classList.add('active');
+    }
+
+    carrusel.dataset.index = index;
+}
 
 
 cargarProductos();

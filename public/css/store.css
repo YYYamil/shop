@@ -527,52 +527,47 @@ body {
 
 }
 
-
-
 .carrusel-track {
 
-    position: relative;
+    display: flex;
 
     width: 100%;
 
     height: 100%;
 
+    transition:
+        transform 0.55s cubic-bezier(.22,.61,.36,1);
+
+    will-change: transform;
 }
-
-
 
 .carrusel-slide {
 
-    position: absolute;
-
-    top: 0;
-
-    left: 0;
+    min-width: 100%;
 
     width: 100%;
 
     height: 100%;
 
-    opacity: 0;
+    flex-shrink: 0;
 
-    transition: opacity 0.5s ease;
-
-    z-index: 1;
+    position: relative;
 
     cursor: pointer;
 
+    overflow: hidden;
 }
 
+.carrusel-slide img {
 
-
-.carrusel-slide.active {
-
-    opacity: 1;
-
-    z-index: 2;
-
+    transition:
+        transform .7s ease;
 }
 
+.producto:hover .carrusel-slide.active img {
+
+    transform: scale(1.04);
+}
 
 
 .carrusel-slide img {
@@ -2216,5 +2211,229 @@ body {
     .carrito-btn {
         width: 50px;
         height: 50px;
+    }
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer {
+
+    margin-top: 80px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0f172a,
+            #111827
+        );
+
+    color: white;
+
+    padding: 60px 20px 30px;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+.footer::before {
+
+    content: '';
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(37,99,235,.18),
+            transparent 35%
+        );
+
+    pointer-events: none;
+}
+
+.footer-content {
+
+    max-width: 1200px;
+
+    margin: auto;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 40px;
+
+    position: relative;
+
+    z-index: 2;
+}
+
+.footer-brand h2 {
+
+    font-size: 34px;
+
+    margin-bottom: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+}
+
+.footer-brand p {
+
+    color: rgba(255,255,255,.65);
+
+    max-width: 400px;
+
+    line-height: 1.7;
+}
+
+/* SOCIAL */
+
+.footer-social {
+
+    display: flex;
+
+    gap: 14px;
+
+    flex-wrap: wrap;
+}
+
+.social-btn {
+
+    width: 58px;
+    height: 58px;
+
+    border-radius: 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-decoration: none;
+
+    color: white;
+
+    transition: .3s;
+
+    background:
+        rgba(255,255,255,.08);
+
+    backdrop-filter: blur(12px);
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.15);
+}
+
+.social-btn:hover {
+
+    transform:
+        translateY(-5px)
+        scale(1.05);
+}
+
+.instagram:hover {
+
+    background:
+        linear-gradient(
+            135deg,
+            #f09433,
+            #dc2743,
+            #bc1888
+        );
+}
+
+.facebook:hover {
+
+    background:
+        #1877f2;
+}
+
+.tiktok:hover {
+
+    background:
+        #111;
+}
+
+.whatsapp:hover {
+
+    background:
+        #25D366;
+}
+
+/* BOTTOM */
+
+.footer-bottom {
+
+    margin-top: 40px;
+
+    padding-top: 20px;
+
+    text-align: center;
+
+    color: rgba(255,255,255,.45);
+
+    border-top:
+        1px solid rgba(255,255,255,.08);
+
+    position: relative;
+
+    z-index: 2;
+}
+
+/* MOBILE */
+
+@media(max-width:768px) {
+
+    .footer {
+
+        padding: 50px 20px 24px;
+    }
+
+    .footer-content {
+
+        flex-direction: column;
+
+        text-align: center;
+    }
+
+    .footer-brand h2 {
+
+        font-size: 28px;
+    }
+
+    .footer-brand p {
+
+        font-size: 14px;
+    }
+
+    .footer-social {
+
+        justify-content: center;
+    }
+
+    .social-btn {
+
+        width: 52px;
+        height: 52px;
+
+        border-radius: 16px;
+    }
+
+    .footer-bottom {
+
+        font-size: 13px;
     }
 }
