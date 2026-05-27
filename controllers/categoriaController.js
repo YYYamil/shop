@@ -1,81 +1,35 @@
 const db = require('../database/db');
 
-
-
 exports.getCategorias = (req, res) => {
-
-    db.all(
-
-        'SELECT * FROM categorias',
-
-        [],
-
-        (err, rows) => {
-
-            res.json(rows);
-
-        }
-
-    );
-
+    try {
+        const rows = db.prepare('SELECT * FROM categorias').all();
+        res.json(rows);
+    } catch (err) {
+        console.error('Error al obtener categorías:', err.message);
+        res.status(500).json({ error: 'Error al obtener categorías' });
+    }
 };
-
-
 
 exports.crearCategoria = (req, res) => {
+    const { nombre } = req.body;
 
-    const {
-
-        nombre
-
-    } = req.body;
-
-
-
-    db.run(
-
-        'INSERT INTO categorias(nombre) VALUES (?)',
-
-        [nombre],
-
-        function(err) {
-
-            res.json({
-
-                ok: true
-
-            });
-
-        }
-
-    );
-
+    try {
+        db.prepare('INSERT INTO categorias(nombre) VALUES (?)').run(nombre);
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error al crear categoría:', err.message);
+        res.status(500).json({ error: 'Error al crear categoría' });
+    }
 };
 
-
-
 exports.eliminarCategoria = (req, res) => {
-
     const id = req.params.id;
 
-
-
-    db.run(
-
-        'DELETE FROM categorias WHERE id = ?',
-
-        [id],
-
-        function(err) {
-
-            res.json({
-
-                ok: true
-
-            });
-
-        }
-
-    );
-
+    try {
+        db.prepare('DELETE FROM categorias WHERE id = ?').run(id);
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error al eliminar categoría:', err.message);
+        res.status(500).json({ error: 'Error al eliminar categoría' });
+    }
 };

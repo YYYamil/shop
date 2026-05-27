@@ -1,63 +1,19 @@
 const bcrypt = require('bcrypt');
-
 const db = require('./db');
 
-
-
 async function crearAdmin() {
+    const hash = await bcrypt.hash('admin123', 10);
 
-    const hash = await bcrypt.hash(
+    const row = db.prepare('SELECT * FROM usuarios WHERE usuario = ?').get('admin');
 
-        'admin123',
+    if (!row) {
+        db.prepare('INSERT INTO usuarios(usuario, password) VALUES (?, ?)').run('admin', hash);
+        console.log('Admin creado');
+    } else {
+        console.log('Admin ya existe');
+    }
 
-        10
-
-    );
-
-
-
-    db.get(
-
-        'SELECT * FROM usuarios WHERE usuario = ?',
-
-        ['admin'],
-
-        (err, row) => {
-
-            if (!row) {
-
-                db.run(
-
-                    'INSERT INTO usuarios(usuario, password) VALUES (?, ?)',
-
-                    ['admin', hash],
-
-                    () => {
-
-                        console.log('Admin creado');
-
-                        process.exit();
-
-                    }
-
-                );
-
-            }
-
-            else {
-
-                console.log('Admin ya existe');
-
-                process.exit();
-
-            }
-
-        }
-
-    );
-
+    process.exit();
 }
-
-
 
 crearAdmin();

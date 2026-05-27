@@ -1,32 +1,17 @@
 const db = require('../database/db');
-
 const fs = require('fs');
 
-
-
 exports.getProductos = (req, res) => {
-
-    db.all(`
-
-        SELECT
-
-            productos.*,
-
-            categorias.nombre as categoria
-
-        FROM productos
-
-        LEFT JOIN categorias
-
-        ON categorias.id = productos.categoria_id
-
-        ORDER BY productos.id DESC
-
-    `,
-
-    [],
-
-    (err, rows) => {
+    try {
+        const rows = db.prepare(`
+            SELECT
+                productos.*,
+                categorias.nombre as categoria
+            FROM productos
+            LEFT JOIN categorias
+            ON categorias.id = productos.categoria_id
+            ORDER BY productos.id DESC
+        `).all();
 
         // Parsear el campo imagenes de JSON string a array
         const productos = rows.map(p => {
@@ -38,168 +23,61 @@ exports.getProductos = (req, res) => {
             return p;
         });
         res.json(productos);
-
-    });
-
+    } catch (err) {
+        console.error('Error al obtener productos:', err.message);
+        res.status(500).json({ error: 'Error al obtener productos' });
+    }
 };
-
-
 
 exports.crearProducto = (req, res) => {
-
     const {
-
         nombre,
-
         precio,
-
         descripcion,
-
         stock,
-
         categoria_id
-
     } = req.body;
 
-
-
-    if (
-
-        !nombre ||
-
-        precio <= 0 ||
-
-        stock < 0
-
-    ) {
-
-        return res.status(400).json({
-
-            error: 'Datos invalidos'
-
-        });
-
+    if (!nombre || precio <= 0 || stock < 0) {
+        return res.status(400).json({ error: 'Datos invalidos' });
     }
-
-
 
     let imagenes = [];
-
-
-
     if (req.files && req.files.length > 0) {
-
         imagenes = req.files.map(f => '/uploads/' + f.filename);
-
     }
 
+    try {
+        db.prepare(`
+            INSERT INTO productos
+            (nombre, precio, descripcion, imagenes, stock, categoria_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id);
 
-
-    db.run(`
-
-        INSERT INTO productos
-
-        (
-
-            nombre,
-
-            precio,
-
-            descripcion,
-
-            imagenes,
-
-            stock,
-
-            categoria_id
-
-        )
-
-        VALUES (?, ?, ?, ?, ?, ?)
-
-    `,
-
-    [
-
-        nombre,
-
-        precio,
-
-        descripcion,
-
-        JSON.stringify(imagenes),
-
-        stock,
-
-        categoria_id
-
-    ],
-
-    function(err) {
-
-        if (err) {
-
-            return res.status(500).json({
-
-                error: 'Error DB'
-
-            });
-
-        }
-
-
-
-        res.json({
-
-            ok: true
-
-        });
-
-    });
-
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error DB al crear producto:', err.message);
+        res.status(500).json({ error: 'Error DB' });
+    }
 };
 
-
-
 exports.editarProducto = (req, res) => {
-
     const id = req.params.id;
-
-
-
     const {
-
         nombre,
-
         precio,
-
         descripcion,
-
         stock,
-
         categoria_id,
-
-        imagenesActual // viene como JSON string desde el frontend
-
+        imagenesActual
     } = req.body;
-
-
 
     // Validar datos requeridos
     if (!nombre || precio <= 0 || stock < 0) {
-
-        return res.status(400).json({
-
-            error: 'Datos invalidos'
-
-        });
-
+        return res.status(400).json({ error: 'Datos invalidos' });
     }
 
-
-
     let imagenes = [];
-
     try {
         imagenes = JSON.parse(imagenesActual || '[]');
     } catch(e) {
@@ -210,10 +88,7 @@ exports.editarProducto = (req, res) => {
     if (!Array.isArray(imagenes)) imagenes = [];
     imagenes = imagenes.slice(0, 4);
 
-
-
     if (req.files && req.files.length > 0) {
-
         const nuevasImagenes = req.files.map(f => '/uploads/' + f.filename);
 
         // Reemplazar slots vacíos o agregar al final (máximo 4)
@@ -246,128 +121,52 @@ exports.editarProducto = (req, res) => {
         }
     }
 
+    try {
+        const result = db.prepare(`
+            UPDATE productos
+            SET nombre = ?, precio = ?, descripcion = ?,
+                imagenes = ?, stock = ?, categoria_id = ?
+            WHERE id = ?
+        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, id);
 
-
-    db.run(`
-
-        UPDATE productos
-
-        SET
-
-            nombre = ?,
-
-            precio = ?,
-
-            descripcion = ?,
-
-            imagenes = ?,
-
-            stock = ?,
-
-            categoria_id = ?
-
-        WHERE id = ?
-
-    `,
-
-    [
-
-        nombre,
-
-        precio,
-
-        descripcion,
-
-        JSON.stringify(imagenes),
-
-        stock,
-
-        categoria_id,
-
-        id
-
-    ],
-
-    function(err) {
-
-        if (err) {
-
-            console.error('Error DB al editar producto:', err.message);
-
-            return res.status(500).json({
-
-                error: 'Error al actualizar el producto en la base de datos'
-
-            });
-
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-        res.json({
-
-            ok: true
-
-        });
-
-    });
-
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error DB al editar producto:', err.message);
+        res.status(500).json({ error: 'Error al actualizar el producto en la base de datos' });
+    }
 };
 
-
-
 exports.eliminarProducto = (req, res) => {
-
     const id = req.params.id;
 
+    try {
+        const producto = db.prepare('SELECT * FROM productos WHERE id = ?').get(id);
 
-
-    db.get(
-
-        'SELECT * FROM productos WHERE id = ?',
-
-        [id],
-
-        (err, producto) => {
-
-            if (producto && producto.imagenes) {
-
-                let imagenes = [];
-                try {
-                    imagenes = JSON.parse(producto.imagenes || '[]');
-                } catch(e) {}
-
-                imagenes.forEach(img => {
-                    if (
-                        img &&
-                        fs.existsSync('.' + img)
-                    ) {
-                        fs.unlinkSync('.' + img);
-                    }
-                });
-
-            }
-
-
-
-            db.run(
-
-                'DELETE FROM productos WHERE id = ?',
-
-                [id],
-
-                function(err) {
-
-                    res.json({
-
-                        ok: true
-
-                    });
-
-                }
-
-            );
-
+        if (!producto) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-    );
+        if (producto.imagenes) {
+            let imagenes = [];
+            try {
+                imagenes = JSON.parse(producto.imagenes || '[]');
+            } catch(e) {}
 
+            imagenes.forEach(img => {
+                if (img && fs.existsSync('.' + img)) {
+                    fs.unlinkSync('.' + img);
+                }
+            });
+        }
+
+        db.prepare('DELETE FROM productos WHERE id = ?').run(id);
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error al eliminar producto:', err.message);
+        res.status(500).json({ error: 'Error al eliminar producto' });
+    }
 };

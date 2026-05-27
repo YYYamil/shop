@@ -1,38 +1,36 @@
 const db = require('../database/db');
 const bcrypt = require('bcrypt');
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
     const { usuario, password } = req.body;
 
-    db.get(
-        'SELECT * FROM usuarios WHERE usuario = ?',
-        [usuario],
-        async (err, user) => {
-            if (err) {
-                return res.status(500).json({ error: 'Error en la base de datos' });
-            }
-            if (!user) {
-                return res.status(401).json({ error: 'Usuario incorrecto' });
-            }
+    try {
+        const user = db.prepare('SELECT * FROM usuarios WHERE usuario = ?').get(usuario);
 
-            const ok = await bcrypt.compare(password, user.password);
-
-            if (!ok) {
-                return res.status(401).json({ error: 'Password incorrecto' });
-            }
-
-            // Guardar sesión
-            req.session.user = {
-                id: user.id,
-                usuario: user.usuario
-            };
-
-            req.session.save((err) => {           // ← Importante
-                if (err) return res.status(500).json({ error: 'Error de sesión' });
-                res.json({ ok: true });
-            });
+        if (!user) {
+            return res.status(401).json({ error: 'Usuario incorrecto' });
         }
-    );
+
+        const ok = await bcrypt.compare(password, user.password);
+
+        if (!ok) {
+            return res.status(401).json({ error: 'Password incorrecto' });
+        }
+
+        // Guardar sesión
+        req.session.user = {
+            id: user.id,
+            usuario: user.usuario
+        };
+
+        req.session.save((err) => {
+            if (err) return res.status(500).json({ error: 'Error de sesión' });
+            res.json({ ok: true });
+        });
+    } catch (err) {
+        console.error('Error en login:', err.message);
+        return res.status(500).json({ error: 'Error en la base de datos' });
+    }
 };
 
 exports.logout = (req, res) => {
