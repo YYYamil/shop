@@ -124,6 +124,7 @@ async function guardarProducto() {
 
 
 
+    // Siempre enviar las imágenes actuales (para edición)
     formData.append(
 
         'imagenesActual',
@@ -134,37 +135,71 @@ async function guardarProducto() {
 
 
 
-    // Agregar hasta 4 imágenes
+    // Agregar solo las imágenes que tienen archivo seleccionado
+    let imagenesAdjuntas = 0;
     for (let i = 0; i < 4; i++) {
         const fileInput = document.getElementById('imagen' + i);
-        if (fileInput && fileInput.files[0]) {
+        if (fileInput && fileInput.files && fileInput.files[0]) {
             formData.append('imagenes', fileInput.files[0]);
+            imagenesAdjuntas++;
         }
     }
 
 
 
-    if (id === '') {
+    try {
 
-        await fetch('/productos', {
+        if (id === '') {
 
-            method: 'POST',
+            const respuesta = await fetch('/productos', {
 
-            body: formData
+                method: 'POST',
 
-        });
+                body: formData
 
-    }
+            });
 
-    else {
+            if (!respuesta.ok) {
 
-        await fetch('/productos/' + id, {
+                const errorData = await respuesta.json().catch(() => ({}));
 
-            method: 'PUT',
+                alert('Error al crear producto: ' + (errorData.error || respuesta.statusText));
 
-            body: formData
+                return;
 
-        });
+            }
+
+        }
+
+        else {
+
+            const respuesta = await fetch('/productos/' + id, {
+
+                method: 'PUT',
+
+                body: formData
+
+            });
+
+            if (!respuesta.ok) {
+
+                const errorData = await respuesta.json().catch(() => ({}));
+
+                alert('Error al editar producto: ' + (errorData.error || respuesta.statusText));
+
+                return;
+
+            }
+
+        }
+
+    } catch (error) {
+
+        alert('Error de conexión al guardar el producto');
+
+        console.error('Error guardando producto:', error);
+
+        return;
 
     }
 

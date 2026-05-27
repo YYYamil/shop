@@ -185,6 +185,19 @@ exports.editarProducto = (req, res) => {
 
 
 
+    // Validar datos requeridos
+    if (!nombre || precio <= 0 || stock < 0) {
+
+        return res.status(400).json({
+
+            error: 'Datos invalidos'
+
+        });
+
+    }
+
+
+
     let imagenes = [];
 
     try {
@@ -193,6 +206,10 @@ exports.editarProducto = (req, res) => {
         imagenes = [];
     }
 
+    // Asegurar que sea un array y máximo 4
+    if (!Array.isArray(imagenes)) imagenes = [];
+    imagenes = imagenes.slice(0, 4);
+
 
 
     if (req.files && req.files.length > 0) {
@@ -200,29 +217,33 @@ exports.editarProducto = (req, res) => {
         const nuevasImagenes = req.files.map(f => '/uploads/' + f.filename);
 
         // Reemplazar slots vacíos o agregar al final (máximo 4)
-        for (let i = 0; i < nuevasImagenes.length; i++) {
-            if (i < 4) {
-                // Buscar primer slot vacío o reemplazar en orden
-                const emptyIndex = imagenes.findIndex(img => !img || img === '');
-                if (emptyIndex !== -1) {
-                    imagenes[emptyIndex] = nuevasImagenes[i];
-                } else if (imagenes.length < 4) {
-                    imagenes.push(nuevasImagenes[i]);
-                }
+        for (let i = 0; i < nuevasImagenes.length && i < 4; i++) {
+            const emptyIndex = imagenes.findIndex(img => !img || img === '');
+            if (emptyIndex !== -1) {
+                imagenes[emptyIndex] = nuevasImagenes[i];
+            } else if (imagenes.length < 4) {
+                imagenes.push(nuevasImagenes[i]);
             }
         }
 
         // Eliminar imágenes viejas que fueron reemplazadas
-        const imagenesViejas = (JSON.parse(imagenesActual || '[]'));
-        imagenesViejas.forEach(img => {
-            if (
-                img &&
-                !imagenes.includes(img) &&
-                fs.existsSync('.' + img)
-            ) {
-                fs.unlinkSync('.' + img);
+        try {
+            const imagenesViejas = JSON.parse(imagenesActual || '[]');
+            if (Array.isArray(imagenesViejas)) {
+                imagenesViejas.forEach(img => {
+                    if (
+                        img &&
+                        typeof img === 'string' &&
+                        !imagenes.includes(img) &&
+                        fs.existsSync('.' + img)
+                    ) {
+                        fs.unlinkSync('.' + img);
+                    }
+                });
             }
-        });
+        } catch(e) {
+            // Si no se puede parsear, ignorar
+        }
     }
 
 
@@ -268,6 +289,18 @@ exports.editarProducto = (req, res) => {
     ],
 
     function(err) {
+
+        if (err) {
+
+            console.error('Error DB al editar producto:', err.message);
+
+            return res.status(500).json({
+
+                error: 'Error al actualizar el producto en la base de datos'
+
+            });
+
+        }
 
         res.json({
 
