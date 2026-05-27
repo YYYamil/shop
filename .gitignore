@@ -6,3 +6,4 @@ database.db-wal
 /uploads
 uploads/*
 shop.sqlite
+FETCH_HEAD
