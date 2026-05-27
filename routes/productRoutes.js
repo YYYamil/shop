@@ -18,7 +18,7 @@ router.post(
 
     authMiddleware,
 
-    upload.array('imagenes', 4),
+    upload.any(),
 
     productController.crearProducto
 
@@ -30,7 +30,7 @@ router.put(
 
     authMiddleware,
 
-    upload.array('imagenes', 4),
+    upload.any(),
 
     productController.editarProducto
 
