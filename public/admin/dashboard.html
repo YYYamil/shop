@@ -13,141 +13,231 @@
     <link rel="stylesheet"
           href="/css/admin.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 
-<body>
+<body class="bg-gray-100">
+
+    <!-- Botón hamburguesa para mobile -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="admin-layout">
 
-        <aside class="sidebar">
+        <!-- SIDEBAR UNIFICADO -->
+        <aside class="sidebar" id="sidebar">
 
-            <h2>
+            <div class="sidebar-header">
 
-                Admin
+                <h2>Panel Admin</h2>
 
-            </h2>
+                <p class="sidebar-subtitle">Gestión de tienda</p>
 
+            </div>
 
+            <nav class="sidebar-nav">
 
-            <a href="/admin/dashboard.html">
+                <a href="/admin/dashboard.html" class="active">
+                    📊 Dashboard
+                </a>
 
-                Dashboard
+                <a href="/admin/admin.html">
+                    📦 Productos
+                </a>
 
-            </a>
+                <a href="/admin/pedidos.html">
+                    🛒 Pedidos
+                </a>
 
+            </nav>
 
+            <div class="sidebar-footer">
 
-            <a href="/admin/admin.html">
+                <button onclick="logout()" class="logout-btn">
+                    Cerrar sesión
+                </button>
 
-                Productos
-
-            </a>
-
-
-
-            <a href="/admin/pedidos.html">
-
-                Pedidos
-
-            </a>
+            </div>
 
         </aside>
 
-
-
+        <!-- CONTENIDO -->
         <main class="admin-content">
 
-            <div class="grid">
+            <!-- TOP -->
+            <div class="topbar">
 
-                <div class="producto">
+                <div>
 
-                    <div class="producto-info">
+                    <h1>Dashboard</h1>
 
-                        <h2>
+                    <p>Resumen general de la tienda</p>
 
-                            Ventas
+                </div>
 
-                        </h2>
+                <div class="stats-card">
 
+                    <span>Estado del sistema</span>
 
+                    <strong style="color:#22c55e;">Online</strong>
 
-                        <h1 id="ventas">
+                </div>
 
-                            0
+            </div>
 
-                        </h1>
+            <!-- METRICAS -->
+            <div class="dashboard-grid">
+
+                <div class="dashboard-card blue">
+
+                    <div class="dashboard-icon">💰</div>
+
+                    <div>
+
+                        <h3>Ventas</h3>
+
+                        <h1 id="ventas">$0</h1>
 
                     </div>
 
                 </div>
 
+                <div class="dashboard-card purple">
 
+                    <div class="dashboard-icon">🛒</div>
 
-                <div class="producto">
+                    <div>
 
-                    <div class="producto-info">
+                        <h3>Pedidos</h3>
 
-                        <h2>
-
-                            Pedidos
-
-                        </h2>
-
-
-
-                        <h1 id="pedidos">
-
-                            0
-
-                        </h1>
+                        <h1 id="pedidos">0</h1>
 
                     </div>
 
                 </div>
 
+                <div class="dashboard-card green">
 
+                    <div class="dashboard-icon">📦</div>
 
-                <div class="producto">
+                    <div>
 
-                    <div class="producto-info">
+                        <h3>Productos</h3>
 
-                        <h2>
-
-                            Productos
-
-                        </h2>
-
-
-
-                        <h1 id="productos">
-
-                            0
-
-                        </h1>
+                        <h1 id="productos">0</h1>
 
                     </div>
 
                 </div>
 
+                <div class="dashboard-card red">
 
+                    <div class="dashboard-icon">⚠️</div>
 
-                <div class="producto">
+                    <div>
 
-                    <div class="producto-info">
+                        <h3>Sin stock</h3>
 
-                        <h2>
+                        <h1 id="sinStock">0</h1>
 
-                            Sin stock
+                    </div>
 
-                        </h2>
+                </div>
 
+            </div>
 
+            <!-- GRAFICOS -->
+            <div class="charts-grid">
 
-                        <h1 id="sinStock">
+                <div class="chart-card">
 
-                            0
+                    <div class="chart-header">
 
-                        </h1>
+                        <h2>Resumen general</h2>
+
+                    </div>
+
+                    <canvas id="resumenChart"></canvas>
+
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="chart-header">
+
+                        <h2>Estado de stock</h2>
+
+                    </div>
+
+                    <canvas id="stockChart"></canvas>
+
+                </div>
+
+            </div>
+
+            <!-- PANEL INFERIOR -->
+            <div class="bottom-grid">
+
+                <!-- ACTIVIDAD -->
+                <div class="activity-card">
+
+                    <div class="chart-header">
+
+                        <h2>Actividad reciente</h2>
+
+                    </div>
+
+                    <div id="actividadReciente">
+
+                        <div class="activity-item">
+
+                            <span>Sistema iniciado correctamente</span>
+
+                            <small>Ahora</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- RESUMEN -->
+                <div class="summary-card">
+
+                    <div class="chart-header">
+
+                        <h2>Resumen rápido</h2>
+
+                    </div>
+
+                    <div class="summary-list">
+
+                        <div class="summary-item">
+
+                            <span>Productos activos</span>
+
+                            <strong id="productosResumen">0</strong>
+
+                        </div>
+
+                        <div class="summary-item">
+
+                            <span>Pedidos registrados</span>
+
+                            <strong id="pedidosResumen">0</strong>
+
+                        </div>
+
+                        <div class="summary-item">
+
+                            <span>Productos agotados</span>
+
+                            <strong id="stockResumen">0</strong>
+
+                        </div>
 
                     </div>
 
@@ -159,19 +249,30 @@
 
     </div>
 
-
     <script src="/js/auth.js"></script>
 
-<script>
-
-    verificarAuth();
-
-</script>
-
-
+    <script>
+        verificarAuth();
+    </script>
 
     <script src="/js/dashboard.js"></script>
-    
+
+    <!-- Script para el menú hamburguesa -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        });
+    </script>
 
 </body>
 

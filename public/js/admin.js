@@ -1,4 +1,6 @@
 let productosGlobal = [];
+let paginaActual = 1;
+const productosPorPagina = 6;
 
 
 
@@ -396,35 +398,152 @@ function carruselIrA(dot, index) {
 
 
 
+// async function cargarProductos() {
+
+//     const respuesta =
+
+//         await fetch('/productos');
+
+
+
+//     const productos =
+
+//         await respuesta.json();
+
+
+
+//     productosGlobal = productos;
+
+
+
+//     const div =
+
+//         document.getElementById('listaProductos');
+
+
+
+//     div.innerHTML = '';
+
+
+
+//     productos.forEach(producto => {
+
+//         div.innerHTML += `
+
+//             <div class="producto">
+
+//                 ${renderizarCarrusel(producto.imagenes)}
+
+//                 <div class="producto-info">
+
+//                     <h3>
+
+//                         ${producto.nombre}
+
+//                     </h3>
+
+
+
+//                     <p>
+
+//                         ${producto.descripcion}
+
+//                     </p>
+
+
+
+//                     <p>
+
+//                         Categoria:
+
+//                         ${producto.categoria}
+
+//                     </p>
+
+
+
+//                     <p>
+
+//                         Stock:
+
+//                         ${producto.stock}
+
+//                     </p>
+
+
+
+//                     <button onclick="editarProducto(${producto.id})">
+
+//                         Editar
+
+//                     </button>
+
+
+
+//                     <button onclick="eliminarProducto(${producto.id})">
+
+//                         Eliminar
+
+//                     </button>
+
+//                 </div>
+
+//             </div>
+
+//         `;
+
+//     });
+
+// }
+
 async function cargarProductos() {
 
     const respuesta =
-
         await fetch('/productos');
 
-
-
     const productos =
-
         await respuesta.json();
-
-
 
     productosGlobal = productos;
 
+    document.getElementById('contadorProductos').innerText =
+        productos.length;
 
+    renderizarProductos();
+}
+
+function renderizarProductos() {
 
     const div =
-
         document.getElementById('listaProductos');
 
+    const textoBusqueda =
+        document.getElementById('buscadorProductos')
+        ?.value
+        ?.toLowerCase() || '';
 
+    const productosFiltrados =
+        productosGlobal.filter(producto => {
+
+            return (
+                producto.nombre.toLowerCase().includes(textoBusqueda)
+                ||
+                producto.categoria.toLowerCase().includes(textoBusqueda)
+            );
+        });
+
+    const inicio =
+        (paginaActual - 1) * productosPorPagina;
+
+    const fin =
+        inicio + productosPorPagina;
+
+    const productosPagina =
+        productosFiltrados.slice(inicio, fin);
 
     div.innerHTML = '';
 
-
-
-    productos.forEach(producto => {
+    productosPagina.forEach(producto => {
 
         div.innerHTML += `
 
@@ -440,58 +559,56 @@ async function cargarProductos() {
 
                     </h3>
 
-
-
                     <p>
 
                         ${producto.descripcion}
 
                     </p>
 
-
-
                     <p>
 
-                        Categoria:
+                        <strong>Categoría:</strong>
 
                         ${producto.categoria}
 
                     </p>
 
-
-
                     <p>
 
-                        Stock:
+                        <strong>Stock:</strong>
 
                         ${producto.stock}
 
                     </p>
 
+                    <div>
 
+                        <button onclick="editarProducto(${producto.id})">
 
-                    <button onclick="editarProducto(${producto.id})">
+                            Editar
 
-                        Editar
+                        </button>
 
-                    </button>
+                        <button onclick="eliminarProducto(${producto.id})">
 
+                            Eliminar
 
+                        </button>
 
-                    <button onclick="eliminarProducto(${producto.id})">
-
-                        Eliminar
-
-                    </button>
+                    </div>
 
                 </div>
 
             </div>
 
         `;
-
     });
 
+    const totalPaginas =
+        Math.ceil(productosFiltrados.length / productosPorPagina);
+
+    document.getElementById('paginaActual').innerText =
+        `Página ${paginaActual} de ${totalPaginas}`;
 }
 
 
@@ -499,3 +616,38 @@ async function cargarProductos() {
 cargarCategorias();
 
 cargarProductos();
+
+document.addEventListener('input', (e) => {
+
+    if (e.target.id === 'buscadorProductos') {
+
+        paginaActual = 1;
+
+        renderizarProductos();
+    }
+});
+
+document.getElementById('btnAnterior')
+?.addEventListener('click', () => {
+
+    if (paginaActual > 1) {
+
+        paginaActual--;
+
+        renderizarProductos();
+    }
+});
+
+document.getElementById('btnSiguiente')
+?.addEventListener('click', () => {
+
+    const totalPaginas =
+        Math.ceil(productosGlobal.length / productosPorPagina);
+
+    if (paginaActual < totalPaginas) {
+
+        paginaActual++;
+
+        renderizarProductos();
+    }
+});

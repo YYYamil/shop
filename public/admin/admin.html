@@ -10,168 +10,268 @@
 
     <title>Admin</title>
 
+    <link href="/css/output.css" rel="stylesheet">
+
     <link rel="stylesheet"
           href="/css/admin.css">
-    <link href="/css/output.css" rel="stylesheet">
 
 </head>
 
-<body>
+<body class="bg-gray-100">
 
-    
+    <!-- Botón hamburguesa para mobile -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="admin-layout">
 
-        <aside class="sidebar">
+        <!-- SIDEBAR UNIFICADO -->
+        <aside class="sidebar" id="sidebar">
 
-            <h2>
+            <div class="sidebar-header">
 
-                Panel Admin
+                <h2>Panel Admin</h2>
 
-            </h2>
+                <p class="sidebar-subtitle">Gestión de tienda</p>
 
+            </div>
 
-            <a href="/admin/dashboard.html">
+            <nav class="sidebar-nav">
 
-                Dashboard
-             
-            </a>
+                <a href="/admin/dashboard.html">
+                    📊 Dashboard
+                </a>
 
+                <a href="/admin/admin.html" class="active">
+                    📦 Productos
+                </a>
 
+                <a href="/admin/pedidos.html">
+                    🛒 Pedidos
+                </a>
 
-            <a href="/admin/admin.html">
+            </nav>
 
-                Productos
+            <div class="sidebar-footer">
 
-            </a>
+                <button onclick="logout()" class="logout-btn">
+                    Cerrar sesión
+                </button>
 
-
-
-            <a href="/admin/pedidos.html">
-
-                Pedidos
-
-            </a>
-
-
-
-            <button onclick="logout()">
-
-                Logout
-
-            </button>
+            </div>
 
         </aside>
 
-        
-
+        <!-- MAIN -->
         <main class="admin-content">
 
-            <input
-                type="hidden"
-                id="idProducto"
-            >
+            <!-- HEADER -->
+            <div class="topbar">
 
+                <div>
 
+                    <h1>Gestión de productos</h1>
 
-            <input
-                type="hidden"
-                id="imagenesActual"
-            >
+                    <p>Administra catálogo, stock e imágenes</p>
 
+                </div>
 
+                <div class="stats-card">
 
-            <input
-                type="text"
-                id="nombre"
-                placeholder="Nombre"
-            >
+                    <span>Productos</span>
 
+                    <strong id="contadorProductos">0</strong>
 
+                </div>
 
-            <input
-                type="number"
-                id="precio"
-                placeholder="Precio"
-            >
+            </div>
 
+            <!-- FORM -->
+            <section class="form-card">
 
+                <div class="form-header">
 
-            <input
-                type="number"
-                id="stock"
-                placeholder="Stock"
-            >
+                    <h2>Producto</h2>
 
+                    <button onclick="limpiarFormulario()"
+                            class="secondary-btn">
 
+                        Limpiar
+                    </button>
 
-            <select id="categoria_id">
+                </div>
 
-                <option value="1">
+                <input
+                    type="hidden"
+                    id="idProducto"
+                >
 
-                    Ropa
+                <input
+                    type="hidden"
+                    id="imagenesActual"
+                >
 
-                </option>
+                <div class="form-grid">
 
-                <option value="2">
+                    <div class="input-group">
 
-                    Calzado
+                        <label>Nombre</label>
 
-                </option>
+                        <input
+                            type="text"
+                            id="nombre"
+                            placeholder="Ej: Zapatillas Nike"
+                        >
 
-                <option value="3">
+                    </div>
 
-                    Accesorios
+                    <div class="input-group">
 
-                </option>
+                        <label>Precio</label>
 
-            </select>
+                        <input
+                            type="number"
+                            id="precio"
+                            placeholder="$ 0"
+                        >
 
+                    </div>
 
+                    <div class="input-group">
 
-            <textarea
-                id="descripcion"
-                placeholder="Descripcion"
-            ></textarea>
+                        <label>Stock</label>
 
+                        <input
+                            type="number"
+                            id="stock"
+                            placeholder="0"
+                        >
 
+                    </div>
 
-            <label>Imágenes (máximo 4):</label>
-            <input type="file" id="imagen0" accept="image/*">
-            <input type="file" id="imagen1" accept="image/*">
-            <input type="file" id="imagen2" accept="image/*">
-            <input type="file" id="imagen3" accept="image/*">
+                    <div class="input-group">
 
+                        <label>Categoría</label>
 
+                        <select id="categoria_id"></select>
 
-            <button onclick="guardarProducto()">
+                    </div>
 
-                Guardar producto
+                </div>
 
-            </button>
+                <div class="input-group">
 
+                    <label>Descripción</label>
 
+                    <textarea
+                        id="descripcion"
+                        placeholder="Descripción del producto"
+                    ></textarea>
 
+                </div>
+
+                <!-- IMAGENES -->
+                <div class="imagenes-section">
+
+                    <h3>Imágenes del producto</h3>
+
+                    <p>Puedes subir hasta 4 imágenes</p>
+
+                    <div class="imagenes-grid">
+
+                        <input type="file"
+                               id="imagen0"
+                               accept="image/*">
+
+                        <input type="file"
+                               id="imagen1"
+                               accept="image/*">
+
+                        <input type="file"
+                               id="imagen2"
+                               accept="image/*">
+
+                        <input type="file"
+                               id="imagen3"
+                               accept="image/*">
+
+                    </div>
+
+                </div>
+
+                <button onclick="guardarProducto()"
+                        class="primary-btn">
+
+                    Guardar producto
+                </button>
+
+            </section>
+
+            <!-- BUSCADOR -->
+            <section class="search-section">
+
+                <input type="text"
+                       id="buscadorProductos"
+                       placeholder="Buscar producto o categoría...">
+
+            </section>
+
+            <!-- PRODUCTOS -->
             <div
                 id="listaProductos"
                 class="grid"
             ></div>
 
+            <!-- PAGINADO -->
+            <div class="pagination">
+
+                <button id="btnAnterior">
+
+                    ← Anterior
+                </button>
+
+                <span id="paginaActual">
+
+                    Página 1
+                </span>
+
+                <button id="btnSiguiente">
+
+                    Siguiente →
+                </button>
+
+            </div>
+
         </main>
 
     </div>
 
-
-
     <script src="/js/auth.js"></script>
 
-<script>
-
-    verificarAuth();
-
-</script>
+    <script>
+        verificarAuth();
+    </script>
 
     <script src="/js/admin.js"></script>
+
+    <!-- Script para el menú hamburguesa -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        });
+    </script>
 
 </body>
 

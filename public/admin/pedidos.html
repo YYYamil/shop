@@ -15,81 +15,139 @@
 
 </head>
 
-<body>
+<body class="bg-gray-100">
+
+    <!-- Botón hamburguesa para mobile -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <div class="admin-layout">
 
-        <aside class="sidebar">
+        <!-- SIDEBAR UNIFICADO -->
+        <aside class="sidebar" id="sidebar">
 
-            <h2>
+            <div class="sidebar-header">
 
-                Admin
+                <h2>Panel Admin</h2>
 
-            </h2>
+                <p class="sidebar-subtitle">Gestión de tienda</p>
 
+            </div>
 
+            <nav class="sidebar-nav">
 
-            <a href="/admin/dashboard.html">
+                <a href="/admin/dashboard.html">
+                    📊 Dashboard
+                </a>
 
-                Dashboard
+                <a href="/admin/admin.html">
+                    📦 Productos
+                </a>
 
-            </a>
+                <a href="/admin/pedidos.html" class="active">
+                    🛒 Pedidos
+                </a>
 
+            </nav>
 
+            <div class="sidebar-footer">
 
-            <a href="/admin/admin.html">
+                <button onclick="logout()" class="logout-btn">
+                    Cerrar sesión
+                </button>
 
-                Productos
-
-            </a>
-
-
-
-            <a href="/admin/pedidos.html">
-
-                Pedidos
-
-            </a>
-
-
-
-            <button onclick="logout()">
-
-                Logout
-
-            </button>
+            </div>
 
         </aside>
 
-
-
+        <!-- CONTENIDO -->
         <main class="admin-content">
 
-            <h1>
+            <!-- HEADER -->
+            <div class="topbar">
 
-                Pedidos
+                <div>
 
-            </h1>
+                    <h1>Pedidos</h1>
 
+                    <p>Administración y seguimiento de pedidos</p>
 
+                </div>
 
-            <div id="listaPedidos"></div>
+                <div class="stats-card">
+
+                    <span>Total de pedidos</span>
+
+                    <strong id="contadorPedidos">0</strong>
+
+                </div>
+
+            </div>
+
+            <!-- BUSCADOR -->
+            <section class="search-section">
+
+                <input type="text"
+                       id="buscadorPedidos"
+                       placeholder="Buscar cliente, teléfono o estado...">
+
+            </section>
+
+            <!-- LISTA -->
+            <div id="listaPedidos"
+                 class="grid">
+            </div>
+
+            <!-- PAGINADO -->
+            <div class="pagination">
+
+                <button id="btnAnterior">
+
+                    ← Anterior
+                </button>
+
+                <span id="paginaActual">
+
+                    Página 1
+                </span>
+
+                <button id="btnSiguiente">
+
+                    Siguiente →
+                </button>
+
+            </div>
 
         </main>
 
     </div>
 
-
-
     <script src="/js/auth.js"></script>
 
     <script>
-
         verificarAuth();
-
     </script>
 
     <script src="/js/pedidos.js"></script>
+
+    <!-- Script para el menú hamburguesa -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            function toggleMenu() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            }
+
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        });
+    </script>
 
 </body>
 

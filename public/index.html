@@ -11,13 +11,16 @@
     <title>Mi Shop</title>
 
     <link rel="stylesheet"
-          href="/css/store.css?v=3">
-    <link href="/css/output.css" rel="stylesheet">
+          href="/css/store.css?v=10">
+
+    <link href="/css/output.css"
+          rel="stylesheet">
 
 </head>
 
 <body>
 
+    <!-- NAVBAR -->
     <header class="navbar">
 
         <div class="logo">
@@ -26,20 +29,30 @@
 
         </div>
 
-        <button class="hamburguesa" onclick="toggleMenu()" aria-label="Menú">
+        <button class="hamburguesa"
+                onclick="toggleMenu()"
+                aria-label="Menú">
+
             ☰
+
         </button>
 
-        <div class="nav-menu" id="navMenu">
+        <div class="nav-menu"
+             id="navMenu">
 
-            <input
-                type="text"
-                id="busqueda"
-                placeholder="Buscar productos..."
-                onkeyup="buscarProductos()"
-            >
+            <div class="search-wrapper">
+
+                <input
+                    type="text"
+                    id="busqueda"
+                    placeholder="Buscar productos..."
+                    onkeyup="buscarProductos()"
+                >
+
+            </div>
 
             <div class="carrito-wrapper">
+
                 <a href="/carrito.html"
                    class="carrito-btn">
 
@@ -52,33 +65,53 @@
                     </span>
 
                 </a>
-                <div class="carrito-preview" id="carritoPreview"></div>
+
+                <div class="carrito-preview"
+                     id="carritoPreview"></div>
+
             </div>
 
         </div>
 
     </header>
 
-
-
+    <!-- HERO -->
     <section class="hero">
 
-        <h1>
+        <div class="hero-overlay"></div>
 
-            Bienvenidos
+        <div class="hero-content">
 
-        </h1>
+            <span class="hero-badge">
 
-        <p>
+                ✨ Nueva colección 2026
 
-            Nueva colección!!!
+            </span>
 
-        </p>
+            <h1>
+
+                Descubrí tu próximo estilo
+
+            </h1>
+
+            <p>
+
+                Productos modernos, elegantes y seleccionados para vos
+
+            </p>
+
+            <a href="#productos"
+               class="hero-btn">
+
+                Explorar productos
+
+            </a>
+
+        </div>
 
     </section>
 
-
-
+    <!-- CATEGORIAS -->
     <section class="categorias">
 
         <button onclick="filtrarCategoria(0)">
@@ -107,22 +140,33 @@
 
     </section>
 
-
-
+    <!-- PRODUCTOS -->
     <main
         id="productos"
         class="productos-grid"
     ></main>
 
+    <!-- MODAL -->
+    <div class="modal-overlay"
+         id="modalOverlay"
+         onclick="cerrarModal()">
 
+        <span class="modal-cerrar"
+              onclick="cerrarModal()">
 
-    <!-- Modal para imágenes -->
-    <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal()">
-        <span class="modal-cerrar" onclick="cerrarModal()">&times;</span>
-        <img class="modal-imagen" id="modalImagen" src="" alt="Imagen ampliada">
+            &times;
+
+        </span>
+
+        <img class="modal-imagen"
+             id="modalImagen"
+             src=""
+             alt="Imagen ampliada">
+
     </div>
 
     <script src="/js/script.js"></script>
+
 </body>
 
 </html>
