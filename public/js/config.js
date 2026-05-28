@@ -257,7 +257,7 @@ async function renderizarCategorias() {
 
     try {
 
-        const respuesta = await fetch('/categorias');
+        const respuesta = await fetch('/categorias/public');
 
         if (!respuesta.ok) {
 
@@ -271,10 +271,17 @@ async function renderizarCategorias() {
 
         let html = '';
 
-        categorias.forEach((cat, index) => {
+        // Botón "Todos" al inicio, activo por defecto
+        html += `
+            <button class="activo" data-cat-id="0" onclick="filtrarCategoria(0)">
+                Todos
+            </button>
+        `;
+
+        categorias.forEach((cat) => {
 
             html += `
-                <button onclick="filtrarCategoria(${index})">
+                <button data-cat-id="${cat.id}" onclick="filtrarCategoria(${cat.id})">
                     ${cat.nombre}
                 </button>
             `;
@@ -282,15 +289,6 @@ async function renderizarCategorias() {
         });
 
         contenedor.innerHTML = html;
-
-        // Activar la primera (Todos) por defecto
-        const botones = contenedor.querySelectorAll('button');
-
-        if (botones.length > 0) {
-
-            botones[0].classList.add('activo');
-
-        }
 
     } catch (error) {
 

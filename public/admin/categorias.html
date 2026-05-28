@@ -6,12 +6,14 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Pedidos</title>
+    <title>Admin - Categorías</title>
+
+    <link href="/css/output.css" rel="stylesheet">
 
     <link rel="stylesheet"
-          href="/css/admin.css">
+          href="/css/admin.css?v=12">
 
 </head>
 
@@ -46,11 +48,11 @@
                     📦 Productos
                 </a>
 
-                <a href="/admin/pedidos.html" class="active">
+                <a href="/admin/pedidos.html">
                     🛒 Pedidos
                 </a>
 
-                <a href="/admin/categorias.html">
+                <a href="/admin/categorias.html" class="active">
                     🏷️ Categorías
                 </a>
 
@@ -70,61 +72,26 @@
 
         </aside>
 
-        <!-- CONTENIDO -->
+        <!-- MAIN -->
         <main class="admin-content">
 
-            <!-- HEADER -->
+            <!-- TOPBAR -->
             <div class="topbar">
 
                 <div>
 
-                    <h1>Pedidos</h1>
+                    <h1>Categorías</h1>
 
-                    <p>Administración y seguimiento de pedidos</p>
-
-                </div>
-
-                <div class="stats-card">
-
-                    <span>Total de pedidos</span>
-
-                    <strong id="contadorPedidos">0</strong>
+                    <p id="contadorInfo">Gestioná la visibilidad y nombres de las categorías</p>
 
                 </div>
 
             </div>
 
-            <!-- BUSCADOR -->
-            <section class="search-section">
+            <!-- LISTA DE CATEGORÍAS -->
+            <div id="listaCategorias" class="categorias-admin-lista">
 
-                <input type="text"
-                       id="buscadorPedidos"
-                       placeholder="Buscar cliente, teléfono o estado...">
-
-            </section>
-
-            <!-- LISTA -->
-            <div id="listaPedidos"
-                 class="grid">
-            </div>
-
-            <!-- PAGINADO -->
-            <div class="pagination">
-
-                <button id="btnAnterior">
-
-                    ← Anterior
-                </button>
-
-                <span id="paginaActual">
-
-                    Página 1
-                </span>
-
-                <button id="btnSiguiente">
-
-                    Siguiente →
-                </button>
+                <!-- Se llena dinámicamente desde admin-categorias.js -->
 
             </div>
 
@@ -132,13 +99,16 @@
 
     </div>
 
+    <!-- TOAST -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <script src="/js/auth.js"></script>
 
     <script>
         verificarAuth();
     </script>
 
-    <script src="/js/pedidos.js"></script>
+    <script src="/js/admin-categorias.js?v=1"></script>
 
     <!-- Script para el menú hamburguesa -->
     <script>

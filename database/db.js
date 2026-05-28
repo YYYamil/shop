@@ -124,4 +124,19 @@ if (configCount.total === 0) {
     insertMany(defaults);
 }
 
+// ============================================
+// MIGRACIÓN: Personalización de categorías (FASE 2)
+// ============================================
+try {
+    db.exec(`ALTER TABLE categorias ADD COLUMN visible INTEGER DEFAULT 1`);
+} catch (e) {
+    // La columna ya existe, ignorar error
+}
+try {
+    db.exec(`ALTER TABLE categorias ADD COLUMN nombre_personalizado TEXT DEFAULT NULL`);
+} catch (e) {
+    // La columna ya existe, ignorar error
+}
+
+
 module.exports = db;

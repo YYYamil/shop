@@ -10,6 +10,10 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 
 
+// GET público - solo productos de categorías visibles (para frontend tienda)
+router.get('/public', productController.getProductosPublic);
+
+// GET - todos los productos (para admin)
 router.get('/', productController.getProductos);
 
 router.post(

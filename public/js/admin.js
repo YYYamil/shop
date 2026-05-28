@@ -28,7 +28,8 @@ async function cargarCategorias() {
     const select = document.getElementById('categoria_id');
     select.innerHTML = '<option value="">Seleccionar categoría</option>';
     categorias.forEach(categoria => {
-        select.innerHTML += `<option value="${categoria.id}">${categoria.nombre}</option>`;
+        const nombreVisual = categoria.nombre_personalizado || categoria.nombre;
+        select.innerHTML += `<option value="${categoria.id}">${nombreVisual}</option>`;
     });
 
     // También cargar filtro de categorías
@@ -36,7 +37,8 @@ async function cargarCategorias() {
     if (filtroCat) {
         filtroCat.innerHTML = '<option value="">Todas</option>';
         categorias.forEach(categoria => {
-            filtroCat.innerHTML += `<option value="${categoria.id}">${categoria.nombre}</option>`;
+            const nombreVisual = categoria.nombre_personalizado || categoria.nombre;
+            filtroCat.innerHTML += `<option value="${categoria.id}">${nombreVisual}</option>`;
         });
     }
 }

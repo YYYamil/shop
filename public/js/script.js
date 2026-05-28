@@ -208,7 +208,7 @@ async function cargarProductos() {
 
     const respuesta =
 
-        await fetch('/productos');
+        await fetch('/productos/public');
 
 
 
@@ -585,7 +585,8 @@ function filtrarCategoria(id) {
     document.querySelectorAll('#categorias button, #menuCategorias button').forEach(btn => {
         btn.classList.remove('activo');
     });
-    document.querySelectorAll(`#categorias button:nth-child(${id + 1}), #menuCategorias button:nth-child(${id + 1})`).forEach(btn => {
+    // Activar botón correspondiente: data-cat-id="0" para Todos, o el ID real
+    document.querySelectorAll(`#categorias button[data-cat-id="${id}"], #menuCategorias button[data-cat-id="${id}"]`).forEach(btn => {
         btn.classList.add('activo');
     });
 

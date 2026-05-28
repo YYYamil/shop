@@ -1,12 +1,13 @@
 const db = require('../database/db');
 const fs = require('fs');
 
+// GET /productos - Todos los productos (para admin)
 exports.getProductos = (req, res) => {
     try {
         const rows = db.prepare(`
             SELECT
                 productos.*,
-                categorias.nombre as categoria
+                COALESCE(categorias.nombre_personalizado, categorias.nombre) as categoria
             FROM productos
             LEFT JOIN categorias
             ON categorias.id = productos.categoria_id
@@ -25,6 +26,34 @@ exports.getProductos = (req, res) => {
         res.json(productos);
     } catch (err) {
         console.error('Error al obtener productos:', err.message);
+        res.status(500).json({ error: 'Error al obtener productos' });
+    }
+};
+
+// GET /productos/public - Solo productos de categorías visibles (para frontend tienda)
+exports.getProductosPublic = (req, res) => {
+    try {
+        const rows = db.prepare(`
+            SELECT
+                productos.*,
+                COALESCE(categorias.nombre_personalizado, categorias.nombre) as categoria
+            FROM productos
+            LEFT JOIN categorias ON categorias.id = productos.categoria_id
+            WHERE (categorias.visible = 1 OR productos.categoria_id IS NULL)
+            ORDER BY productos.id DESC
+        `).all();
+
+        const productos = rows.map(p => {
+            try {
+                p.imagenes = JSON.parse(p.imagenes || '[]');
+            } catch(e) {
+                p.imagenes = [];
+            }
+            return p;
+        });
+        res.json(productos);
+    } catch (err) {
+        console.error('Error al obtener productos públicos:', err.message);
         res.status(500).json({ error: 'Error al obtener productos' });
     }
 };

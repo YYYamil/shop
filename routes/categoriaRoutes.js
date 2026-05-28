@@ -8,8 +8,14 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 
 
-// GET público (sin auth) - para mostrar categorías en la tienda
+// GET público - solo categorías visibles (para frontend tienda)
+router.get('/public', categoriaController.getCategoriasPublic);
+
+// GET público (sin auth) - todas las categorías (para admin)
 router.get('/', categoriaController.getCategorias);
+
+// PUT requiere autenticación (admin)
+router.put('/:id', authMiddleware, categoriaController.actualizarCategoria);
 
 // POST y DELETE requieren autenticación (admin)
 router.post('/', authMiddleware, categoriaController.crearCategoria);

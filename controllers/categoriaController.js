@@ -1,12 +1,76 @@
 const db = require('../database/db');
 
+// GET /categorias - Todas las categorías (para admin)
 exports.getCategorias = (req, res) => {
     try {
-        const rows = db.prepare('SELECT * FROM categorias').all();
+        const rows = db.prepare(`
+            SELECT c.*,
+                   (SELECT COUNT(*) FROM productos WHERE categoria_id = c.id) as product_count
+            FROM categorias c
+            ORDER BY c.id ASC
+        `).all();
         res.json(rows);
     } catch (err) {
         console.error('Error al obtener categorías:', err.message);
         res.status(500).json({ error: 'Error al obtener categorías' });
+    }
+};
+
+// GET /categorias/public - Solo categorías visibles (para frontend tienda)
+exports.getCategoriasPublic = (req, res) => {
+    try {
+        const rows = db.prepare(`
+            SELECT id,
+                   COALESCE(nombre_personalizado, nombre) as nombre,
+                   visible
+            FROM categorias
+            WHERE visible = 1
+            ORDER BY id ASC
+        `).all();
+        res.json(rows);
+    } catch (err) {
+        console.error('Error al obtener categorías públicas:', err.message);
+        res.status(500).json({ error: 'Error al obtener categorías' });
+    }
+};
+
+// PUT /categorias/:id - Actualizar nombre_personalizado y/o visible
+exports.actualizarCategoria = (req, res) => {
+    const id = req.params.id;
+    const { nombre_personalizado, visible } = req.body;
+
+    try {
+        // Validar que la categoría existe
+        const existente = db.prepare('SELECT * FROM categorias WHERE id = ?').get(id);
+        if (!existente) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        // Construir UPDATE dinámico solo con los campos enviados
+        const updates = [];
+        const params = [];
+
+        if (nombre_personalizado !== undefined) {
+            updates.push('nombre_personalizado = ?');
+            params.push(nombre_personalizado === '' ? null : nombre_personalizado);
+        }
+
+        if (visible !== undefined) {
+            updates.push('visible = ?');
+            params.push(visible ? 1 : 0);
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No hay campos para actualizar' });
+        }
+
+        params.push(id);
+        db.prepare(`UPDATE categorias SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error al actualizar categoría:', err.message);
+        res.status(500).json({ error: 'Error al actualizar categoría' });
     }
 };
 
