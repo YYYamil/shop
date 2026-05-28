@@ -14,6 +14,20 @@ let timeoutBusqueda = null;
 
 
 
+/* ===== Cargar configuración al iniciar ===== */
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    if (typeof cargarConfiguracion === "function") {
+
+        cargarConfiguracion();
+
+    }
+
+});
+
+
+
 function actualizarContador() {
 
     let total = 0;
@@ -142,11 +156,23 @@ function cerrarModal() {
 
 /* ===== MENÚ HAMBURGUESA ===== */
 
-function toggleMenu() {
+function toggleSearch() {
 
-    const menu = document.getElementById('navMenu');
+    const wrapper = document.querySelector('.search-wrapper');
 
-    menu.classList.toggle('active');
+    if (wrapper) {
+
+        wrapper.classList.toggle('active');
+
+        const input = wrapper.querySelector('#busqueda');
+
+        if (wrapper.classList.contains('active') && input) {
+
+            input.focus();
+
+        }
+
+    }
 
 }
 
@@ -557,6 +583,15 @@ function filtrarCategoria(id) {
 
 function buscarProductos() {
 
+    const input = document.getElementById('busqueda');
+
+    // Toggle clase has-text para mostrar/ocultar la cruz de limpiar
+    if (input.value.trim().length > 0) {
+        input.classList.add('has-text');
+    } else {
+        input.classList.remove('has-text');
+    }
+
     // Limpiar timeout anterior (debounce)
 
     if (timeoutBusqueda) {
@@ -569,7 +604,7 @@ function buscarProductos() {
 
         const texto =
 
-            document.getElementById('busqueda')
+            input
 
             .value
 
@@ -590,6 +625,20 @@ function buscarProductos() {
         renderizarProductos(filtrados);
 
     }, 300);
+
+}
+
+function limpiarBusqueda() {
+
+    const input = document.getElementById('busqueda');
+
+    if (input) {
+        input.value = '';
+        input.classList.remove('has-text');
+        input.focus();
+        // Renderizar todos los productos
+        renderizarProductos(productosGlobal);
+    }
 
 }
 

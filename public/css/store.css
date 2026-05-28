@@ -8,13 +8,62 @@
 
 }
 
+:root {
+
+    --color-primario: #2a9d8f;
+
+    --color-secundario: #264653;
+
+    --color-fondo: #f4f4f4;
+
+    --color-texto: #333333;
+
+    --color-boton: #2a9d8f;
+
+    --color-boton-texto: #ffffff;
+
+    --color-hero-overlay: rgba(0,0,0,0.5);
+
+    --color-footer-fondo: #264653;
+
+    --color-footer-texto: #ffffff;
+
+    --color-whatsapp: #25D366;
+
+    --color-navbar-fondo: #ffffff;
+
+    --color-navbar-texto: #333333;
+
+    --color-tarjeta-fondo: #ffffff;
+
+    --color-tarjeta-sombra: rgba(0,0,0,0.1);
+
+    --color-categoria-activo: #2a9d8f;
+
+    --color-categoria-texto: #333333;
+
+    --color-borde: #e0e0e0;
+
+    --color-exito: #4caf50;
+
+    --color-error: #f44336;
+
+    --color-precio: #2a9d8f;
+
+    --color-envio: #4caf50;
+
+    --color-stock: #ff9800;
+
+}
+
+
 
 
 body {
 
     font-family: Arial;
 
-    background: #f4f4f4;
+    background: var(--color-fondo);
 
 }
 
@@ -22,7 +71,7 @@ body {
 
 .navbar {
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
     padding: 15px 30px;
 
@@ -50,27 +99,21 @@ body {
 
     font-weight: bold;
 
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
 }
 
 
 
-/* Botón hamburguesa - oculto en desktop */
+/* Botón hamburguesa - eliminado, ya no se usa */
 
 .hamburguesa {
 
-    display: none;
-
-    background: none;
-
-    border: none;
-
-    font-size: 28px;
-
-    cursor: pointer;
-
-    padding: 5px;
-
-    color: #333;
+    display: none !important;
 
 }
 
@@ -96,7 +139,7 @@ body {
 
     width: 40%;
 
-    padding: 12px;
+    padding: 12px 32px 12px 12px;
 
     border-radius: 10px;
 
@@ -106,6 +149,83 @@ body {
 
 }
 
+
+.search-input-wrapper {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    width: 40%;
+
+    max-width: 400px;
+
+}
+
+
+.search-clear {
+
+    position: absolute;
+
+    right: 10px;
+
+    background: none;
+
+    border: none;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    color: #999;
+
+    padding: 4px 8px;
+
+    display: none;
+
+    line-height: 1;
+
+    border-radius: 50%;
+
+    transition: color 0.2s, background 0.2s;
+
+}
+
+.search-clear:hover {
+
+    color: #333;
+
+    background: rgba(0,0,0,0.05);
+
+}
+
+#busqueda.has-text ~ .search-clear {
+
+    display: block;
+
+}
+
+
+.search-toggle {
+
+    display: none;
+
+}
+
+
+.search-wrapper {
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
 
 
 .carrito-wrapper {
@@ -138,7 +258,7 @@ body {
 
     background: red;
 
-    color: white;
+    color: var(--color-boton-texto);
 
     border-radius: 50%;
 
@@ -170,7 +290,7 @@ body {
 
     right: 0;
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
     border-radius: 10px;
 
@@ -266,7 +386,7 @@ body {
 
     background: black;
 
-    color: white;
+    color: var(--color-boton-texto);
 
     text-decoration: none;
 
@@ -282,17 +402,9 @@ body {
 
 .hero {
 
-    background: linear-gradient(
+    background: var(--color-hero-fondo);
 
-        135deg,
-
-        black,
-
-        #444
-
-    );
-
-    color: white;
+    color: var(--color-boton-texto);
 
     text-align: center;
 
@@ -338,7 +450,7 @@ body {
 
     cursor: pointer;
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
     transition: background 0.2s;
 
@@ -370,7 +482,7 @@ body {
 
 .producto {
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
     border-radius: 15px;
 
@@ -413,7 +525,7 @@ body {
 
     font-weight: bold;
 
-    color: white;
+    color: var(--color-boton-texto);
 
 }
 
@@ -485,7 +597,7 @@ body {
 
     background: black;
 
-    color: white;
+    color: var(--color-boton-texto);
 
     cursor: pointer;
 
@@ -642,7 +754,7 @@ body {
 
 .carrusel-dot.active {
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
 }
 
@@ -674,7 +786,7 @@ body {
 
 .skeleton-card {
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
     border-radius: 15px;
 
@@ -810,7 +922,7 @@ body {
 
     right: 30px;
 
-    color: white;
+    color: var(--color-boton-texto);
 
     font-size: 40px;
 
@@ -846,7 +958,7 @@ body {
 
     background: #333;
 
-    color: white;
+    color: var(--color-boton-texto);
 
     padding: 14px 24px;
 
@@ -938,65 +1050,180 @@ body {
 
     .navbar {
 
-        flex-wrap: wrap;
+        display: flex;
 
-        padding: 12px 16px;
+        justify-content: space-between;
 
-        gap: 0;
+        align-items: center;
 
-    }
+        padding: 10px 16px;
 
-    .hamburguesa {
-
-        display: block;
-
-        order: 2;
+        flex-wrap: nowrap;
 
     }
 
     .logo {
 
-        order: 1;
+        flex-shrink: 0;
 
-        flex: 1;
+        display: flex;
 
+        align-items: center;
+
+        gap: 6px;
+
+        visibility: visible;
+
+        opacity: 1;
+
+    }
+
+    /* Ocultar el nombre de la tienda en mobile, solo mostrar el logo/imagen */
+    .logo span,
+    .logo a span {
+        display: none;
     }
 
     .nav-menu {
 
-        display: none;
+        display: flex;
 
-        order: 3;
+        align-items: center;
 
-        flex-direction: column;
+        gap: 6px;
 
-        width: 100%;
+        flex-direction: row;
 
-        padding-top: 12px;
+        width: auto;
 
-        gap: 12px;
+        padding-top: 0;
 
-        align-items: stretch;
+        flex: 0;
 
     }
 
-    .nav-menu.active {
+    /* Botón lupa visible en mobile - icono SVG más sencillo */
+    .search-toggle {
 
         display: flex;
 
+        align-items: center;
+
+        justify-content: center;
+
+        background: none;
+
+        border: none;
+
+        cursor: pointer;
+
+        padding: 8px;
+
+        color: var(--color-navbar-texto);
+
+        border-radius: 50%;
+
+        transition: background 0.2s;
+
     }
 
-    #busqueda {
+    .search-toggle:hover {
+        background: rgba(0,0,0,0.05);
+    }
 
-        width: 100%;
+    /* El input de búsqueda se oculta por defecto en mobile */
+    .search-wrapper {
+
+        display: flex;
+
+        align-items: center;
+
+        flex: none;
+
+        justify-content: normal;
+
+    }
+
+    .search-input-wrapper {
+
+        width: auto;
 
         max-width: none;
 
     }
 
+    .search-wrapper #busqueda {
+
+        display: none;
+
+        width: 160px;
+
+        max-width: none;
+
+        padding: 8px 28px 8px 12px;
+
+        font-size: 14px;
+
+    }
+
+    /* Cuando la búsqueda está activa, mostrar el input y ocultar la lupa */
+    .search-wrapper.active #busqueda {
+
+        display: block;
+
+    }
+
+    .search-wrapper.active .search-toggle {
+
+        display: none;
+
+    }
+
+    .search-clear {
+
+        position: absolute;
+
+        right: 8px;
+
+        background: none;
+
+        border: none;
+
+        cursor: pointer;
+
+        font-size: 14px;
+
+        color: #999;
+
+        padding: 4px 6px;
+
+        display: none;
+
+        line-height: 1;
+
+        border-radius: 50%;
+
+        z-index: 2;
+
+    }
+
+    .search-clear:hover {
+
+        color: #333;
+
+        background: rgba(0,0,0,0.05);
+
+    }
+
+    #busqueda.has-text ~ .search-clear {
+
+        display: block;
+
+    }
+
     .carrito-wrapper {
 
-        align-self: flex-end;
+        flex-shrink: 0;
 
     }
 
@@ -1214,7 +1441,7 @@ body {
 
     background: black;
 
-    color: white;
+    color: var(--color-boton-texto);
 
     text-decoration: none;
 
@@ -1270,7 +1497,7 @@ body {
 
     gap: 16px;
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
     border-radius: 14px;
 
@@ -1358,7 +1585,7 @@ body {
 
     font-weight: bold;
 
-    color: #333;
+    color: var(--color-navbar-texto);
 
     margin-bottom: 10px;
 
@@ -1398,7 +1625,7 @@ body {
 
     font-weight: bold;
 
-    color: #333;
+    color: var(--color-navbar-texto);
 
     transition: background 0.15s;
 
@@ -1522,7 +1749,7 @@ body {
 
     flex-shrink: 0;
 
-    background: white;
+    background: var(--color-navbar-fondo);
 
     border-radius: 14px;
 
@@ -1632,9 +1859,9 @@ body {
 
     border: none;
 
-    background: #25D366;
+    background: var(--color-whatsapp);
 
-    color: white;
+    color: var(--color-boton-texto);
 
     border-radius: 12px;
 
@@ -1806,7 +2033,7 @@ body {
 
 #busqueda:focus {
     outline: none;
-    background: white;
+    background: var(--color-navbar-fondo);
     box-shadow:
         0 0 0 4px rgba(37,99,235,.12);
 }
@@ -1817,7 +2044,7 @@ body {
     width: 56px;
     height: 56px;
     border-radius: 18px;
-    background: white;
+    background: var(--color-navbar-fondo);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1849,21 +2076,7 @@ body {
     align-items: center;
     justify-content: center;
 
-    background:
-        radial-gradient(circle at top left,
-        rgba(59,130,246,.35),
-        transparent 35%),
-
-        radial-gradient(circle at bottom right,
-        rgba(168,85,247,.30),
-        transparent 35%),
-
-        linear-gradient(
-            135deg,
-            #0f172a,
-            #111827,
-            #1e293b
-        );
+    background: var(--color-hero-fondo);
 }
 
 .hero-overlay {
@@ -1901,7 +2114,7 @@ body {
 
     backdrop-filter: blur(10px);
 
-    color: white;
+    color: var(--color-boton-texto);
 
     margin-bottom: 28px;
 
@@ -1929,7 +2142,7 @@ body {
     margin-top: 35px;
     padding: 16px 30px;
     border-radius: 18px;
-    background: white;
+    background: var(--color-navbar-fondo);
     color: #111827;
     text-decoration: none;
     font-weight: bold;
@@ -1952,7 +2165,7 @@ body {
 .categorias button {
     border-radius: 999px;
     padding: 13px 24px;
-    background: white;
+    background: var(--color-navbar-fondo);
     border: 1px solid #e5e7eb;
     font-weight: 600;
     transition: .25s;
@@ -1962,7 +2175,7 @@ body {
 
 .categorias button:hover {
     background: #111827;
-    color: white;
+    color: var(--color-boton-texto);
     transform: translateY(-2px);
 }
 
@@ -2138,11 +2351,17 @@ body {
 @media(max-width:700px) {
 
     .navbar {
-        padding: 14px 16px;
+        padding: 10px 12px;
     }
 
     .logo {
         font-size: 28px;
+    }
+
+    /* Ocultar nombre de tienda en mobile (solo logo/imagen) */
+    .logo span,
+    .logo a span {
+        display: none;
     }
 
     .hero {
@@ -2229,7 +2448,7 @@ body {
             #111827
         );
 
-    color: white;
+    color: var(--color-boton-texto);
 
     padding: 60px 20px 30px;
 
@@ -2321,7 +2540,7 @@ body {
 
     text-decoration: none;
 
-    color: white;
+    color: var(--color-boton-texto);
 
     transition: .3s;
 

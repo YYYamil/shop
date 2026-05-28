@@ -1,3 +1,17 @@
+/* ===== Cargar configuración al iniciar ===== */
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    if (typeof cargarConfiguracion === "function") {
+
+        cargarConfiguracion();
+
+    }
+
+});
+
+
+
 let carrito = JSON.parse(
 
     localStorage.getItem('carrito')
@@ -124,6 +138,8 @@ function cargarCarrito() {
 
         if (contenido) contenido.style.display = 'none';
 
+        actualizarContadorGlobal();
+
         return;
 
     }
@@ -230,6 +246,10 @@ function cargarCarrito() {
 
     if (resumenCant) resumenCant.textContent = cantidadTotal + ' producto(s)';
 
+
+
+    actualizarContadorGlobal();
+
 }
 
 
@@ -266,73 +286,9 @@ async function finalizarCompra() {
 
     let total = 0;
 
-
-
-    carrito.forEach(producto => {
-
-        total +=
-
-            producto.precio *
-
-            producto.cantidad;
-
-    });
-
-
-
-    const respuesta = await fetch('/pedidos', {
-
-        method: 'POST',
-
-        headers: {
-
-            'Content-Type': 'application/json'
-
-        },
-
-        body: JSON.stringify({
-
-            cliente,
-
-            telefono,
-
-            productos: carrito,
-
-            total
-
-        })
-
-    });
-
-
-
-    const data = await respuesta.json();
-
-
-
-    if (data.error) {
-
-        alert(data.error);
-
-        return;
-
-    }
-
-
-
     let mensaje =
 
-        '🛒 *NUEVO PEDIDO* %0A%0A';
-
-
-
-    mensaje +=
-
-        '📋 Pedido: #' +
-
-        data.pedidoId +
-
-        '%0A';
+        '¡Hola! Quiero hacer un pedido:%0A%0A';
 
     mensaje +=
 
@@ -354,65 +310,59 @@ async function finalizarCompra() {
 
         '━━━ *PRODUCTOS* ━━━%0A';
 
-
-
     carrito.forEach(producto => {
 
-        const subtotal =
+        const subtotal = producto.precio * producto.cantidad;
 
-            producto.precio *
+        total += subtotal;
 
-            producto.cantidad;
-
-        mensaje +=
-
-            '• ' +
-
-            producto.nombre +
-
-            ' x' +
-
-            producto.cantidad +
-
-            ' = $' +
-
-            subtotal +
-
-            '%0A';
+        mensaje += '• ' + producto.nombre + ' x' + producto.cantidad + ' = $' + subtotal + '%0A';
 
     });
 
+    mensaje += '%0A━━━━━━━━━━━━━%0A';
+
+    mensaje += '*TOTAL: $ ' + total + '*';
 
 
-    mensaje +=
 
-        '%0A━━━━━━━━━━━━━%0A';
+    // Enviar pedido al servidor (no crítico para el mensaje)
+    try {
+        await fetch('/pedidos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                cliente,
+                telefono,
+                productos: carrito,
+                total
+            })
+        });
+    } catch (e) {
+        console.error('Error al enviar pedido al servidor:', e);
+    }
 
-    mensaje +=
-
-        '*TOTAL: $ ' +
-
-        total +
-
-        '*';
 
 
+    // Usar número de WhatsApp desde la configuración
+    const wpNumero = window.__whatsappNumero;
+
+    if (wpNumero) {
+        window.open(
+            `https://wa.me/${wpNumero}?text=${mensaje}`,
+            '_blank'
+        );
+    } else {
+        alert('No hay número de WhatsApp configurado para recibir pedidos');
+    }
 
     localStorage.removeItem('carrito');
 
-
-
-    window.open(
-
-        `https://wa.me/5493813845360?text=${mensaje}`,
-
-        '_blank'
-
-    );
-
-
-
     window.location = '/';
+
+
 
 }
 

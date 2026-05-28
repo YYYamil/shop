@@ -21,8 +21,10 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 
 const pedidoRoutes = require('./routes/pedidoRoutes');
-
 const categoriaRoutes = require('./routes/categoriaRoutes');
+
+const configRoutes = require('./routes/configRoutes');
+
 
 
 
@@ -72,7 +74,9 @@ app.use('/productos', productRoutes);
 
 app.use('/pedidos', pedidoRoutes);
 
-app.use('/categorias', authMiddleware, categoriaRoutes);
+app.use('/categorias', categoriaRoutes);
+
+app.use('/api/config', configRoutes);
 
 // Ruta para verificar sesión (muy importante)
 app.get('/auth/verificar', authMiddleware, (req, res) => {

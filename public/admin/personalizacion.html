@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Personalizar Tienda</title>
+
+    <link rel="stylesheet"
+          href="/css/admin.css">
+
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Botón hamburguesa para mobile -->
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+
+    <!-- Overlay para mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="admin-layout">
+
+        <!-- SIDEBAR UNIFICADO -->
+        <aside class="sidebar" id="sidebar">
+
+            <div class="sidebar-header">
+
+                <h2>Panel Admin</h2>
+
+                <p class="sidebar-subtitle">Gestión de tienda</p>
+
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <a href="/admin/dashboard.html">
+                    📊 Dashboard
+                </a>
+
+                <a href="/admin/admin.html">
+                    📦 Productos
+                </a>
+
+                <a href="/admin/pedidos.html">
+                    🛒 Pedidos
+                </a>
+
+                <a href="/admin/personalizacion.html" class="active">
+                    🎨 Personalizar
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+
+                <button onclick="logout()" class="logout-btn">
+                    Cerrar sesión
+                </button>
+
+            </div>
+
+        </aside>
+
+        <!-- CONTENIDO -->
+        <main class="admin-content">
+
+            <!-- HEADER -->
+            <div class="topbar">
+
+                <div>
+
+                    <h1>Personalizar Tienda</h1>
+
+                    <p>Configurá la apariencia y contenido de tu tienda</p>
+
+                </div>
+
+                <div class="stats-card">
+
+                    <!-- <span>Cambios en vivo</span> -->
+
+                    <strong style="font-size:14px;">Se reflejan al instante</strong>
+
+                </div>
+
+            </div>
+
+            <!-- FORMULARIO DE CONFIGURACIÓN -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Información General</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-general">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Colores</h2>
+
+                    <button onclick="restaurarColores()" class="secondary-btn" style="padding:8px 16px;font-size:13px;">
+                        ↺ Restaurar colores
+                    </button>
+
+                </div>
+
+                <div class="form-grid" id="grupo-apariencia">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Fondo / Portada</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-hero">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Pedidos</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-whatsapp">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <div class="form-card" style="display:none;">
+
+                <div class="form-header">
+
+                    <h2>Contacto</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-contacto">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Redes Sociales</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-redes">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <!-- SECCIÓN DE IMÁGENES -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Imágenes</h2>
+
+                </div>
+
+                <div class="imagenes-section">
+
+                    <div class="imagenes-grid" id="imagenes-config">
+
+                        <!-- Logo -->
+                        <div class="imagen-card">
+                            <label>Logo de la tienda</label>
+                            <div class="imagen-preview" id="preview-logo">
+                                <span>Sin logo</span>
+                            </div>
+                            <input type="file" id="input-logo" accept="image/*" onchange="subirLogo(event)">
+                            <button onclick="document.getElementById('input-logo').click()" class="secondary-btn" style="width:100%;margin-top:8px;">
+                                Subir logo
+                            </button>
+                        </div>
+
+                        <!-- Hero imagen -->
+                        <div class="imagen-card">
+                            <label>Imagen de portada </label>
+                            <div class="imagen-preview" id="preview-hero">
+                                <span>Sin imagen</span>
+                            </div>
+                            <input type="file" id="input-hero" accept="image/*" onchange="subirHero(event)">
+                            <button onclick="document.getElementById('input-hero').click()" class="secondary-btn" style="width:100%;margin-top:8px;">
+                                Subir imagen
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- BOTONES DE ACCIÓN GLOBAL -->
+            <div class="form-card" style="border:2px dashed #d1d5db;background:#fafafa;">
+
+                <div class="form-header">
+
+                    <h2>🔄 Restablecer valores</h2>
+
+                </div>
+
+                <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+
+                    <p style="color:#6b7280;font-size:14px;margin:0;line-height:1.5;">
+                        Si es la primera vez que ingresás, usá este botón para cargar textos de ejemplo
+                        que te guíen sobre dónde escribir cada cosa. También podés volver a estos valores
+                        cuando quieras empezar de nuevo.
+                    </p>
+
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+
+                        <button onclick="restaurarColores()" class="secondary-btn" style="padding:12px 24px;font-size:14px;font-weight:600;">
+                            ↺ Restaurar solo colores
+                        </button>
+
+                        <button onclick="restaurarTextos()" class="secondary-btn" style="padding:12px 24px;font-size:14px;font-weight:600;background:#f59e0b;color:white;border-color:#f59e0b;">
+                            📝 Restaurar todos los textos
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+
+        /* ===== CONFIGURACIÓN ADMIN ===== */
+
+        let configOriginal = {};
+
+        // Nombres amigables para las claves
+        const etiquetas = {
+            tienda_nombre: 'Nombre de la tienda',
+            tienda_descripcion: 'Descripción',
+            color_primario: 'Color primario',
+            color_secundario: 'Color secundario',
+            color_fondo: 'Color de fondo',
+            color_texto: 'Color de texto',
+            color_boton: 'Color de botón',
+            color_boton_texto: 'Color de texto en botón',
+            hero_titulo: 'Título en Portada',
+            hero_descripcion: 'Texto en Portada',
+            hero_fondo: 'Fondo (gradiente)',
+            hero_imagen: 'Imagen de portada (se sube abajo)',
+            whatsapp_numero: 'WhatsApp para pedidos del carrito',
+            whatsapp_mensaje: 'Mensaje para pedidos (se envía con detalle de compra)',
+            whatsapp_activo: 'WhatsApp para pedidos activo',
+            contacto_email: 'Correo electrónico',
+            contacto_telefono: 'Teléfono',
+            contacto_direccion: 'Dirección',
+            redes_instagram: 'Instagram (URL)',
+            redes_facebook: 'Facebook (URL)',
+            redes_tiktok: 'TikTok (URL)',
+            redes_whatsapp: 'WhatsApp (URL)',
+            logo_imagen: 'Logo de la tienda (se sube abajo)',
+        };
+
+        // Grupos para cada clave
+        const grupos = {
+            tienda_nombre: 'general',
+            tienda_descripcion: 'general',
+            color_primario: 'apariencia',
+            color_secundario: 'oculto',
+            color_fondo: 'apariencia',
+            color_texto: 'apariencia',
+            color_boton: 'apariencia',
+            color_boton_texto: 'apariencia',
+            hero_titulo: 'hero',
+            hero_descripcion: 'hero',
+            hero_fondo: 'hero',
+            hero_imagen: 'hero',
+            whatsapp_numero: 'whatsapp',
+            whatsapp_mensaje: 'oculto',
+            whatsapp_activo: 'oculto',
+            contacto_email: 'contacto',
+            contacto_telefono: 'contacto',
+            contacto_direccion: 'contacto',
+            redes_instagram: 'redes',
+            redes_facebook: 'redes',
+            redes_tiktok: 'redes',
+            redes_whatsapp: 'redes',
+            logo_imagen: 'apariencia',
+        };
+
+        // Colores por defecto para restaurar
+        const coloresDefault = {
+            color_primario: '#000000',
+            color_secundario: '#444444',
+            color_fondo: '#f4f4f4',
+            color_texto: '#111827',
+            color_boton: '#000000',
+            color_boton_texto: '#ffffff',
+        };
+
+        // Textos por defecto para restaurar (guía para el usuario)
+        const textosDefault = {
+            tienda_nombre: 'Mi Tienda',
+            tienda_descripcion: 'Descripción de mi tienda - Aquí podés contar qué ofrecés',
+            hero_titulo: 'Título de portada',
+            hero_descripcion: 'Descripción de portada - Contá lo que quieras destacar',
+            hero_fondo: 'linear-gradient(135deg, black, #444)',
+            whatsapp_numero: '',
+            contacto_email: '',
+            contacto_telefono: '',
+            contacto_direccion: '',
+            redes_instagram: 'https://instagram.com/',
+            redes_facebook: 'https://facebook.com/',
+            redes_tiktok: 'https://tiktok.com/',
+            redes_whatsapp: 'https://wa.me/5493810000000',
+        };
+
+        async function cargarConfigAdmin() {
+            try {
+                const respuesta = await fetch('/api/config/admin');
+                if (!respuesta.ok) {
+                    if (respuesta.status === 401) {
+                        window.location.href = '/admin/login.html';
+                        return;
+                    }
+                    throw new Error('Error ' + respuesta.status);
+                }
+                const datos = await respuesta.json();
+
+                // Guardar copia original
+                datos.forEach(item => {
+                    configOriginal[item.clave] = item.valor;
+                });
+
+                renderizarFormularios(datos);
+                cargarPreviews();
+            } catch (err) {
+                console.error('Error al cargar configuración:', err);
+                mostrarToast('Error al cargar configuración', 'error');
+            }
+        }
+
+        function renderizarFormularios(datos) {
+            datos.forEach(item => {
+                const grupo = grupos[item.clave] || 'general';
+                const contenedor = document.getElementById('grupo-' + grupo);
+                if (!contenedor) return;
+
+                // Omitir imágenes del listado general (se manejan en sección aparte)
+                if (item.clave === 'logo_imagen' || item.clave === 'hero_imagen') return;
+
+                const div = document.createElement('div');
+                div.className = 'input-group';
+                div.id = 'campo-' + item.clave;
+
+                const label = document.createElement('label');
+                if (item.clave !== 'whatsapp_numero') {
+                    label.htmlFor = 'input-' + item.clave;
+                }
+                label.textContent = etiquetas[item.clave] || item.clave;
+
+                div.appendChild(label);
+
+                if (item.tipo === 'color') {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.cssText = 'display:flex;gap:10px;align-items:center;';
+
+                    const input = document.createElement('input');
+                    input.type = 'color';
+                    input.id = 'input-' + item.clave;
+                    input.value = item.valor || '#000000';
+                    input.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
+                    input.addEventListener('input', function() {
+                        document.getElementById('text-' + item.clave).value = this.value;
+                        guardarCambio(item.clave, this.value);
+                    });
+
+                    const textInput = document.createElement('input');
+                    textInput.type = 'text';
+                    textInput.id = 'text-' + item.clave;
+                    textInput.value = item.valor || '#000000';
+                    textInput.style.cssText = 'flex:1;';
+                    textInput.addEventListener('change', function() {
+                        const val = this.value.trim();
+                        if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                            document.getElementById('input-' + item.clave).value = val;
+                            guardarCambio(item.clave, val);
+                        } else {
+                            mostrarToast('Formato inválido. Use #RRGGBB', 'error');
+                            this.value = configOriginal[item.clave] || '#000000';
+                        }
+                    });
+
+                    wrapper.appendChild(input);
+                    wrapper.appendChild(textInput);
+                    div.appendChild(wrapper);
+
+                } else if (item.clave === 'hero_fondo') {
+                    // Hero fondo: 2 color pickers para gradiente
+                    const wrapper = document.createElement('div');
+                    wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+
+                    const helpText = document.createElement('small');
+                    helpText.textContent = 'Elegí 2 colores para el gradiente de fondo';
+                    helpText.style.cssText = 'color:#6b7280;font-size:13px;';
+
+                    const pickersRow = document.createElement('div');
+                    pickersRow.style.cssText = 'display:flex;gap:10px;align-items:center;';
+
+                    // Extraer colores del gradiente actual
+                    const gradMatch = item.valor.match(/linear-gradient\([^,]+,\s*([^,]+),\s*(.+)\)/);
+                    const color1 = gradMatch ? gradMatch[1].trim() : '#000000';
+                    const color2 = gradMatch ? gradMatch[2].trim() : '#444444';
+
+                    const picker1 = document.createElement('input');
+                    picker1.type = 'color';
+                    picker1.id = 'input-' + item.clave + '-1';
+                    picker1.value = color1;
+                    picker1.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
+
+                    const picker2 = document.createElement('input');
+                    picker2.type = 'color';
+                    picker2.id = 'input-' + item.clave + '-2';
+                    picker2.value = color2;
+                    picker2.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
+
+                    const preview = document.createElement('div');
+                    preview.id = 'preview-' + item.clave;
+                    preview.style.cssText = 'flex:1;height:50px;border-radius:12px;border:1px solid #d1d5db;background:linear-gradient(135deg, ' + color1 + ', ' + color2 + ');';
+
+                    function actualizarGradiente() {
+                        const c1 = document.getElementById('input-' + item.clave + '-1').value;
+                        const c2 = document.getElementById('input-' + item.clave + '-2').value;
+                        const grad = 'linear-gradient(135deg, ' + c1 + ', ' + c2 + ')';
+                        preview.style.background = grad;
+                        guardarCambio(item.clave, grad);
+                    }
+
+                    picker1.addEventListener('input', actualizarGradiente);
+                    picker2.addEventListener('input', actualizarGradiente);
+
+                    pickersRow.appendChild(picker1);
+                    pickersRow.appendChild(picker2);
+                    pickersRow.appendChild(preview);
+
+                    wrapper.appendChild(helpText);
+                    wrapper.appendChild(pickersRow);
+                    div.appendChild(wrapper);
+
+                } else if (item.clave === 'whatsapp_numero') {
+                    // WhatsApp número: dos campos (código de área + número) que se concatenan como 549 + código + número
+                    const wrapper = document.createElement('div');
+                    wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+
+                    const helpText = document.createElement('small');
+                    helpText.textContent = 'Ingresá el código de área (3-4 dígitos) y el número (5-9 dígitos).';
+                    helpText.style.cssText = 'color:#6b7280;font-size:13px;line-height:1.4;';
+
+                    const fieldsRow = document.createElement('div');
+                    fieldsRow.style.cssText = 'display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;';
+
+                    // Extraer código y número del valor actual (formato: 5493813845360)
+                    let codigo = '';
+                    let numero = '';
+                    const val = item.valor || '';
+                    if (val.startsWith('549') && val.length >= 6) {
+                        const resto = val.substring(3); // sacar '549'
+                        if (resto.length >= 3) {
+                            codigo = resto.substring(0, Math.min(4, resto.length));
+                            numero = resto.substring(codigo.length);
+                        }
+                    }
+
+                    // Campo código de área
+                    const codigoGroup = document.createElement('div');
+                    codigoGroup.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+
+                    const codigoLabel = document.createElement('span');
+                    codigoLabel.textContent = 'Código de área';
+                    codigoLabel.style.cssText = 'font-size:12px;color:#6b7280;font-weight:500;';
+
+                    const codigoInput = document.createElement('input');
+                    codigoInput.type = 'text';
+                    codigoInput.id = 'input-whatsapp_codigo';
+                    codigoInput.value = codigo;
+                    codigoInput.maxLength = 4;
+                    codigoInput.placeholder = 'Ej: 381';
+                    codigoInput.style.cssText = 'width:100px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;';
+                    codigoInput.inputMode = 'numeric';
+                    codigoInput.pattern = '[0-9]*';
+
+                    // Campo número
+                    const numeroGroup = document.createElement('div');
+                    numeroGroup.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+
+                    const numeroLabel = document.createElement('span');
+                    numeroLabel.textContent = 'Número';
+                    numeroLabel.style.cssText = 'font-size:12px;color:#6b7280;font-weight:500;';
+
+                    const numeroInput = document.createElement('input');
+                    numeroInput.type = 'text';
+                    numeroInput.id = 'input-whatsapp_numero';
+                    numeroInput.value = numero;
+                    numeroInput.maxLength = 9;
+                    numeroInput.placeholder = 'Ej: 384536000';
+                    numeroInput.style.cssText = 'width:160px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;';
+                    numeroInput.inputMode = 'numeric';
+                    numeroInput.pattern = '[0-9]*';
+
+                    // Vista previa del número completo
+                    const previewSpan = document.createElement('span');
+                    previewSpan.id = 'preview-whatsapp_numero';
+                    previewSpan.style.cssText = 'font-size:13px;color:#2563eb;font-weight:600;background:#eff6ff;padding:6px 12px;border-radius:6px;white-space:nowrap;';
+                    previewSpan.textContent = val ? '549 ' + codigo + ' ' + numero : '(completá los campos)';
+
+                    // Botón guardar
+                    const guardarBtn = document.createElement('button');
+                    guardarBtn.type = 'button';
+                    guardarBtn.id = 'btn-guardar-whatsapp';
+                    guardarBtn.textContent = '💾 Guardar';
+                    guardarBtn.style.cssText = 'padding:10px 20px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s,opacity 0.2s;white-space:nowrap;height:42px;';
+                    guardarBtn.disabled = true;
+                    guardarBtn.style.opacity = '0.5';
+                    guardarBtn.style.cursor = 'not-allowed';
+
+                    function validarCampos() {
+                        const c = document.getElementById('input-whatsapp_codigo').value.replace(/\D/g, '');
+                        const n = document.getElementById('input-whatsapp_numero').value.replace(/\D/g, '');
+                        const completo = '549' + c + n;
+                        document.getElementById('preview-whatsapp_numero').textContent = completo ? '549 ' + c + ' ' + n : '(completá los campos)';
+
+                        // Validar: código >= 3 dígitos, número >= 5 dígitos
+                        const valido = c.length >= 3 && n.length >= 5;
+                        guardarBtn.disabled = !valido;
+                        guardarBtn.style.opacity = valido ? '1' : '0.5';
+                        guardarBtn.style.cursor = valido ? 'pointer' : 'not-allowed';
+
+                        // Feedback visual en inputs
+                        codigoInput.style.borderColor = c.length >= 3 ? '#10b981' : '#e5e7eb';
+                        numeroInput.style.borderColor = n.length >= 5 ? '#10b981' : '#e5e7eb';
+
+                        return valido;
+                    }
+
+                    codigoInput.addEventListener('input', function() {
+                        this.value = this.value.replace(/\D/g, '');
+                        if (this.value.length > 4) this.value = this.value.substring(0, 4);
+                        validarCampos();
+                    });
+
+                    numeroInput.addEventListener('input', function() {
+                        this.value = this.value.replace(/\D/g, '');
+                        if (this.value.length > 9) this.value = this.value.substring(0, 9);
+                        validarCampos();
+                    });
+
+                    guardarBtn.addEventListener('click', function() {
+                        const c = document.getElementById('input-whatsapp_codigo').value.replace(/\D/g, '');
+                        const n = document.getElementById('input-whatsapp_numero').value.replace(/\D/g, '');
+                        if (c.length < 3) {
+                            mostrarToast('El código de área debe tener al menos 3 dígitos', 'error');
+                            return;
+                        }
+                        if (n.length < 5) {
+                            mostrarToast('El número debe tener al menos 5 dígitos', 'error');
+                            return;
+                        }
+                        const completo = '549' + c + n;
+                        guardarCambio('whatsapp_numero', completo);
+                    });
+
+                    codigoGroup.appendChild(codigoLabel);
+                    codigoGroup.appendChild(codigoInput);
+                    numeroGroup.appendChild(numeroLabel);
+                    numeroGroup.appendChild(numeroInput);
+
+                    fieldsRow.appendChild(codigoGroup);
+                    fieldsRow.appendChild(numeroGroup);
+                    fieldsRow.appendChild(previewSpan);
+                    fieldsRow.appendChild(guardarBtn);
+
+                    wrapper.appendChild(helpText);
+                    wrapper.appendChild(fieldsRow);
+                    div.appendChild(wrapper);
+
+                } else if (item.tipo === 'booleano') {
+                    const labelSwitch = document.createElement('label');
+                    labelSwitch.className = 'switch';
+                    labelSwitch.style.cssText = 'display:flex;align-items:center;gap:12px;cursor:pointer;';
+
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.id = 'input-' + item.clave;
+                    input.checked = item.valor === 'true';
+                    input.addEventListener('change', function() {
+                        guardarCambio(item.clave, this.checked ? 'true' : 'false');
+                    });
+
+                    const span = document.createElement('span');
+                    span.textContent = item.valor === 'true' ? 'Activado' : 'Desactivado';
+                    span.id = 'label-' + item.clave;
+                    span.style.cssText = 'font-weight:normal;font-size:14px;color:#6b7280;';
+
+                    // Toggle personalizado
+                    const toggle = document.createElement('span');
+                    toggle.className = 'toggle-switch';
+                    toggle.style.cssText = 'width:44px;height:24px;background:' + (input.checked ? '#2563eb' : '#d1d5db') + ';border-radius:12px;position:relative;transition:background 0.3s;display:inline-block;';
+                    const toggleCircle = document.createElement('span');
+                    toggleCircle.style.cssText = 'width:20px;height:20px;background:white;border-radius:50%;position:absolute;top:2px;left:' + (input.checked ? '22px' : '2px') + ';transition:left 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);';
+                    toggle.appendChild(toggleCircle);
+
+                    labelSwitch.appendChild(input);
+                    labelSwitch.appendChild(toggle);
+                    labelSwitch.appendChild(span);
+
+                    // Actualizar toggle visualmente
+                    input.addEventListener('change', function() {
+                        toggle.style.background = this.checked ? '#2563eb' : '#d1d5db';
+                        toggleCircle.style.left = this.checked ? '22px' : '2px';
+                        document.getElementById('label-' + item.clave).textContent = this.checked ? 'Activado' : 'Desactivado';
+                    });
+
+                    div.appendChild(labelSwitch);
+
+                } else if (item.tipo === 'imagen') {
+                    // Las imágenes se manejan en sección aparte
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = 'input-' + item.clave;
+                    input.value = item.valor || '';
+                    input.placeholder = 'URL de la imagen';
+                    input.addEventListener('change', function() {
+                        guardarCambio(item.clave, this.value);
+                    });
+                    div.appendChild(input);
+
+                } else {
+                    // texto
+                    const isTextarea = item.clave === 'tienda_descripcion' || item.clave === 'hero_descripcion' || item.clave === 'whatsapp_mensaje';
+
+                    if (isTextarea) {
+                        const textarea = document.createElement('textarea');
+                        textarea.id = 'input-' + item.clave;
+                        textarea.value = item.valor || '';
+                        textarea.style.minHeight = '80px';
+                        textarea.addEventListener('change', function() {
+                            guardarCambio(item.clave, this.value);
+                        });
+                        div.appendChild(textarea);
+                    } else {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = 'input-' + item.clave;
+                        input.value = item.valor || '';
+                        input.addEventListener('change', function() {
+                            guardarCambio(item.clave, this.value);
+                        });
+                        div.appendChild(input);
+                    }
+                }
+
+                contenedor.appendChild(div);
+            });
+        }
+
+        async function guardarCambio(clave, valor) {
+            try {
+                const respuesta = await fetch('/api/config/' + clave, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ valor }),
+                });
+
+                if (!respuesta.ok) {
+                    const err = await respuesta.json();
+                    mostrarToast(err.error || 'Error al guardar', 'error');
+                    return;
+                }
+
+                configOriginal[clave] = valor;
+                mostrarToast('✓ ' + (etiquetas[clave] || clave) + ' actualizado', 'success');
+            } catch (err) {
+                console.error('Error al guardar:', err);
+                mostrarToast('Error de conexión', 'error');
+            }
+        }
+
+        async function subirLogo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('logo', file);
+
+            try {
+                const respuesta = await fetch('/api/config/logo', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!respuesta.ok) throw new Error('Error al subir');
+
+                const data = await respuesta.json();
+                document.getElementById('preview-logo').innerHTML = '<img src="' + data.url + '" alt="Logo" style="max-width:100%;max-height:100%;object-fit:contain;">';
+                configOriginal.logo_imagen = data.url;
+                mostrarToast('✓ Logo actualizado', 'success');
+            } catch (err) {
+                console.error(err);
+                mostrarToast('Error al subir logo', 'error');
+            }
+        }
+
+        async function subirHero(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('hero', file);
+
+            try {
+                const respuesta = await fetch('/api/config/hero-imagen', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!respuesta.ok) throw new Error('Error al subir');
+
+                const data = await respuesta.json();
+                document.getElementById('preview-hero').innerHTML = '<img src="' + data.url + '" alt="Hero" style="max-width:100%;max-height:100%;object-fit:contain;">';
+                configOriginal.hero_imagen = data.url;
+                mostrarToast('✓ Imagen de portada actualizada', 'success');
+            } catch (err) {
+                console.error(err);
+                mostrarToast('Error al subir imagen', 'error');
+            }
+        }
+
+        async function cargarPreviews() {
+            // Logo preview
+            if (configOriginal.logo_imagen) {
+                document.getElementById('preview-logo').innerHTML = '<img src="' + configOriginal.logo_imagen + '" alt="Logo" style="max-width:100%;max-height:100%;object-fit:contain;">';
+            }
+            // Hero preview
+            if (configOriginal.hero_imagen) {
+                document.getElementById('preview-hero').innerHTML = '<img src="' + configOriginal.hero_imagen + '" alt="Hero" style="max-width:100%;max-height:100%;object-fit:contain;">';
+            }
+        }
+
+        async function restaurarColores() {
+            if (!confirm('¿Restaurar los colores a sus valores por defecto?')) return;
+
+            for (const [clave, valor] of Object.entries(coloresDefault)) {
+                await guardarCambio(clave, valor);
+                // Actualizar inputs
+                const colorInput = document.getElementById('input-' + clave);
+                const textInput = document.getElementById('text-' + clave);
+                if (colorInput) colorInput.value = valor;
+                if (textInput) textInput.value = valor;
+            }
+
+            mostrarToast('✓ Colores restaurados', 'success');
+        }
+
+        async function restaurarTextos() {
+            if (!confirm('¿Restaurar todos los textos y valores a sus valores por defecto?\n\nLos campos se llenarán con textos de ejemplo para que sepas dónde escribir cada cosa.')) return;
+
+            for (const [clave, valor] of Object.entries(textosDefault)) {
+                await guardarCambio(clave, valor);
+                // Actualizar inputs de texto
+                const input = document.getElementById('input-' + clave);
+                if (input) {
+                    input.value = valor;
+                }
+                // Actualizar hero_fondo (gradiente con 2 color pickers)
+                if (clave === 'hero_fondo') {
+                    const picker1 = document.getElementById('input-hero_fondo-1');
+                    const picker2 = document.getElementById('input-hero_fondo-2');
+                    const preview = document.getElementById('preview-hero_fondo');
+                    if (picker1) picker1.value = '#000000';
+                    if (picker2) picker2.value = '#444444';
+                    if (preview) preview.style.background = 'linear-gradient(135deg, #000000, #444444)';
+                }
+                // Actualizar campos de WhatsApp (código + número)
+                if (clave === 'whatsapp_numero') {
+                    const codigoInput = document.getElementById('input-whatsapp_codigo');
+                    const numeroInput = document.getElementById('input-whatsapp_numero');
+                    if (codigoInput) codigoInput.value = '';
+                    if (numeroInput) numeroInput.value = '';
+                    const preview = document.getElementById('preview-whatsapp_numero');
+                    if (preview) preview.textContent = '(completá los campos)';
+                    const guardarBtn = document.getElementById('btn-guardar-whatsapp');
+                    if (guardarBtn) {
+                        guardarBtn.disabled = true;
+                        guardarBtn.style.opacity = '0.5';
+                        guardarBtn.style.cursor = 'not-allowed';
+                    }
+                }
+            }
+
+            mostrarToast('✓ Todos los textos restaurados a valores por defecto', 'success');
+        }
+
+        function mostrarToast(mensaje, tipo) {
+            // Eliminar toast existente
+            const existente = document.querySelector('.admin-toast');
+            if (existente) existente.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'admin-toast';
+            toast.textContent = mensaje;
+            toast.style.cssText = 'position:fixed;bottom:30px;right:30px;z-index:9999;padding:14px 24px;border-radius:12px;color:white;font-weight:bold;font-size:14px;box-shadow:0 4px 20px rgba(0,0,0,0.2);animation:toastFadeIn 0.3s ease;background:' + (tipo === 'error' ? '#ef4444' : '#10b981') + ';';
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Toggle sidebar mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            verificarAuth();
+            cargarConfigAdmin();
+
+            const toggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (toggle && sidebar && overlay) {
+                toggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('active');
+                });
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                });
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

@@ -979,3 +979,80 @@ canvas {
         font-size: 16px;
     }
 }
+
+
+/* ============================================
+   PERSONALIZACIÓN - TOGGLE SWITCH
+   ============================================ */
+
+.switch input[type="checkbox"] {
+    display: none;
+}
+
+/* ============================================
+   PERSONALIZACIÓN - IMAGENES
+   ============================================ */
+
+.imagenes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.imagen-card {
+    background: #f9fafb;
+    border: 2px dashed #d1d5db;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.imagen-card:hover {
+    border-color: #2563eb;
+}
+
+.imagen-card label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.imagen-preview {
+    width: 100%;
+    height: 140px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 10px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.imagen-card input[type="file"] {
+    display: none;
+}
+
+/* ============================================
+   TOAST NOTIFICATION
+   ============================================ */
+
+.toast {
+    animation: toastFadeIn 0.3s ease;
+}
+
+@keyframes toastFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
