@@ -95,7 +95,7 @@
             <!-- METRICAS -->
             <div class="dashboard-grid">
 
-                <div class="dashboard-card blue">
+                <button class="dashboard-card blue" id="btnVentas" onclick="abrirModalVentas()" style="cursor:pointer;text-align:left;border:none;width:100%;">
 
                     <div class="dashboard-icon">💰</div>
 
@@ -105,9 +105,11 @@
 
                         <h1 id="ventas">$0</h1>
 
+                        <span style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;display:block;">Ver detalle →</span>
+
                     </div>
 
-                </div>
+                </button>
 
                 <div class="dashboard-card purple">
 
@@ -165,18 +167,6 @@
                     </div>
 
                     <canvas id="resumenChart"></canvas>
-
-                </div>
-
-                <div class="chart-card">
-
-                    <div class="chart-header">
-
-                        <h2>Estado de stock</h2>
-
-                    </div>
-
-                    <canvas id="stockChart"></canvas>
 
                 </div>
 
@@ -250,6 +240,77 @@
             </div>
 
         </main>
+
+    </div>
+
+    <!-- MODAL VENTAS -->
+    <div class="modal-overlay" id="modalVentasOverlay" onclick="cerrarModalVentas(event)">
+
+        <div class="modal-ventas" id="modalVentas">
+
+            <div class="modal-ventas-header">
+
+                <h2>💰 Detalle de Ventas</h2>
+
+                <button class="modal-ventas-cerrar" onclick="cerrarModalVentas()" aria-label="Cerrar">✕</button>
+
+            </div>
+
+            <div class="modal-ventas-body">
+
+                <div class="ventas-resumen">
+
+                    <div class="ventas-resumen-card total">
+
+                        <span>Total ventas</span>
+
+                        <strong id="modalVentasTotal">$0</strong>
+
+                    </div>
+
+                    <div class="ventas-resumen-card pedidos">
+
+                        <span>Total pedidos</span>
+
+                        <strong id="modalVentasPedidos">0</strong>
+
+                    </div>
+
+                    <div class="ventas-resumen-card promedio">
+
+                        <span>Promedio por pedido</span>
+
+                        <strong id="modalVentasPromedio">$0</strong>
+
+                    </div>
+
+                </div>
+
+                <div class="ventas-diarias">
+
+                    <h3>Ventas por día</h3>
+
+                    <div class="ventas-tabla-header">
+
+                        <span>Fecha</span>
+
+                        <span>Pedidos</span>
+
+                        <span>Total</span>
+
+                    </div>
+
+                    <div id="ventasDiariasLista">
+
+                        <div class="ventas-loading">Cargando...</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 

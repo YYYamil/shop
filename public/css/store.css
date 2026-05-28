@@ -14,9 +14,9 @@
 
     --color-secundario: #264653;
 
-    --color-fondo: #f4f4f4;
+    --color-fondo: #000000;
 
-    --color-texto: #333333;
+    --color-texto: #000000;
 
     --color-boton: #2a9d8f;
 
@@ -73,7 +73,7 @@ body {
 
     background: var(--color-navbar-fondo);
 
-    padding: 15px 30px;
+    padding: 12px 20px;
 
     display: flex;
 
@@ -89,13 +89,17 @@ body {
 
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 
+    gap: 12px;
+
 }
 
 
 
+/* Logo centrado */
+
 .logo {
 
-    font-size: 28px;
+    font-size: 22px;
 
     font-weight: bold;
 
@@ -103,19 +107,126 @@ body {
 
     align-items: center;
 
+    justify-content: center;
+
     gap: 10px;
 
+    flex: 1;
+
+    text-align: center;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+}
+
+
+
+/* Logo imagen (la establece config.js) */
+
+.logo-img {
+
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    flex-shrink: 0;
+
+    border: 2px solid var(--color-navbar-fondo);
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+
+    transition: transform 0.3s ease;
+
+}
+
+.logo-img:hover {
+
+    transform: scale(1.05);
+
 }
 
 
 
-/* Botón hamburguesa - eliminado, ya no se usa */
+/* Link que envuelve logo + nombre */
 
-.hamburguesa {
+.logo-link {
 
-    display: none !important;
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    text-decoration: none;
+
+    color: inherit;
+
+    min-width: 0;
 
 }
+
+
+
+/* Solo nombre (sin imagen) */
+
+.logo-link-solo {
+
+    text-decoration: none;
+
+    color: inherit;
+
+    font-size: 20px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+
+}
+
+
+
+/* Nombre de la tienda siempre visible */
+
+.logo-nombre {
+
+    font-size: 20px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    letter-spacing: -0.5px;
+
+}
+
+
+
+/* Acciones derecha (búsqueda + carrito) */
+
+.nav-actions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    flex-shrink: 0;
+
+}
+
 
 
 
@@ -224,6 +335,8 @@ body {
     align-items: center;
 
     justify-content: center;
+
+    max-width: 500px;
 
 }
 
@@ -637,6 +750,12 @@ body {
 
     background: #eee;
 
+    touch-action: pan-y;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
 }
 
 .carrusel-track {
@@ -668,6 +787,9 @@ body {
     cursor: pointer;
 
     overflow: hidden;
+
+    pointer-events: auto;
+
 }
 
 .carrusel-slide img {
@@ -691,6 +813,8 @@ body {
     object-fit: cover;
 
     display: block;
+
+    pointer-events: none;
 
 }
 
@@ -1056,50 +1180,44 @@ body {
 
         align-items: center;
 
-        padding: 10px 16px;
+        padding: 10px 12px;
 
         flex-wrap: nowrap;
+
+        gap: 8px;
 
     }
 
     .logo {
 
-        flex-shrink: 0;
+        flex: 1;
 
         display: flex;
 
         align-items: center;
 
-        gap: 6px;
+        justify-content: center;
 
-        visibility: visible;
+        gap: 8px;
 
-        opacity: 1;
+        min-width: 0;
 
     }
 
-    /* Ocultar el nombre de la tienda en mobile, solo mostrar el logo/imagen */
-    .logo span,
-    .logo a span {
-        display: none;
+    /* El nombre de la tienda SIEMPRE visible en mobile */
+    .logo-nombre {
+        display: inline;
+        font-size: 17px;
     }
 
-    .nav-menu {
+    /* Logo imagen más pequeña en mobile */
+    .logo-img {
+        width: 38px;
+        height: 38px;
+    }
 
-        display: flex;
-
-        align-items: center;
-
-        gap: 6px;
-
-        flex-direction: row;
-
-        width: auto;
-
-        padding-top: 0;
-
-        flex: 0;
-
+    .nav-actions {
+        gap: 4px;
     }
 
     /* Botón lupa visible en mobile - icono SVG más sencillo */
@@ -1131,52 +1249,52 @@ body {
         background: rgba(0,0,0,0.05);
     }
 
-    /* El input de búsqueda se oculta por defecto en mobile */
+    /* Search-wrapper: overlay que se despliega debajo del navbar */
     .search-wrapper {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: rgba(255,255,255,.98);
+        padding: 12px 16px;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 4px 20px rgba(0,0,0,.1);
+        z-index: 99;
+        display: none;
+        border-bottom: 1px solid rgba(0,0,0,.05);
+    }
 
+    .search-wrapper.active {
         display: flex;
-
         align-items: center;
-
-        flex: none;
-
-        justify-content: normal;
-
     }
 
     .search-input-wrapper {
-
-        width: auto;
-
+        width: 100%;
         max-width: none;
-
     }
 
     .search-wrapper #busqueda {
-
-        display: none;
-
-        width: 160px;
-
-        max-width: none;
-
-        padding: 8px 28px 8px 12px;
-
-        font-size: 14px;
-
-    }
-
-    /* Cuando la búsqueda está activa, mostrar el input y ocultar la lupa */
-    .search-wrapper.active #busqueda {
-
         display: block;
-
+        width: 100%;
+        max-width: none;
+        padding: 12px 40px 12px 16px;
+        font-size: 16px;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        background: #f9fafb;
     }
 
-    .search-wrapper.active .search-toggle {
+    .search-wrapper #busqueda:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(37,99,235,.1);
+    }
 
-        display: none;
-
+    .search-clear {
+        display: block;
+        right: 12px;
     }
 
     .search-clear {
@@ -1497,7 +1615,7 @@ body {
 
     gap: 16px;
 
-    background: var(--color-navbar-fondo);
+    background: #ffffff;
 
     border-radius: 14px;
 
@@ -1749,7 +1867,7 @@ body {
 
     flex-shrink: 0;
 
-    background: var(--color-navbar-fondo);
+    background: #ffffff;
 
     border-radius: 14px;
 
@@ -2002,23 +2120,39 @@ body {
     backdrop-filter: blur(14px);
     background: rgba(255,255,255,.85);
     border-bottom: 1px solid rgba(255,255,255,.5);
-    padding: 18px 34px;
+    padding: 14px 24px;
 }
 
 .logo {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 800;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
+}
+
+/* Logo imagen en premium */
+.logo-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 12px rgba(37,99,235,.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.logo-img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 20px rgba(37,99,235,.3);
+}
+
+/* Nombre de tienda con gradiente */
+.logo-nombre {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
     background: linear-gradient(135deg,#111827,#2563eb);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}
-
-/* SEARCH */
-
-.search-wrapper {
-    width: 100%;
-    max-width: 500px;
+    background-clip: text;
 }
 
 #busqueda {
@@ -2033,7 +2167,7 @@ body {
 
 #busqueda:focus {
     outline: none;
-    background: var(--color-navbar-fondo);
+    background: #ffffff;
     box-shadow:
         0 0 0 4px rgba(37,99,235,.12);
 }
@@ -2044,7 +2178,7 @@ body {
     width: 56px;
     height: 56px;
     border-radius: 18px;
-    background: var(--color-navbar-fondo);
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2219,6 +2353,9 @@ body {
 .carrusel {
     height: 320px;
     background: #f3f4f6;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .carrusel-slide img {
@@ -2355,13 +2492,18 @@ body {
     }
 
     .logo {
-        font-size: 28px;
+        font-size: 20px;
     }
 
-    /* Ocultar nombre de tienda en mobile (solo logo/imagen) */
-    .logo span,
-    .logo a span {
-        display: none;
+    /* Nombre de tienda SIEMPRE visible en mobile */
+    .logo-nombre {
+        display: inline;
+        font-size: 18px;
+    }
+
+    .logo-img {
+        width: 40px;
+        height: 40px;
     }
 
     .hero {
@@ -2396,6 +2538,9 @@ body {
 
     .carrusel {
         height: 190px;
+        touch-action: pan-y;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .producto-info {

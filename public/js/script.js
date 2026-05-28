@@ -154,27 +154,47 @@ function cerrarModal() {
 
 
 
-/* ===== MENÚ HAMBURGUESA ===== */
-
 function toggleSearch() {
 
     const wrapper = document.querySelector('.search-wrapper');
 
-    if (wrapper) {
+    if (!wrapper) return;
 
-        wrapper.classList.toggle('active');
+    const isActive = wrapper.classList.contains('active');
+
+    if (isActive) {
+
+        wrapper.classList.remove('active');
+
+    } else {
+
+        wrapper.classList.add('active');
 
         const input = wrapper.querySelector('#busqueda');
 
-        if (wrapper.classList.contains('active') && input) {
-
-            input.focus();
-
-        }
+        if (input) input.focus();
 
     }
 
 }
+
+// Cerrar búsqueda al hacer clic fuera del wrapper
+document.addEventListener('click', function(e) {
+    const wrapper = document.querySelector('.search-wrapper');
+    const toggle = document.querySelector('.search-toggle');
+    if (!wrapper || !toggle) return;
+    if (!wrapper.contains(e.target) && !toggle.contains(e.target)) {
+        wrapper.classList.remove('active');
+    }
+});
+
+// Cerrar búsqueda con Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const wrapper = document.querySelector('.search-wrapper');
+        if (wrapper) wrapper.classList.remove('active');
+    }
+});
 
 
 
@@ -230,7 +250,7 @@ function renderizarCarrusel(imagenes) {
 
         const active = index === 0 ? 'active' : '';
 
-        html += `<div class="carrusel-slide ${active}"><img src="${img}" onclick="abrirModal('${img}')"></div>`;
+        html += `<div class="carrusel-slide ${active}"><img src="${img}" alt="Imagen ${index + 1}"></div>`;
 
     });
 
@@ -471,13 +491,15 @@ function renderizarProductos(productos) {
 
     });
 
-    // Iniciar auto-play en todos los carruseles
+    // Iniciar auto-play y touch slider en todos los carruseles
 
     document.querySelectorAll('.carrusel').forEach(carrusel => {
 
         actualizarCarrusel(carrusel, 0);
 
     iniciarAutoPlay(carrusel);
+
+        initTouchSlider(carrusel);
 
     });
 
@@ -558,6 +580,14 @@ function agregarCarrito(id) {
 
 
 function filtrarCategoria(id) {
+
+    // Sincronizar clase .activo en ambos contenedores de categorías
+    document.querySelectorAll('#categorias button, #menuCategorias button').forEach(btn => {
+        btn.classList.remove('activo');
+    });
+    document.querySelectorAll(`#categorias button:nth-child(${id + 1}), #menuCategorias button:nth-child(${id + 1})`).forEach(btn => {
+        btn.classList.add('activo');
+    });
 
     if (id === 0) {
 
@@ -716,6 +746,157 @@ function actualizarCarrusel(carrusel, index) {
     }
 
     carrusel.dataset.index = index;
+}
+
+
+/* ===== TOUCH SLIDER para carruseles ===== */
+
+function initTouchSlider(carrusel) {
+    if (carrusel.dataset.touchInit) return;
+    carrusel.dataset.touchInit = 'true';
+
+    const track = carrusel.querySelector('.carrusel-track');
+    if (!track) return;
+
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    let moved = false;
+
+    function getSlideIndex() {
+        return parseInt(carrusel.dataset.index || 0);
+    }
+
+    function getTotalSlides() {
+        return carrusel.querySelectorAll('.carrusel-slide').length;
+    }
+
+    function onTouchStart(e) {
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        currentX = startX;
+        isDragging = true;
+        moved = false;
+        track.style.transition = 'none';
+        detenerAutoPlay(carrusel);
+    }
+
+    function onTouchMove(e) {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        currentX = touch.clientX;
+        const diff = currentX - startX;
+
+        if (Math.abs(diff) > 5) {
+            moved = true;
+            // Evitar scroll vertical mientras se desliza horizontal
+            e.preventDefault();
+        }
+
+        const currentIndex = getSlideIndex();
+        const offset = -currentIndex * 100 + (diff / carrusel.offsetWidth) * 100;
+        track.style.transform = `translateX(${offset}%)`;
+    }
+
+    function onTouchEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        track.style.transition = '';
+
+        const diff = currentX - startX;
+        const threshold = carrusel.offsetWidth * 0.15;
+        const currentIndex = getSlideIndex();
+        const total = getTotalSlides();
+
+        let newIndex = currentIndex;
+
+        if (moved) {
+            if (diff < -threshold && currentIndex < total - 1) {
+                newIndex = currentIndex + 1;
+            } else if (diff > threshold && currentIndex > 0) {
+                newIndex = currentIndex - 1;
+            }
+        } else {
+            // Fue un tap (toque sin deslizar) -> abrir modal
+            const img = carrusel.querySelector('.carrusel-slide.active img');
+            if (img) {
+                abrirModal(img.src);
+            }
+            iniciarAutoPlay(carrusel);
+            return;
+        }
+
+        actualizarCarrusel(carrusel, newIndex);
+        iniciarAutoPlay(carrusel);
+    }
+
+    // Eventos touch
+    carrusel.addEventListener('touchstart', onTouchStart, { passive: true });
+    carrusel.addEventListener('touchmove', onTouchMove, { passive: false });
+    carrusel.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    // Eventos mouse (para escritorio también)
+    let mouseDown = false;
+    let mouseStartX = 0;
+    let mouseCurrentX = 0;
+    let mouseMoved = false;
+
+    function onMouseDown(e) {
+        mouseDown = true;
+        mouseStartX = e.clientX;
+        mouseCurrentX = mouseStartX;
+        mouseMoved = false;
+        track.style.transition = 'none';
+        detenerAutoPlay(carrusel);
+    }
+
+    function onMouseMove(e) {
+        if (!mouseDown) return;
+        mouseCurrentX = e.clientX;
+        const diff = mouseCurrentX - mouseStartX;
+        if (Math.abs(diff) > 5) {
+            mouseMoved = true;
+        }
+        const currentIndex = getSlideIndex();
+        const offset = -currentIndex * 100 + (diff / carrusel.offsetWidth) * 100;
+        track.style.transform = `translateX(${offset}%)`;
+    }
+
+    function onMouseUp() {
+        if (!mouseDown) return;
+        mouseDown = false;
+        track.style.transition = '';
+
+        const diff = mouseCurrentX - mouseStartX;
+        const threshold = carrusel.offsetWidth * 0.15;
+        const currentIndex = getSlideIndex();
+        const total = getTotalSlides();
+
+        let newIndex = currentIndex;
+
+        if (mouseMoved) {
+            if (diff < -threshold && currentIndex < total - 1) {
+                newIndex = currentIndex + 1;
+            } else if (diff > threshold && currentIndex > 0) {
+                newIndex = currentIndex - 1;
+            }
+        } else {
+            // Click sin arrastre -> abrir modal
+            const img = carrusel.querySelector('.carrusel-slide.active img');
+            if (img) {
+                abrirModal(img.src);
+            }
+            iniciarAutoPlay(carrusel);
+            return;
+        }
+
+        actualizarCarrusel(carrusel, newIndex);
+        iniciarAutoPlay(carrusel);
+    }
+
+    carrusel.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
 }
 
 

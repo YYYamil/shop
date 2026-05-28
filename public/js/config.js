@@ -171,26 +171,15 @@ function aplicarLogo(config) {
 
     if (!logo) return;
 
-    // Asegurar que el logo siempre sea visible (importante en mobile)
-    logo.style.display = 'flex';
-    logo.style.alignItems = 'center';
-    logo.style.gap = '10px';
-    logo.style.flexShrink = '0';
-    logo.style.visibility = 'visible';
-    logo.style.opacity = '1';
-    // Resetear posible herencia de text-fill-color que oculta el texto
-    logo.style.webkitTextFillColor = 'initial';
-    logo.style.color = 'inherit';
-
     const nombre = config.tienda_nombre || 'Mi Shop';
 
     if (config.logo_imagen) {
 
-        // Mostrar imagen + nombre al lado, envuelto en un link a la página principal
+        // Logo centrado: imagen circular + nombre siempre visible
         logo.innerHTML = `
-            <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
-                <img src="${config.logo_imagen}" alt="${nombre}" style="height:40px;width:auto;flex-shrink:0;">
-                <span style="font-size:20px;font-weight:bold;white-space:nowrap;">${nombre}</span>
+            <a href="/" class="logo-link">
+                <img src="${config.logo_imagen}" alt="${nombre}" class="logo-img">
+                <span class="logo-nombre">${nombre}</span>
             </a>
         `;
 
@@ -198,7 +187,7 @@ function aplicarLogo(config) {
 
         // Sin logo, solo el nombre como link
         logo.innerHTML = `
-            <a href="/" style="text-decoration:none;color:inherit;font-size:20px;font-weight:bold;white-space:nowrap;">${nombre}</a>
+            <a href="/" class="logo-link-solo">${nombre}</a>
         `;
 
     }

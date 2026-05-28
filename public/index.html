@@ -23,58 +23,44 @@
     <!-- NAVBAR -->
     <header class="navbar">
 
+        <!-- Logo centrado -->
         <div class="logo">
-
             Mi Shop
+        </div>
+
+        <!-- Acciones derecha: búsqueda + carrito -->
+        <div class="nav-actions">
+
+            <button class="search-toggle"
+                    onclick="toggleSearch()"
+                    aria-label="Buscar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            </button>
+
+            <div class="carrito-wrapper">
+                <a href="/carrito.html" class="carrito-btn">
+                    🛒
+                    <span id="contadorCarrito">0</span>
+                </a>
+                <div class="carrito-preview" id="carritoPreview"></div>
+            </div>
 
         </div>
 
-        <div class="nav-menu"
-             id="navMenu">
-
-            <div class="search-wrapper">
-
-                <div class="search-input-wrapper">
-                    <input
-                        type="text"
-                        id="busqueda"
-                        placeholder="Buscar productos..."
-                        onkeyup="buscarProductos()"
-                    >
-                    <button class="search-clear" onclick="limpiarBusqueda()" aria-label="Limpiar búsqueda">✕</button>
-                </div>
-
-                <button class="search-toggle"
-                        onclick="toggleSearch()"
-                        aria-label="Buscar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                </button>
-
+        <!-- Barra de búsqueda (se despliega con toggleSearch) -->
+        <div class="search-wrapper" id="searchWrapper">
+            <div class="search-input-wrapper">
+                <input
+                    type="text"
+                    id="busqueda"
+                    placeholder="Buscar productos..."
+                    onkeyup="buscarProductos()"
+                >
+                <button class="search-clear" onclick="limpiarBusqueda()" aria-label="Limpiar búsqueda">✕</button>
             </div>
-
-            <div class="carrito-wrapper">
-
-                <a href="/carrito.html"
-                   class="carrito-btn">
-
-                    🛒
-
-                    <span id="contadorCarrito">
-
-                        0
-
-                    </span>
-
-                </a>
-
-                <div class="carrito-preview"
-                     id="carritoPreview"></div>
-
-            </div>
-
         </div>
 
     </header>
