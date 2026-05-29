@@ -89,28 +89,33 @@ Acá podés definir los datos básicos de tu negocio:
 - **Nombre de la tienda** — El nombre que aparecerá en el encabezado y título de la página (ej: "Pastelería Dulce Sabor")
 - **Descripción** — Un texto breve que describe tu negocio (aparece en la sección Hero de la página principal)
 
-### 3.2 Colores
+### 3.2 Botones
 
-Personalizá la paleta de colores de tu tienda para que coincida con la identidad visual de tu marca:
+Personalizá el color de los botones de categorías y tarjetas de productos:
 
-| Color | ¿Qué afecta? |
-|-------|-------------|
-| 🎨 **Color primario** | Botones, enlaces, acentos principales |
-| 🎨 **Color secundario** | Elementos secundarios, detalles decorativos |
-| ⬜ **Color de fondo** | Fondo general de la página |
-| 📝 **Color de texto** | Color del texto principal |
-| 🔗 **Color de enlaces** | Color de los links y botones secundarios |
-| 🖱️ **Hover de enlaces** | Color al pasar el mouse sobre enlaces |
+| Color | ¿Qué afecta? | Valor por defecto |
+|-------|-------------|-------------------|
+| 🎨 **Color de fondo de botones** | Fondo de los botones de categorías y tarjetas de productos | `#000000` (negro) |
+| 🎨 **Color del texto de botones** | Texto dentro de los botones | `#ffffff` (blanco) |
 
-> 💡 **Tip:** Si no sabés qué colores usar, elegí 2 o 3 colores de tu logo y usalos como base.
+> 💡 **Tip:** Si usás un fondo oscuro en los botones, elegí texto claro y viceversa para buena legibilidad.
 
-### 3.3 Fondo / Portada (Hero)
+### 3.3 Texto de Portada (Hero)
 
-La sección **Hero** es la imagen grande de bienvenida que se ve en la parte superior de tu tienda:
+La sección **Hero** es la imagen o fondo de bienvenida que se ve en la parte superior de tu tienda:
 
 - **Título del Hero** — Un texto llamativo (ej: "Los mejores pasteles de la ciudad")
 - **Descripción del Hero** — Un texto secundario debajo del título
-- **Imagen de fondo** — Una imagen de portada que represente tu negocio
+- **Color del título de portada** — Color del texto del título del Hero (por defecto `#ffffff` blanco). Solo afecta al título principal, no modifica otros textos como el footer o el carrito.
+- **Imagen de portada** — Una imagen que represente tu negocio (se sube en la sección Imágenes)
+
+### 3.4 Fondo de página
+
+Configurá el color de fondo general de toda la tienda:
+
+- **Fondo de la página** — Podés elegir un **color sólido** (un solo color) o un **gradiente** (combinación de 2 colores). Por defecto es `#ffffff` (blanco).
+  - Usá el botón **"Sólido"** para un color uniforme
+  - Usá el botón **"Gradiente"** para una combinación de 2 colores
 
 ### 3.4 Pedidos / WhatsApp
 

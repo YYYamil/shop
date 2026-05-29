@@ -95,6 +95,8 @@
             </div>
 
             <!-- FORMULARIO DE CONFIGURACIÓN -->
+
+            <!-- 1. INFORMACIÓN GENERAL -->
             <div class="form-card">
 
                 <div class="form-header">
@@ -105,48 +107,64 @@
 
                 <div class="form-grid" id="grupo-general">
 
-                    <!-- Se llena dinámicamente -->
+                    <!-- Se llena dinámicamente: tienda_nombre + tienda_descripcion -->
 
                 </div>
 
             </div>
 
+            <!-- 2. MARQUESINA -->
             <div class="form-card">
 
                 <div class="form-header">
 
-                    <h2>Colores</h2>
-
-                    <button onclick="restaurarColores()" class="secondary-btn" style="padding:8px 16px;font-size:13px;">
-                        ↺ Restaurar colores
-                    </button>
+                    <h2>Marquesina</h2>
 
                 </div>
 
-                <div class="form-grid" id="grupo-apariencia">
+                <div class="form-grid" id="grupo-marquee">
 
-                    <!-- Se llena dinámicamente -->
+                    <!-- Se llena dinámicamente: marquee_textos -->
 
                 </div>
 
             </div>
 
+            <!-- 3. COLOR -->
             <div class="form-card">
 
                 <div class="form-header">
 
-                    <h2>Fondo / Portada</h2>
+                    <h2>Color</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-color">
+
+                    <!-- Se llena dinámicamente: hero_titulo_color, color_boton, color_boton_texto, hero_fondo -->
+
+                </div>
+
+            </div>
+
+            <!-- 4. PORTADA (HERO) -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Portada</h2>
 
                 </div>
 
                 <div class="form-grid" id="grupo-hero">
 
-                    <!-- Se llena dinámicamente -->
+                    <!-- Se llena dinámicamente: hero_titulo, hero_descripcion -->
 
                 </div>
 
             </div>
 
+            <!-- 5. PEDIDOS -->
             <div class="form-card">
 
                 <div class="form-header">
@@ -163,6 +181,7 @@
 
             </div>
 
+            <!-- 5. CONTACTO (oculto) -->
             <div class="form-card" style="display:none;">
 
                 <div class="form-header">
@@ -179,11 +198,12 @@
 
             </div>
 
+            <!-- 6. REDES SOCIALES -->
             <div class="form-card">
 
                 <div class="form-header">
 
-                    <h2>Redes Sociales</h2>
+                    <h2>Redes en pie de página</h2>
 
                 </div>
 
@@ -257,12 +277,12 @@
 
                     <div style="display:flex;gap:12px;flex-wrap:wrap;">
 
-                        <button onclick="restaurarColores()" class="secondary-btn" style="padding:12px 24px;font-size:14px;font-weight:600;">
-                            ↺ Restaurar solo colores
-                        </button>
-
                         <button onclick="restaurarTextos()" class="secondary-btn" style="padding:12px 24px;font-size:14px;font-weight:600;background:#f59e0b;color:white;border-color:#f59e0b;">
                             📝 Restaurar todos los textos
+                        </button>
+
+                        <button onclick="restaurarColores()" class="secondary-btn" style="padding:12px 24px;font-size:14px;font-weight:600;background:#6366f1;color:white;border-color:#6366f1;">
+                            🎨 Restaurar colores por defecto
                         </button>
 
                     </div>
@@ -286,16 +306,14 @@
         const etiquetas = {
             tienda_nombre: 'Nombre de la tienda',
             tienda_descripcion: 'Descripción',
-            color_primario: 'Color primario',
-            color_secundario: 'Color secundario',
-            color_fondo: 'Color de fondo',
-            color_texto: 'Color de texto',
-            color_boton: 'Color de botón',
-            color_boton_texto: 'Color de texto en botón',
+            marquee_textos: 'Textos del marquee (separados por | )',
             hero_titulo: 'Título en Portada',
             hero_descripcion: 'Texto en Portada',
-            hero_fondo: 'Fondo (gradiente)',
             hero_imagen: 'Imagen de portada (se sube abajo)',
+            hero_titulo_color: 'Color del título del Hero',
+            hero_fondo: 'Fondo de Sitio',
+            color_boton: 'Color de fondo del botón',
+            color_boton_texto: 'Color del texto del botón',
             whatsapp_numero: 'WhatsApp para pedidos del carrito',
             whatsapp_mensaje: 'Mensaje para pedidos (se envía con detalle de compra)',
             whatsapp_activo: 'WhatsApp para pedidos activo',
@@ -313,16 +331,18 @@
         const grupos = {
             tienda_nombre: 'general',
             tienda_descripcion: 'general',
-            color_primario: 'apariencia',
+            marquee_textos: 'general',
+            hero_titulo: 'hero',
+            hero_descripcion: 'hero',
+            hero_imagen: 'hero',
+            hero_titulo_color: 'oculto',
+            hero_fondo: 'oculto',
+            color_boton: 'oculto',
+            color_boton_texto: 'oculto',
+            color_primario: 'oculto',
             color_secundario: 'oculto',
             color_fondo: 'oculto',
             color_texto: 'oculto',
-            color_boton: 'apariencia',
-            color_boton_texto: 'apariencia',
-            hero_titulo: 'hero',
-            hero_descripcion: 'hero',
-            hero_fondo: 'hero',
-            hero_imagen: 'hero',
             whatsapp_numero: 'whatsapp',
             whatsapp_mensaje: 'oculto',
             whatsapp_activo: 'oculto',
@@ -336,23 +356,15 @@
             logo_imagen: 'apariencia',
         };
 
-        // Colores por defecto para restaurar
-        const coloresDefault = {
-            color_primario: '#000000',
-            color_secundario: '#444444',
-            color_fondo: '#000000',
-            color_texto: '#000000',
-            color_boton: '#000000',
-            color_boton_texto: '#ffffff',
-        };
-
         // Textos por defecto para restaurar (guía para el usuario)
         const textosDefault = {
             tienda_nombre: 'Mi Tienda',
             tienda_descripcion: 'Descripción de mi tienda - Aquí podés contar qué ofrecés',
+            marquee_textos: '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA',
             hero_titulo: 'Título de portada',
             hero_descripcion: 'Descripción de portada - Contá lo que quieras destacar',
-            hero_fondo: 'linear-gradient(135deg, black, #444)',
+            hero_titulo_color: '#ffffff',
+            hero_fondo: '#ffffff',
             whatsapp_numero: '',
             contacto_email: '',
             contacto_telefono: '',
@@ -360,8 +372,19 @@
             redes_instagram: 'https://instagram.com/',
             redes_facebook: 'https://facebook.com/',
             redes_tiktok: 'https://tiktok.com/',
-            redes_whatsapp: 'https://wa.me/5493810000000',
+            redes_whatsapp: 'https://www.pagina.com/',
         };
+
+        // Iconos SVG para redes sociales (mismos que en config.js)
+        function getIconoSocial(tipo) {
+            const iconos = {
+                instagram: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
+                facebook: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+                tiktok: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>',
+                pagina: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+            };
+            return iconos[tipo] || '';
+        }
 
         async function cargarConfigAdmin() {
             try {
@@ -389,113 +412,342 @@
         }
 
         function renderizarFormularios(datos) {
+
+            // ============================================
+            // 1. INFORMACIÓN GENERAL: tienda_nombre + tienda_descripcion lado a lado
+            // ============================================
+            const contGeneral = document.getElementById('grupo-general');
+            if (contGeneral) {
+                const itemNombre = datos.find(d => d.clave === 'tienda_nombre');
+                const itemDesc = datos.find(d => d.clave === 'tienda_descripcion');
+
+                const fila = document.createElement('div');
+                fila.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;';
+
+                if (itemNombre) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-tienda_nombre';
+                    label.textContent = 'Nombre de la tienda';
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = 'input-tienda_nombre';
+                    input.value = itemNombre.valor || '';
+                    input.addEventListener('change', function() { guardarCambio('tienda_nombre', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(input);
+                    fila.appendChild(grupo);
+                }
+
+                if (itemDesc) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-tienda_descripcion';
+                    label.textContent = 'Descripción';
+                    const textarea = document.createElement('textarea');
+                    textarea.id = 'input-tienda_descripcion';
+                    textarea.value = itemDesc.valor || '';
+                    textarea.style.cssText = 'width:100%;min-height:100px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;resize:vertical;box-sizing:border-box;';
+                    textarea.addEventListener('change', function() { guardarCambio('tienda_descripcion', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(textarea);
+                    fila.appendChild(grupo);
+                }
+
+                contGeneral.appendChild(fila);
+            }
+
+            // ============================================
+            // 2. MARQUESINA: marquee_textos como textarea
+            // ============================================
+            const contMarquee = document.getElementById('grupo-marquee');
+            if (contMarquee) {
+                const itemMarquee = datos.find(d => d.clave === 'marquee_textos');
+                if (itemMarquee) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-marquee_textos';
+                    label.textContent = 'Textos del marquee (separados por | )';
+                    const textarea = document.createElement('textarea');
+                    textarea.id = 'input-marquee_textos';
+                    textarea.value = itemMarquee.valor || '';
+                    textarea.style.cssText = 'width:100%;min-height:80px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;resize:vertical;box-sizing:border-box;';
+                    textarea.addEventListener('change', function() { guardarCambio('marquee_textos', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(textarea);
+                    contMarquee.appendChild(grupo);
+                }
+            }
+
+            // ============================================
+            // 3. PORTADA: hero_titulo, hero_descripcion, hero_titulo_color
+            // ============================================
+            const contHero = document.getElementById('grupo-hero');
+            if (contHero) {
+                // hero_titulo
+                const itemTitulo = datos.find(d => d.clave === 'hero_titulo');
+                if (itemTitulo) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-hero_titulo';
+                    label.textContent = 'Título en Portada';
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = 'input-hero_titulo';
+                    input.value = itemTitulo.valor || '';
+                    input.addEventListener('change', function() { guardarCambio('hero_titulo', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(input);
+                    contHero.appendChild(grupo);
+                }
+
+                // hero_descripcion
+                const itemDesc = datos.find(d => d.clave === 'hero_descripcion');
+                if (itemDesc) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-hero_descripcion';
+                    label.textContent = 'Texto en Portada';
+                    const textarea = document.createElement('textarea');
+                    textarea.id = 'input-hero_descripcion';
+                    textarea.value = itemDesc.valor || '';
+                    textarea.style.cssText = 'width:100%;min-height:80px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;resize:vertical;box-sizing:border-box;';
+                    textarea.addEventListener('change', function() { guardarCambio('hero_descripcion', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(textarea);
+                    contHero.appendChild(grupo);
+                }
+
+                // hero_titulo_color (color picker)
+                const itemColor = datos.find(d => d.clave === 'hero_titulo_color');
+                if (itemColor) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-hero_titulo_color';
+                    label.textContent = 'Color del título';
+                    const input = document.createElement('input');
+                    input.type = 'color';
+                    input.id = 'input-hero_titulo_color';
+                    input.value = itemColor.valor || '#ffffff';
+                    input.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;border:2px solid #e5e7eb;border-radius:8px;';
+                    input.addEventListener('input', function() { guardarCambio('hero_titulo_color', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(input);
+                    contHero.appendChild(grupo);
+                }
+            }
+
+            // ============================================
+            // 4. COLOR: color_boton, color_boton_texto, hero_fondo
+            // ============================================
+            const contColor = document.getElementById('grupo-color');
+            if (contColor) {
+                const clavesColor = ['color_boton', 'color_boton_texto', 'hero_fondo'];
+                clavesColor.forEach(clave => {
+                    const item = datos.find(d => d.clave === clave);
+                    if (!item) return;
+
+                    const div = document.createElement('div');
+                    div.className = 'input-group';
+                    div.id = 'campo-' + clave;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-' + clave;
+                    label.textContent = etiquetas[clave] || clave;
+                    div.appendChild(label);
+
+                    if (clave === 'hero_fondo') {
+                        // Fondo: color sólido o gradiente
+                        const wrapper = document.createElement('div');
+                        wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+
+                        const helpText = document.createElement('small');
+                        helpText.textContent = 'Elegí un color sólido o usá los 2 pickers para un gradiente';
+                        helpText.style.cssText = 'color:#6b7280;font-size:13px;';
+
+                        const pickersRow = document.createElement('div');
+                        pickersRow.style.cssText = 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;';
+
+                        const esGradiente = item.valor && item.valor.startsWith('linear-gradient');
+                        let color1 = '#ffffff', color2 = '#ffffff';
+                        if (esGradiente) {
+                            const gradMatch = item.valor.match(/linear-gradient\([^,]+,\s*([^,]+),\s*(.+)\)/);
+                            if (gradMatch) { color1 = gradMatch[1].trim(); color2 = gradMatch[2].trim(); }
+                        } else if (item.valor && /^#[0-9a-fA-F]{6}$/.test(item.valor)) {
+                            color1 = item.valor; color2 = item.valor;
+                        }
+
+                        const modoGroup = document.createElement('div');
+                        modoGroup.style.cssText = 'display:flex;gap:8px;margin-bottom:4px;';
+                        const btnSolido = document.createElement('button');
+                        btnSolido.type = 'button';
+                        btnSolido.textContent = '🎨 Sólido';
+                        btnSolido.style.cssText = 'padding:6px 14px;border-radius:6px;border:2px solid ' + (esGradiente ? '#d1d5db' : '#2563eb') + ';background:' + (esGradiente ? 'white' : '#eff6ff') + ';color:' + (esGradiente ? '#374151' : '#2563eb') + ';font-size:13px;font-weight:600;cursor:pointer;';
+                        const btnGradiente = document.createElement('button');
+                        btnGradiente.type = 'button';
+                        btnGradiente.textContent = '🌈 Gradiente';
+                        btnGradiente.style.cssText = 'padding:6px 14px;border-radius:6px;border:2px solid ' + (esGradiente ? '#2563eb' : '#d1d5db') + ';background:' + (esGradiente ? '#eff6ff' : 'white') + ';color:' + (esGradiente ? '#2563eb' : '#374151') + ';font-size:13px;font-weight:600;cursor:pointer;';
+
+                        const picker1 = document.createElement('input');
+                        picker1.type = 'color';
+                        picker1.id = 'input-' + item.clave + '-1';
+                        picker1.value = color1;
+                        picker1.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
+
+                        const picker2 = document.createElement('input');
+                        picker2.type = 'color';
+                        picker2.id = 'input-' + item.clave + '-2';
+                        picker2.value = color2;
+                        picker2.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
+                        picker2.style.display = esGradiente ? 'block' : 'none';
+
+                        const preview = document.createElement('div');
+                        preview.id = 'preview-' + item.clave;
+                        preview.style.cssText = 'flex:1;min-width:60px;height:50px;border-radius:12px;border:1px solid #d1d5db;background:' + (esGradiente ? 'linear-gradient(135deg, ' + color1 + ', ' + color2 + ')' : color1) + ';';
+
+                        function actualizarFondo() {
+                            const c1 = document.getElementById('input-' + item.clave + '-1').value;
+                            const c2 = document.getElementById('input-' + item.clave + '-2').value;
+                            const esGrad = picker2.style.display !== 'none';
+                            const valor = esGrad ? 'linear-gradient(135deg, ' + c1 + ', ' + c2 + ')' : c1;
+                            preview.style.background = valor;
+                            guardarCambio(item.clave, valor);
+                        }
+
+                        btnSolido.addEventListener('click', function() {
+                            picker2.style.display = 'none';
+                            preview.style.background = picker1.value;
+                            btnSolido.style.borderColor = '#2563eb';
+                            btnSolido.style.background = '#eff6ff';
+                            btnSolido.style.color = '#2563eb';
+                            btnGradiente.style.borderColor = '#d1d5db';
+                            btnGradiente.style.background = 'white';
+                            btnGradiente.style.color = '#374151';
+                            guardarCambio(item.clave, picker1.value);
+                        });
+
+                        btnGradiente.addEventListener('click', function() {
+                            picker2.style.display = 'block';
+                            const c1 = document.getElementById('input-' + item.clave + '-1').value;
+                            const c2 = document.getElementById('input-' + item.clave + '-2').value;
+                            const grad = 'linear-gradient(135deg, ' + c1 + ', ' + c2 + ')';
+                            preview.style.background = grad;
+                            btnGradiente.style.borderColor = '#2563eb';
+                            btnGradiente.style.background = '#eff6ff';
+                            btnGradiente.style.color = '#2563eb';
+                            btnSolido.style.borderColor = '#d1d5db';
+                            btnSolido.style.background = 'white';
+                            btnSolido.style.color = '#374151';
+                            guardarCambio(item.clave, grad);
+                        });
+
+                        picker1.addEventListener('input', actualizarFondo);
+                        picker2.addEventListener('input', actualizarFondo);
+
+                        modoGroup.appendChild(btnSolido);
+                        modoGroup.appendChild(btnGradiente);
+
+                        pickersRow.appendChild(picker1);
+                        pickersRow.appendChild(picker2);
+                        pickersRow.appendChild(preview);
+
+                        wrapper.appendChild(modoGroup);
+                        wrapper.appendChild(helpText);
+                        wrapper.appendChild(pickersRow);
+                        div.appendChild(wrapper);
+
+                    } else {
+                        // Colores simples: hero_titulo_color, color_boton, color_boton_texto
+                        const input = document.createElement('input');
+                        input.type = 'color';
+                        input.id = 'input-' + clave;
+                        input.value = item.valor || '#000000';
+                        input.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;border:2px solid #e5e7eb;border-radius:8px;';
+                        input.addEventListener('input', function() {
+                            guardarCambio(clave, this.value);
+                        });
+                        div.appendChild(input);
+                    }
+
+                    contColor.appendChild(div);
+                }); // fin de clavesColor.forEach
+            }
+
+            // ============================================
+            // 5. REDES SOCIALES: cada red con su icono + input URL
+            // ============================================
+            const contRedes = document.getElementById('grupo-redes');
+            if (contRedes) {
+                const redesConfig = [
+                    { clave: 'redes_instagram', label: 'Instagram', icono: 'instagram' },
+                    { clave: 'redes_facebook', label: 'Facebook', icono: 'facebook' },
+                    { clave: 'redes_tiktok', label: 'TikTok', icono: 'tiktok' },
+                    { clave: 'redes_whatsapp', label: 'Página', icono: 'pagina' },
+                ];
+
+                for (const red of redesConfig) {
+                    const item = datos.find(d => d.clave === red.clave);
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-' + red.clave;
+                    label.textContent = red.label;
+                    grupo.appendChild(label);
+
+                    const inputRow = document.createElement('div');
+                    inputRow.style.cssText = 'display:flex;align-items:center;gap:10px;';
+
+                    // Icono social
+                    const iconWrapper = document.createElement('span');
+                    iconWrapper.style.cssText = 'display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;background:#f3f4f6;color:#6b7280;flex-shrink:0;';
+                    iconWrapper.innerHTML = getIconoSocial(red.icono);
+                    inputRow.appendChild(iconWrapper);
+
+                    // Input URL
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = 'input-' + red.clave;
+                    input.value = (item && item.valor) || '';
+                    input.placeholder = 'https://' + red.label.toLowerCase() + '.com/...';
+                    input.style.cssText = 'flex:1;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;';
+                    input.addEventListener('change', function() { guardarCambio(red.clave, this.value); });
+                    inputRow.appendChild(input);
+
+                    grupo.appendChild(inputRow);
+                    contRedes.appendChild(grupo);
+                }
+            }
+
+            // ============================================
+            // 6. RESTO DE SECCIONES (whatsapp, contacto)
+            // ============================================
+            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp'];
+
             datos.forEach(item => {
+                // Saltar items ya renderizados en secciones custom
+                if (clavesCustom.includes(item.clave)) return;
+
+                // Determinar contenedor según grupo
                 const grupo = grupos[item.clave] || 'general';
                 const contenedor = document.getElementById('grupo-' + grupo);
                 if (!contenedor) return;
 
-                // Omitir imágenes del listado general (se manejan en sección aparte)
-                if (item.clave === 'logo_imagen' || item.clave === 'hero_imagen') return;
-
                 const div = document.createElement('div');
                 div.className = 'input-group';
-                div.id = 'campo-' + item.clave;
 
                 const label = document.createElement('label');
-                if (item.clave !== 'whatsapp_numero') {
-                    label.htmlFor = 'input-' + item.clave;
-                }
+                label.htmlFor = 'input-' + item.clave;
                 label.textContent = etiquetas[item.clave] || item.clave;
-
                 div.appendChild(label);
 
-                if (item.tipo === 'color') {
-                    const wrapper = document.createElement('div');
-                    wrapper.style.cssText = 'display:flex;gap:10px;align-items:center;';
-
-                    const input = document.createElement('input');
-                    input.type = 'color';
-                    input.id = 'input-' + item.clave;
-                    input.value = item.valor || '#000000';
-                    input.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
-                    input.addEventListener('input', function() {
-                        document.getElementById('text-' + item.clave).value = this.value;
-                        guardarCambio(item.clave, this.value);
-                    });
-
-                    const textInput = document.createElement('input');
-                    textInput.type = 'text';
-                    textInput.id = 'text-' + item.clave;
-                    textInput.value = item.valor || '#000000';
-                    textInput.style.cssText = 'flex:1;';
-                    textInput.addEventListener('change', function() {
-                        const val = this.value.trim();
-                        if (/^#[0-9a-fA-F]{6}$/.test(val)) {
-                            document.getElementById('input-' + item.clave).value = val;
-                            guardarCambio(item.clave, val);
-                        } else {
-                            mostrarToast('Formato inválido. Use #RRGGBB', 'error');
-                            this.value = configOriginal[item.clave] || '#000000';
-                        }
-                    });
-
-                    wrapper.appendChild(input);
-                    wrapper.appendChild(textInput);
-                    div.appendChild(wrapper);
-
-                } else if (item.clave === 'hero_fondo') {
-                    // Hero fondo: 2 color pickers para gradiente
-                    const wrapper = document.createElement('div');
-                    wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
-
-                    const helpText = document.createElement('small');
-                    helpText.textContent = 'Elegí 2 colores para el gradiente de fondo';
-                    helpText.style.cssText = 'color:#6b7280;font-size:13px;';
-
-                    const pickersRow = document.createElement('div');
-                    pickersRow.style.cssText = 'display:flex;gap:10px;align-items:center;';
-
-                    // Extraer colores del gradiente actual
-                    const gradMatch = item.valor.match(/linear-gradient\([^,]+,\s*([^,]+),\s*(.+)\)/);
-                    const color1 = gradMatch ? gradMatch[1].trim() : '#000000';
-                    const color2 = gradMatch ? gradMatch[2].trim() : '#444444';
-
-                    const picker1 = document.createElement('input');
-                    picker1.type = 'color';
-                    picker1.id = 'input-' + item.clave + '-1';
-                    picker1.value = color1;
-                    picker1.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
-
-                    const picker2 = document.createElement('input');
-                    picker2.type = 'color';
-                    picker2.id = 'input-' + item.clave + '-2';
-                    picker2.value = color2;
-                    picker2.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;';
-
-                    const preview = document.createElement('div');
-                    preview.id = 'preview-' + item.clave;
-                    preview.style.cssText = 'flex:1;height:50px;border-radius:12px;border:1px solid #d1d5db;background:linear-gradient(135deg, ' + color1 + ', ' + color2 + ');';
-
-                    function actualizarGradiente() {
-                        const c1 = document.getElementById('input-' + item.clave + '-1').value;
-                        const c2 = document.getElementById('input-' + item.clave + '-2').value;
-                        const grad = 'linear-gradient(135deg, ' + c1 + ', ' + c2 + ')';
-                        preview.style.background = grad;
-                        guardarCambio(item.clave, grad);
-                    }
-
-                    picker1.addEventListener('input', actualizarGradiente);
-                    picker2.addEventListener('input', actualizarGradiente);
-
-                    pickersRow.appendChild(picker1);
-                    pickersRow.appendChild(picker2);
-                    pickersRow.appendChild(preview);
-
-                    wrapper.appendChild(helpText);
-                    wrapper.appendChild(pickersRow);
-                    div.appendChild(wrapper);
-
-                } else if (item.clave === 'whatsapp_numero') {
+                if (item.clave === 'whatsapp_numero') {
                     // WhatsApp número: dos campos (código de área + número) que se concatenan como 549 + código + número
                     const wrapper = document.createElement('div');
                     wrapper.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
@@ -684,7 +936,7 @@
 
                 } else {
                     // texto
-                    const isTextarea = item.clave === 'tienda_descripcion' || item.clave === 'hero_descripcion' || item.clave === 'whatsapp_mensaje';
+                    const isTextarea = item.clave === 'hero_descripcion' || item.clave === 'whatsapp_mensaje';
 
                     if (isTextarea) {
                         const textarea = document.createElement('textarea');
@@ -709,7 +961,7 @@
 
                 contenedor.appendChild(div);
             });
-        }
+        } // fin de renderizarFormularios
 
         async function guardarCambio(clave, valor) {
             try {
@@ -795,18 +1047,38 @@
         }
 
         async function restaurarColores() {
-            if (!confirm('¿Restaurar los colores a sus valores por defecto?')) return;
+            if (!confirm('¿Restaurar colores a sus valores por defecto?\n\n• Fondo de botón: Negro (#000000)\n• Texto de botón: Blanco (#ffffff)\n• Título del Hero: Blanco (#ffffff)\n• Fondo de página: Blanco (#ffffff)')) return;
+
+            const coloresDefault = {
+                color_boton: '#000000',
+                color_boton_texto: '#ffffff',
+                hero_titulo_color: '#ffffff',
+                hero_fondo: '#ffffff'
+            };
 
             for (const [clave, valor] of Object.entries(coloresDefault)) {
                 await guardarCambio(clave, valor);
-                // Actualizar inputs
-                const colorInput = document.getElementById('input-' + clave);
-                const textInput = document.getElementById('text-' + clave);
-                if (colorInput) colorInput.value = valor;
-                if (textInput) textInput.value = valor;
+
+                // Actualizar color pickers simples
+                const input = document.getElementById('input-' + clave);
+                if (input && input.type === 'color') {
+                    input.value = valor;
+                }
+
+                // Actualizar hero_fondo (gradiente UI)
+                if (clave === 'hero_fondo') {
+                    const picker1 = document.getElementById('input-hero_fondo-1');
+                    const picker2 = document.getElementById('input-hero_fondo-2');
+                    const preview = document.getElementById('preview-hero_fondo');
+                    if (picker1) picker1.value = '#ffffff';
+                    if (picker2) picker2.value = '#ffffff';
+                    if (preview) preview.style.background = '#ffffff';
+                    // Ocultar picker2 (modo sólido)
+                    if (picker2) picker2.style.display = 'none';
+                }
             }
 
-            mostrarToast('✓ Colores restaurados', 'success');
+            mostrarToast('✓ Colores restaurados a valores por defecto', 'success');
         }
 
         async function restaurarTextos() {
@@ -819,14 +1091,16 @@
                 if (input) {
                     input.value = valor;
                 }
-                // Actualizar hero_fondo (gradiente con 2 color pickers)
+                // Actualizar hero_fondo (color sólido por defecto)
                 if (clave === 'hero_fondo') {
                     const picker1 = document.getElementById('input-hero_fondo-1');
                     const picker2 = document.getElementById('input-hero_fondo-2');
                     const preview = document.getElementById('preview-hero_fondo');
-                    if (picker1) picker1.value = '#000000';
-                    if (picker2) picker2.value = '#444444';
-                    if (preview) preview.style.background = 'linear-gradient(135deg, #000000, #444444)';
+                    if (picker1) picker1.value = '#ffffff';
+                    if (picker2) picker2.value = '#ffffff';
+                    if (preview) preview.style.background = '#ffffff';
+                    // Asegurar modo sólido (ocultar picker2)
+                    if (picker2) picker2.style.display = 'none';
                 }
                 // Actualizar campos de WhatsApp (código + número)
                 if (clave === 'whatsapp_numero') {

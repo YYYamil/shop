@@ -10,21 +10,17 @@
 
 :root {
 
-    --color-primario: #2a9d8f;
+    --color-fondo: #ffffff;
 
-    --color-secundario: #264653;
-
-    --color-fondo: #000000;
-
-    --color-texto: #000000;
-
-    --color-boton: #2a9d8f;
+    --color-boton: #000000;
 
     --color-boton-texto: #ffffff;
 
+    --color-hero-titulo: #ffffff;
+
     --color-hero-overlay: rgba(0,0,0,0.5);
 
-    --color-footer-fondo: #264653;
+    --color-footer-fondo: #1a1a1a;
 
     --color-footer-texto: #ffffff;
 
@@ -38,9 +34,9 @@
 
     --color-tarjeta-sombra: rgba(0,0,0,0.1);
 
-    --color-categoria-activo: #2a9d8f;
+    --color-categoria-activo: #000000;
 
-    --color-categoria-texto: #333333;
+    --color-categoria-texto: #ffffff;
 
     --color-borde: #e0e0e0;
 
@@ -48,7 +44,7 @@
 
     --color-error: #f44336;
 
-    --color-precio: #2a9d8f;
+    --color-precio: #000000;
 
     --color-envio: #4caf50;
 
@@ -2258,6 +2254,7 @@ body {
 }
 
 .hero h1 {
+    color: var(--color-hero-titulo);
     font-size: clamp(42px,7vw,82px);
     line-height: .95;
     margin-bottom: 24px;
@@ -2313,6 +2310,12 @@ body {
     background: #111827;
     color: var(--color-boton-texto);
     transform: translateY(-2px);
+}
+
+.categorias button.activo {
+    background: var(--color-boton);
+    color: var(--color-boton-texto);
+    border-color: var(--color-boton);
 }
 
 /* PRODUCTOS */
@@ -2431,25 +2434,17 @@ body {
     margin-top: 16px;
     border-radius: 16px;
     padding: 16px;
-    background:
-        linear-gradient(
-            135deg,
-            #111827,
-            #1f2937
-        );
-
+    background: var(--color-boton);
+    color: var(--color-boton-texto);
     font-weight: 700;
     transition: .3s;
+    border: none;
+    cursor: pointer;
 }
 
 .producto button:hover {
     transform: translateY(-2px);
-    background:
-        linear-gradient(
-            135deg,
-            #2563eb,
-            #1d4ed8
-        );
+    opacity: 0.85;
 }
 
 /* PREVIEW */
@@ -2589,7 +2584,7 @@ body {
             #111827
         );
 
-    color: var(--color-boton-texto);
+    color: #ffffff;
 
     padding: 60px 20px 30px;
 
@@ -2681,7 +2676,7 @@ body {
 
     text-decoration: none;
 
-    color: var(--color-boton-texto);
+    color: #ffffff;
 
     transition: .3s;
 
@@ -2796,4 +2791,162 @@ body {
 
         font-size: 13px;
     }
+}
+
+/* ===== PREMIUM MARQUEE ===== */
+
+.premium-marquee {
+
+    width: 100%;
+
+    overflow: hidden;
+
+    background: rgba(255,255,255,0.7);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    border-top: 1px solid rgba(255,255,255,0.4);
+
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+
+    padding: 14px 0;
+
+    position: relative;
+
+    z-index: 20;
+
+}
+
+.premium-marquee::before,
+.premium-marquee::after {
+
+    content: '';
+
+    position: absolute;
+
+    top: 0;
+
+    width: 120px;
+
+    height: 100%;
+
+    z-index: 2;
+
+    pointer-events: none;
+
+}
+
+.premium-marquee::before {
+
+    left: 0;
+
+    background: linear-gradient(
+        to right,
+        rgba(244,244,244,1),
+        rgba(244,244,244,0)
+    );
+
+}
+
+.premium-marquee::after {
+
+    right: 0;
+
+    background: linear-gradient(
+        to left,
+        rgba(244,244,244,1),
+        rgba(244,244,244,0)
+    );
+
+}
+
+.premium-marquee-track {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 32px;
+
+    width: max-content;
+
+    animation: marqueePremium 28s linear infinite;
+
+    padding-left: 32px;
+
+}
+
+.premium-marquee-track span {
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    color: #111;
+
+    white-space: nowrap;
+
+    flex-shrink: 0;
+
+}
+
+@keyframes marqueePremium {
+
+    from {
+
+        transform: translateX(0);
+
+    }
+
+    to {
+
+        transform: translateX(-50%);
+
+    }
+
+}
+
+/* Hover pausa */
+
+.premium-marquee:hover .premium-marquee-track {
+
+    animation-play-state: paused;
+
+}
+
+/* Mobile */
+
+@media(max-width: 700px) {
+
+    .premium-marquee {
+
+        padding: 12px 0;
+
+    }
+
+    .premium-marquee-track {
+
+        gap: 22px;
+
+    }
+
+    .premium-marquee-track span {
+
+        font-size: 12px;
+
+        letter-spacing: 0.5px;
+
+    }
+
+    .premium-marquee::before,
+    .premium-marquee::after {
+
+        width: 50px;
+
+    }
+
 }

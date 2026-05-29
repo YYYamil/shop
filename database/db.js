@@ -85,18 +85,22 @@ if (configCount.total === 0) {
         ['tienda_descripcion', 'Moda, estilo y tecnología para tu día a día.', 'texto', 'general'],
 
         // APARIENCIA
-        ['color_primario', '#000000', 'color', 'apariencia'],
-        ['color_secundario', '#444444', 'color', 'apariencia'],
-        ['color_fondo', '#f4f4f4', 'color', 'apariencia'],
-        ['color_texto', '#111827', 'color', 'apariencia'],
+        ['color_primario', '#000000', 'color', 'oculto'],
+        ['color_secundario', '#444444', 'color', 'oculto'],
+        ['color_fondo', '#f4f4f4', 'color', 'oculto'],
+        ['color_texto', '#111827', 'color', 'oculto'],
         ['color_boton', '#000000', 'color', 'apariencia'],
         ['color_boton_texto', '#ffffff', 'color', 'apariencia'],
 
         // HERO
         ['hero_titulo', 'Descubrí tu próximo estilo', 'texto', 'hero'],
         ['hero_descripcion', 'Productos modernos, elegantes y seleccionados para vos', 'texto', 'hero'],
-        ['hero_fondo', 'linear-gradient(135deg, black, #444)', 'texto', 'hero'],
+        ['hero_fondo', '#ffffff', 'texto', 'hero'],
+        ['hero_titulo_color', '#ffffff', 'color', 'hero'],
         ['hero_imagen', '', 'imagen', 'hero'],
+
+        // MARQUEE
+        ['marquee_textos', '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA', 'texto', 'general'],
 
         // WHATSAPP (flotante)
         ['whatsapp_numero', '', 'texto', 'whatsapp'],
@@ -112,7 +116,7 @@ if (configCount.total === 0) {
         ['redes_instagram', 'https://instagram.com', 'texto', 'redes'],
         ['redes_facebook', 'https://facebook.com', 'texto', 'redes'],
         ['redes_tiktok', 'https://tiktok.com', 'texto', 'redes'],
-        ['redes_whatsapp', 'https://wa.me/5493810000000', 'texto', 'redes'],
+        ['redes_whatsapp', 'https://www.pagina.com/', 'texto', 'redes'],
 
         // LOGO
         ['logo_imagen', '', 'imagen', 'apariencia'],
@@ -122,6 +126,20 @@ if (configCount.total === 0) {
         for (const row of rows) insert.run(...row);
     });
     insertMany(defaults);
+}
+
+// ============================================
+// MIGRACIÓN: Simplificar grupos de colores (botones)
+// ============================================
+try {
+    db.prepare("UPDATE configuracion SET grupo = 'botones' WHERE clave IN ('color_boton', 'color_boton_texto') AND grupo != 'botones'").run();
+} catch (e) {
+    // ignorar
+}
+try {
+    db.prepare("UPDATE configuracion SET grupo = 'oculto' WHERE clave IN ('color_primario', 'color_secundario', 'color_fondo', 'color_texto') AND grupo != 'oculto'").run();
+} catch (e) {
+    // ignorar
 }
 
 // ============================================
@@ -136,6 +154,40 @@ try {
     db.exec(`ALTER TABLE categorias ADD COLUMN nombre_personalizado TEXT DEFAULT NULL`);
 } catch (e) {
     // La columna ya existe, ignorar error
+}
+
+// ============================================
+// MIGRACIÓN: hero_titulo_color (simplificación colores)
+// ============================================
+try {
+    const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ?').get('hero_titulo_color');
+    if (!existente) {
+        db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo) VALUES (?, ?, ?, ?)').run('hero_titulo_color', '#ffffff', 'color', 'hero');
+    }
+} catch (e) {
+    // Ignorar error
+}
+
+// Actualizar hero_fondo a blanco si sigue siendo un gradiente
+try {
+    const row = db.prepare('SELECT valor FROM configuracion WHERE clave = ?').get('hero_fondo');
+    if (row && row.valor && row.valor.startsWith('linear-gradient')) {
+        db.prepare('UPDATE configuracion SET valor = ? WHERE clave = ?').run('#ffffff', 'hero_fondo');
+    }
+} catch (e) {
+    // Ignorar error
+}
+
+// ============================================
+// MIGRACIÓN: marquee_textos (personalización del marquee)
+// ============================================
+try {
+    const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ?').get('marquee_textos');
+    if (!existente) {
+        db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo) VALUES (?, ?, ?, ?)').run('marquee_textos', '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA', 'texto', 'general');
+    }
+} catch (e) {
+    // Ignorar error
 }
 
 

@@ -65,13 +65,16 @@ function aplicarConfiguracion(config) {
     // 6. Favicon dinámico
     aplicarFavicon(config);
 
-    // 7. Categorías dinámicas
+    // 7. Marquee premium
+    renderizarMarquee(config);
+
+    // 8. Categorías dinámicas
     renderizarCategorias();
 
-    // 8. Redes sociales en footer
+    // 9. Redes sociales en footer
     renderizarRedes(config);
 
-    // 9. WhatsApp flotante
+    // 10. WhatsApp flotante
     renderizarWhatsApp(config);
 
 }
@@ -82,30 +85,20 @@ function aplicarColores(config) {
 
     const root = document.documentElement;
 
-    // Mapeo completo: [clave DB, variable CSS]
-    // Usamos array de pares para permitir que una misma clave DB
-    // actualice MÚLTIPLES variables CSS (ej: color_primario → --color-primario y --color-navbar-fondo)
+    // Mapeo simplificado: solo 3 grupos personalizables
+    // 1. Botones (categorías y tarjetas): color de fondo + color de texto
+    // 2. Título del Hero: color del texto
+    // 3. Fondo general de la página: sólido o gradiente
     const mapaColores = [
-        // Colores base
-        ['color_primario', '--color-primario'],
-        ['color_fondo', '--color-fondo'],
-        ['color_texto', '--color-texto'],
+        // Botones
         ['color_boton', '--color-boton'],
+        ['color_boton', '--color-categoria-activo'],
         ['color_boton_texto', '--color-boton-texto'],
-        // Navbar
-        ['color_primario', '--color-navbar-fondo'],
-        ['color_texto', '--color-navbar-texto'],
-        // Categorías activas
-        ['color_primario', '--color-categoria-activo'],
-        ['color_texto', '--color-categoria-texto'],
-        // Footer
-        ['color_boton_texto', '--color-footer-texto'],
-        // Tarjetas
-        ['color_boton_texto', '--color-tarjeta-fondo'],
-        // Precio
-        ['color_primario', '--color-precio'],
-        // Hero texto
-        ['color_boton_texto', '--color-hero-texto'],
+        ['color_boton_texto', '--color-categoria-texto'],
+        // Título del Hero
+        ['hero_titulo_color', '--color-hero-titulo'],
+        // Fondo general de la página
+        ['hero_fondo', '--color-fondo'],
     ];
 
     for (const [clave, variable] of mapaColores) {
@@ -310,6 +303,7 @@ function renderizarRedes(config) {
         { clave: 'redes_instagram', label: 'Instagram', icono: 'instagram' },
         { clave: 'redes_facebook', label: 'Facebook', icono: 'facebook' },
         { clave: 'redes_tiktok', label: 'TikTok', icono: 'tiktok' },
+        { clave: 'redes_whatsapp', label: 'Página', icono: 'pagina' },
     ];
 
     let html = '';
@@ -339,17 +333,21 @@ function renderizarRedes(config) {
 function getIconoSocial(tipo) {
 
     const iconos = {
-        instagram: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a5.507 5.507 0 0 0-1.985 1.286A5.507 5.507 0 0 0 .42 3.69c-.198.509-.332 1.09-.372 1.943C.01 6.486 0 6.759 0 8.93c0 2.171.01 2.444.048 3.297.04.853.174 1.434.372 1.943.24.621.566 1.148 1.286 1.985a5.507 5.507 0 0 0 1.985 1.286c.509.198 1.09.332 1.943.372C5.556 15.99 5.829 16 8 16s2.444-.01 3.297-.048c.853-.04 1.434-.174 1.943-.372a5.507 5.507 0 0 0 1.985-1.286 5.507 5.507 0 0 0 1.286-1.985c.198-.509.332-1.09.372-1.943.038-.853.048-1.126.048-3.297s-.01-2.444-.048-3.297c-.04-.853-.174-1.434-.372-1.943a5.507 5.507 0 0 0-1.286-1.985A5.507 5.507 0 0 0 13.24.42c-.509-.198-1.09-.332-1.943-.372C10.444.01 10.171 0 8 0Zm0 1.441a6.559 6.559 0 1 1 0 13.118A6.559 6.559 0 0 1 8 1.441Zm0 2.279a4.28 4.28 0 1 0 0 8.56 4.28 4.28 0 0 0 0-8.56Zm5.446-.405a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/>
+        instagram: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="5"/>
+            <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
         </svg>`,
-        facebook: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M16 8.049C16 3.603 12.418 0 8 0S0 3.603 0 8.049C0 12.073 2.925 15.387 6.75 16v-5.625H4.719V8.049H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.875 0 1.79.157 1.79.157v1.98h-1.008c-.994 0-1.304.621-1.304 1.258v1.51h2.218l-.354 2.326H9.25V16C13.075 15.387 16 12.073 16 8.049Z"/>
+        facebook: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
         </svg>`,
-        tiktok: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M9.5 0h2.5c.2 1.7 1.2 3 2.9 3.2v2.6c-1.1 0-2.1-.3-2.9-.8v5.4c0 2.8-2.2 5-5 5S2 13.2 2 10.4 4.2 5.4 7 5.4c.3 0 .6 0 .9.1v2.6c-.3-.1-.6-.2-.9-.2-1.4 0-2.5 1.1-2.5 2.5S5.6 13 7 13s2.5-1.1 2.5-2.5V0z"/>
+        tiktok: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
         </svg>`,
-        whatsapp: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M13.601 2.326A7.854 7.854 0 0 0 8.004 0C3.58 0 0 3.58 0 8.004a7.95 7.95 0 0 0 1.09 4.013L0 16l4.107-1.074a7.95 7.95 0 0 0 3.897 1.002h.003c4.423 0 8.003-3.58 8.003-8.003a7.95 7.95 0 0 0-2.409-5.599ZM8.007 14.5a6.47 6.47 0 0 1-3.3-.902l-.236-.14-2.438.638.651-2.377-.154-.245A6.47 6.47 0 0 1 1.5 8.004C1.5 4.42 4.42 1.5 8.004 1.5a6.47 6.47 0 0 1 4.595 1.903 6.47 6.47 0 0 1 1.904 4.601c0 3.584-2.92 6.496-6.496 6.496Z"/>
+        pagina: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
         </svg>`,
     };
 
@@ -370,21 +368,59 @@ function renderizarWhatsApp(config) {
 
 }
 
+/* ===== MARQUEE PREMIUM ===== */
+
+function renderizarMarquee(config) {
+
+    const contenedor = document.getElementById('marqueeContainer');
+
+    if (!contenedor) return;
+
+    const track = contenedor.querySelector('.premium-marquee-track');
+
+    if (!track) return;
+
+    // Obtener textos separados por |
+    const textosRaw = config.marquee_textos || '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA';
+
+    const textos = textosRaw.split('|').map(t => t.trim()).filter(t => t);
+
+    if (textos.length === 0) return;
+
+    // Generar los spans: texto + • entre cada uno, duplicado para loop infinito
+    let html = '';
+
+    const generarItems = () => {
+        let items = '';
+        textos.forEach((texto, i) => {
+            items += `<span>${texto}</span>`;
+            if (i < textos.length - 1) {
+                items += `<span>•</span>`;
+            }
+        });
+        return items;
+    };
+
+    // Primera tanda
+    html += generarItems();
+    // Separador + segunda tanda duplicada para loop infinito
+    html += `<span>•</span>`;
+    html += generarItems();
+
+    track.innerHTML = html;
+
+}
+
 /* ===== FONDO GENERAL DE LA PÁGINA ===== */
 
 function aplicarFondoPagina(config) {
 
-    // hero_fondo se aplica como fondo general de toda la página
+    // El fondo ahora se aplica vía --color-fondo en aplicarColores()
+    // hero_fondo se mapea directamente a --color-fondo
     if (config.hero_fondo) {
-
         document.body.style.background = config.hero_fondo;
         document.body.style.backgroundAttachment = 'fixed';
         document.body.style.backgroundSize = 'cover';
-
-        // También actualizar la variable CSS para el hero
-        const root = document.documentElement;
-        root.style.setProperty('--color-hero-fondo', config.hero_fondo);
-
     }
 
 }
