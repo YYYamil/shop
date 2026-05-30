@@ -157,8 +157,12 @@ exports.editarProducto = (req, res) => {
         }
     }
 
+    console.log('[editarProducto] id=%s body=%j', id, { nombre, precio, descripcion, stock, categoria_id, nuevo, descuento });
+
     const esNuevo = (nuevo === 'true' || nuevo === true || nuevo === 1 || nuevo === '1') ? 1 : 0;
     const desc = Math.min(Math.max(parseInt(descuento) || 0, 0), 100);
+
+    console.log('[editarProducto] esNuevo=%d desc=%d', esNuevo, desc);
 
     try {
         const result = db.prepare(`
