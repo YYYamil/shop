@@ -418,44 +418,54 @@
     </div>
 
     <script>
+        // Obtener slug de la URL actual: /:slug/admin/login.html
+        function obtenerSlugDesdeURL() {
+            const parts = window.location.pathname.split('/').filter(Boolean);
+            // parts[0] debería ser el slug, parts[1] = 'admin', parts[2] = 'login.html'
+            if (parts.length >= 2 && parts[1] === 'admin') {
+                return parts[0];
+            }
+            return null;
+        }
 
         async function login() {
+            const usuario = document.getElementById('usuario').value;
+            const password = document.getElementById('password').value;
+            const slug = obtenerSlugDesdeURL();
 
-            const usuario =
-                document.getElementById('usuario').value;
-
-            const password =
-                document.getElementById('password').value;
+            if (!slug) {
+                alert('Error: No se detectó la tienda. Usá una URL como /:slug/admin/login.html');
+                return;
+            }
 
             const respuesta = await fetch(
-                '/auth/login',
+                '/auth/login/tienda',
                 {
                     method: 'POST',
-
                     headers: {
-                        'Content-Type':
-                        'application/json'
+                        'Content-Type': 'application/json'
                     },
-
                     body: JSON.stringify({
                         usuario,
-                        password
+                        password,
+                        slug
                     })
                 }
             );
 
-            const data =
-                await respuesta.json();
+            const data = await respuesta.json();
 
             if (data.error) {
-
                 alert(data.error);
-
                 return;
             }
 
-            window.location =
-                '/admin/dashboard.html';
+            // Redirigir al dashboard de la tienda
+            if (data.tiendaSlug) {
+                window.location = '/' + data.tiendaSlug + '/admin/dashboard.html';
+            } else {
+                window.location = '/admin/dashboard.html';
+            }
         }
 
     </script>

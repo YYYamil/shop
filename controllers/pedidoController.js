@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 
 exports.crearPedido = (req, res) => {
     const { cliente, telefono, productos, total } = req.body;
+    const tiendaId = req.tiendaId || 1;
 
     if (!cliente || !telefono || productos.length === 0) {
         return res.status(400).json({ error: 'Datos incompletos' });
@@ -14,29 +15,29 @@ exports.crearPedido = (req, res) => {
         // Usar una transacción para asegurar atomicidad
         const crearPedido = db.transaction((cliente, telefono, total, productos) => {
             const result = db.prepare(`
-                INSERT INTO pedidos (cliente, telefono, total, estado, fecha)
-                VALUES (?, ?, ?, ?, ?)
-            `).run(cliente, telefono, total, 'Pendiente', new Date().toLocaleString());
+                INSERT INTO pedidos (cliente, telefono, total, estado, fecha, tienda_id)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `).run(cliente, telefono, total, 'Pendiente', new Date().toLocaleString(), tiendaId);
 
             const pedidoId = result.lastInsertRowid;
 
             let errorStock = false;
 
             for (const producto of productos) {
-                const productoDB = db.prepare('SELECT * FROM productos WHERE id = ?').get(producto.id);
+                const productoDB = db.prepare('SELECT * FROM productos WHERE id = ? AND tienda_id = ?').get(producto.id, tiendaId);
 
                 if (!productoDB || productoDB.stock < producto.cantidad) {
                     errorStock = true;
                     break;
                 }
 
-                db.prepare('UPDATE productos SET stock = stock - ? WHERE id = ?')
-                    .run(producto.cantidad, producto.id);
+                db.prepare('UPDATE productos SET stock = stock - ? WHERE id = ? AND tienda_id = ?')
+                    .run(producto.cantidad, producto.id, tiendaId);
 
                 db.prepare(`
-                    INSERT INTO pedido_items (pedido_id, producto_id, nombre, cantidad, precio)
-                    VALUES (?, ?, ?, ?, ?)
-                `).run(pedidoId, producto.id, producto.nombre, producto.cantidad, producto.precio);
+                    INSERT INTO pedido_items (pedido_id, producto_id, nombre, cantidad, precio, tienda_id)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `).run(pedidoId, producto.id, producto.nombre, producto.cantidad, producto.precio, tiendaId);
             }
 
             return { pedidoId, errorStock };
@@ -57,7 +58,8 @@ exports.crearPedido = (req, res) => {
 
 exports.getPedidos = (req, res) => {
     try {
-        const pedidos = db.prepare('SELECT * FROM pedidos ORDER BY id DESC').all();
+        const tiendaId = req.tiendaId || 1;
+        const pedidos = db.prepare('SELECT * FROM pedidos WHERE tienda_id = ? ORDER BY id DESC').all(tiendaId);
         res.json(pedidos);
     } catch (err) {
         console.error('Error al obtener pedidos:', err.message);
@@ -68,9 +70,10 @@ exports.getPedidos = (req, res) => {
 exports.cambiarEstado = (req, res) => {
     const id = req.params.id;
     const { estado } = req.body;
+    const tiendaId = req.tiendaId || 1;
 
     try {
-        db.prepare('UPDATE pedidos SET estado = ? WHERE id = ?').run(estado, id);
+        db.prepare('UPDATE pedidos SET estado = ? WHERE id = ? AND tienda_id = ?').run(estado, id, tiendaId);
         res.json({ ok: true });
     } catch (err) {
         console.error('Error al cambiar estado:', err.message);
@@ -80,11 +83,12 @@ exports.cambiarEstado = (req, res) => {
 
 exports.eliminarPedido = (req, res) => {
     const id = req.params.id;
+    const tiendaId = req.tiendaId || 1;
 
     try {
         // Primero eliminar los items asociados (por la FK)
-        db.prepare('DELETE FROM pedido_items WHERE pedido_id = ?').run(id);
-        db.prepare('DELETE FROM pedidos WHERE id = ?').run(id);
+        db.prepare('DELETE FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').run(id, tiendaId);
+        db.prepare('DELETE FROM pedidos WHERE id = ? AND tienda_id = ?').run(id, tiendaId);
         res.json({ ok: true });
     } catch (err) {
         console.error('Error al eliminar pedido:', err.message);
@@ -94,9 +98,10 @@ exports.eliminarPedido = (req, res) => {
 
 exports.getItemsPedido = (req, res) => {
     const id = req.params.id;
+    const tiendaId = req.tiendaId || 1;
 
     try {
-        const rows = db.prepare('SELECT * FROM pedido_items WHERE pedido_id = ?').all(id);
+        const rows = db.prepare('SELECT * FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').all(id, tiendaId);
         res.json(rows);
     } catch (err) {
         console.error('Error al obtener items del pedido:', err.message);

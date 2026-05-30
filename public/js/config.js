@@ -1,6 +1,15 @@
 /* ===== CONFIGURACIÓN DINÁMICA DE LA TIENDA ===== */
 
 /**
+ * Obtiene el slug de la tienda desde la URL (para multi-tenant)
+ * Ejemplo: /tienda1/... → 'tienda1'
+ */
+function obtenerSlug() {
+    const match = window.location.pathname.match(/^\/([a-z0-9-]+)\//);
+    return match ? match[1] : null;
+}
+
+/**
  * Carga toda la configuración desde /api/config y aplica:
  * - Colores CSS (variables)
  * - Nombre de la tienda
@@ -14,11 +23,16 @@ async function cargarConfiguracion() {
 
     try {
 
-        const respuesta = await fetch('/api/config');
+        // Detectar slug desde la URL (para multi-tenant)
+        const slug = obtenerSlug();
+
+        const cacheBuster = '?_=' + Date.now();
+        // Usar ruta con slug en el path en lugar de query param para evitar problemas de parseo
+        const url = slug ? '/api/config/slug/' + slug + cacheBuster : '/api/config' + cacheBuster;
+
+        const respuesta = await fetch(url);
 
         if (!respuesta.ok) {
-
-            console.error('Error al cargar configuración:', respuesta.status);
 
             return;
 
@@ -31,7 +45,7 @@ async function cargarConfiguracion() {
 
     } catch (error) {
 
-        console.error('Error al cargar configuración:', error);
+        console.error('[CONFIG] Error al cargar configuración:', error);
 
     }
 

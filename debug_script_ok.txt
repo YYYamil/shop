@@ -1,1 +1,66 @@
-OK
+{
+  "tiendas": [
+    {
+      "id": 1,
+      "slug": "tienda1",
+      "nombre": "Tienda Principal"
+    },
+    {
+      "id": 2,
+      "slug": "tienda-test",
+      "nombre": "Tienda Test"
+    },
+    {
+      "id": 3,
+      "slug": "deportes-rodriguez",
+      "nombre": "Deportes Rodríguez"
+    },
+    {
+      "id": 4,
+      "slug": "nike",
+      "nombre": "Nike"
+    },
+    {
+      "id": 5,
+      "slug": "adidas",
+      "nombre": "Adidas"
+    }
+  ],
+  "usuarios": [
+    {
+      "id": 1,
+      "usuario": "SuperAdmin",
+      "password_plain": "Super1234",
+      "tienda_id": null,
+      "es_superadmin": 1
+    },
+    {
+      "id": 2,
+      "usuario": "admin_deportes",
+      "password_plain": "depor1234",
+      "tienda_id": 3,
+      "es_superadmin": 0
+    },
+    {
+      "id": 3,
+      "usuario": "admin_tienda1",
+      "password_plain": "tienda1123",
+      "tienda_id": 1,
+      "es_superadmin": 0
+    },
+    {
+      "id": 4,
+      "usuario": "admin_nike",
+      "password_plain": "nike1234",
+      "tienda_id": 4,
+      "es_superadmin": 0
+    },
+    {
+      "id": 5,
+      "usuario": "admin_adidas",
+      "password_plain": "adidas1234",
+      "tienda_id": 5,
+      "es_superadmin": 0
+    }
+  ]
+}

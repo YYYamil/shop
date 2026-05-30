@@ -4,6 +4,7 @@ const fs = require('fs');
 // GET /productos - Todos los productos (para admin)
 exports.getProductos = (req, res) => {
     try {
+        const tiendaId = req.tiendaId || 1;
         const rows = db.prepare(`
             SELECT
                 productos.*,
@@ -11,8 +12,9 @@ exports.getProductos = (req, res) => {
             FROM productos
             LEFT JOIN categorias
             ON categorias.id = productos.categoria_id
+            WHERE productos.tienda_id = ?
             ORDER BY productos.id DESC
-        `).all();
+        `).all(tiendaId);
 
         // Parsear el campo imagenes de JSON string a array
         const productos = rows.map(p => {
@@ -33,6 +35,7 @@ exports.getProductos = (req, res) => {
 // GET /productos/public - Solo productos de categorías visibles (para frontend tienda)
 exports.getProductosPublic = (req, res) => {
     try {
+        const tiendaId = req.tiendaId || 1;
         const rows = db.prepare(`
             SELECT
                 productos.*,
@@ -40,8 +43,9 @@ exports.getProductosPublic = (req, res) => {
             FROM productos
             LEFT JOIN categorias ON categorias.id = productos.categoria_id
             WHERE (categorias.visible = 1 OR productos.categoria_id IS NULL)
+            AND productos.tienda_id = ?
             ORDER BY productos.id DESC
-        `).all();
+        `).all(tiendaId);
 
         const productos = rows.map(p => {
             try {
@@ -68,6 +72,7 @@ exports.crearProducto = (req, res) => {
     if (nuevo === undefined) nuevo = req.query.nuevo;
     let descuento = req.body.descuento;
     if (descuento === undefined) descuento = req.query.descuento;
+    const tiendaId = req.tiendaId || 1;
 
     if (!nombre || precio <= 0 || stock < 0) {
         return res.status(400).json({ error: 'Datos invalidos' });
@@ -90,9 +95,9 @@ exports.crearProducto = (req, res) => {
     try {
         db.prepare(`
             INSERT INTO productos
-            (nombre, precio, descripcion, imagenes, stock, categoria_id, nuevo, descuento)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc);
+            (nombre, precio, descripcion, imagenes, stock, categoria_id, nuevo, descuento, tienda_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, tiendaId);
 
         res.json({ ok: true });
     } catch (err) {
@@ -116,6 +121,7 @@ exports.editarProducto = (req, res) => {
     if (nuevo === undefined) nuevo = req.query.nuevo;
     let descuento = req.body.descuento;
     if (descuento === undefined) descuento = req.query.descuento;
+    const tiendaId = req.tiendaId || 1;
 
     // Validar datos requeridos
     if (!nombre || precio <= 0 || stock < 0) {
@@ -187,8 +193,8 @@ exports.editarProducto = (req, res) => {
             SET nombre = ?, precio = ?, descripcion = ?,
                 imagenes = ?, stock = ?, categoria_id = ?,
                 nuevo = ?, descuento = ?
-            WHERE id = ?
-        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, id);
+            WHERE id = ? AND tienda_id = ?
+        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, id, tiendaId);
 
         if (result.changes === 0) {
             return res.status(404).json({ error: 'Producto no encontrado' });
@@ -203,9 +209,10 @@ exports.editarProducto = (req, res) => {
 
 exports.eliminarProducto = (req, res) => {
     const id = req.params.id;
+    const tiendaId = req.tiendaId || 1;
 
     try {
-        const producto = db.prepare('SELECT * FROM productos WHERE id = ?').get(id);
+        const producto = db.prepare('SELECT * FROM productos WHERE id = ? AND tienda_id = ?').get(id, tiendaId);
 
         if (!producto) {
             return res.status(404).json({ error: 'Producto no encontrado' });
@@ -224,7 +231,7 @@ exports.eliminarProducto = (req, res) => {
             });
         }
 
-        db.prepare('DELETE FROM productos WHERE id = ?').run(id);
+        db.prepare('DELETE FROM productos WHERE id = ? AND tienda_id = ?').run(id, tiendaId);
         res.json({ ok: true });
     } catch (err) {
         console.error('Error al eliminar producto:', err.message);

@@ -36,26 +36,30 @@
 
             </div>
 
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" id="sidebarNav">
 
-                <a href="/admin/dashboard.html">
+                <a href="/admin/dashboard.html" class="nav-link" data-page="dashboard">
                     📊 Dashboard
                 </a>
 
-                <a href="/admin/admin.html">
+                <a href="/admin/admin.html" class="nav-link" data-page="admin">
                     📦 Productos
                 </a>
 
-                <a href="/admin/pedidos.html" class="active">
+                <a href="/admin/pedidos.html" class="active nav-link" data-page="pedidos">
                     🛒 Pedidos
                 </a>
 
-                <a href="/admin/categorias.html">
+                <a href="/admin/categorias.html" class="nav-link" data-page="categorias">
                     🏷️ Categorías
                 </a>
 
-                <a href="/admin/personalizacion.html">
+                <a href="/admin/personalizacion.html" class="nav-link" data-page="personalizacion">
                     🎨 Personalizar
+                </a>
+
+                <a href="/superadmin/" id="linkSuperAdmin" style="display:none;border-top:1px solid #334155;margin-top:8px;padding-top:12px;" class="nav-link" data-page="superadmin">
+                    ⚙️ Super Admin
                 </a>
 
             </nav>
@@ -153,6 +157,7 @@
     </script>
 
     <script src="/js/pedidos.js"></script>
+    <script src="/js/sidebar-slug.js"></script>
 
     <!-- Script para el menú hamburguesa -->
     <script>

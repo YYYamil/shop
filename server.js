@@ -9,6 +9,7 @@ const path = require('path');
 const fs = require('fs');
 
 const authMiddleware = require('./middleware/authMiddleware');
+const tiendaMiddleware = require('./middleware/tiendaMiddleware');
 
 
 
@@ -24,6 +25,9 @@ const pedidoRoutes = require('./routes/pedidoRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 
 const configRoutes = require('./routes/configRoutes');
+
+const superAdminRoutes = require('./routes/superAdminRoutes');
+
 
 
 
@@ -62,6 +66,11 @@ app.use(session({
 
 
 
+// Middleware de tienda global (detecta slug de tienda desde URL o sesión)
+app.use(tiendaMiddleware);
+
+
+
 app.use('/uploads', express.static('uploads'));
 
 app.use(express.static('public'));
@@ -78,20 +87,69 @@ app.use('/categorias', categoriaRoutes);
 
 app.use('/api/config', configRoutes);
 
+app.use('/api/superadmin', superAdminRoutes);
+
+
+
 // Ruta para verificar sesión (muy importante)
 app.get('/auth/verificar', authMiddleware, (req, res) => {
-    res.json({ success: true, admin: req.session.admin });
+    res.json({ success: true, admin: req.session.admin, user: req.session.user });
 });
 
 
+
+// ============================================
+// RUTAS DINÁMICAS MULTI-TENANT
+// ============================================
+
+// Ruta raíz: sirve index.html (tienda por defecto)
 app.get('/', (req, res) => {
-
     res.sendFile(
-
         path.join(__dirname, 'public', 'index.html')
-
     );
+});
 
+// /superadmin/ - Sirve archivos estáticos del superadmin
+app.use('/superadmin', express.static(path.join(__dirname, 'public', 'superadmin')));
+
+// /superadmin (sin slash) - Redirige a /superadmin/
+app.get('/superadmin', (req, res) => {
+    res.redirect('/superadmin/');
+});
+
+// /:slug/admin/:file - Sirve páginas admin de una tienda específica
+// Ej: /tienda1/admin/admin.html, /tienda1/admin/pedidos.html
+app.get('/:slug/admin/:file', (req, res, next) => {
+    const { slug, file } = req.params;
+    // Validar slug
+    if (!slug.match(/^[a-z0-9-]+$/)) {
+        return next();
+    }
+    const filePath = path.join(__dirname, 'public', 'admin', file);
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        next();
+    }
+});
+
+// /:slug/ - Sirve la tienda pública para ese slug
+// Ej: /tienda1/ → public/index.html con slug=tienda1
+app.get('/:slug/', (req, res, next) => {
+    const { slug } = req.params;
+    if (!slug.match(/^[a-z0-9-]+$/)) {
+        return next();
+    }
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// /:slug (sin slash) - Redirige a /:slug/
+app.get('/:slug', (req, res, next) => {
+    const { slug } = req.params;
+    if (!slug.match(/^[a-z0-9-]+$/)) {
+        return next();
+    }
+    res.redirect('/' + slug + '/');
 });
 
 

@@ -242,11 +242,14 @@ async function cargarProductos() {
 
     mostrarSkeleton();
 
-
+    // Detectar slug desde la URL (para multi-tenant)
+    const slug = window.obtenerSlug ? obtenerSlug() : null;
+    const cacheBuster = '&_=' + Date.now();
+    const url = slug ? '/productos/public?slug=' + slug + cacheBuster : '/productos/public?_=' + Date.now();
 
     const respuesta =
 
-        await fetch('/productos/public');
+        await fetch(url);
 
 
 

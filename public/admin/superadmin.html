@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - Panel de Control</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="/css/output.css" rel="stylesheet">
+    <style>
+        .superadmin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .superadmin-sidebar {
+            width: 260px;
+            background: #1e293b;
+            color: white;
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .superadmin-sidebar h2 {
+            padding: 0 20px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 16px;
+        }
+        .superadmin-sidebar .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #94a3b8;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .superadmin-sidebar .nav-item:hover {
+            background: #334155;
+            color: white;
+        }
+        .superadmin-sidebar .nav-item.active {
+            background: #334155;
+            color: white;
+            border-left-color: #3b82f6;
+        }
+        .superadmin-sidebar .nav-item .icon {
+            font-size: 18px;
+        }
+        .superadmin-sidebar .nav-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid #334155;
+        }
+        .superadmin-sidebar .nav-footer a {
+            color: #94a3b8;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .superadmin-sidebar .nav-footer a:hover {
+            color: white;
+        }
+        .superadmin-content {
+            flex: 1;
+            padding: 32px;
+            background: #f1f5f9;
+            overflow-y: auto;
+        }
+        .superadmin-content h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1e293b;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .table-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        .btn-success {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        td {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #1e293b;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-inactive {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-content h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1e293b;
+        }
+        .modal-content .form-group {
+            margin-bottom: 16px;
+        }
+        .modal-content label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .modal-content input:focus, .modal-content select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #22c55e; }
+        .toast-error { background: #ef4444; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="superadmin-layout">
+        <!-- Sidebar -->
+        <aside class="superadmin-sidebar">
+            <h2>⚙️ Super Admin</h2>
+            <div class="nav-item active" data-section="tiendas" onclick="mostrarSeccion('tiendas')">
+                <span class="icon">🏪</span> Tiendas
+            </div>
+            <div class="nav-item" data-section="usuarios" onclick="mostrarSeccion('usuarios')">
+                <span class="icon">👥</span> Usuarios
+            </div>
+            <div class="nav-footer">
+                <a href="/admin/admin.html">← Volver a mi tienda</a>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <main class="superadmin-content">
+            <h1>Panel de Control Super Admin</h1>
+
+            <!-- Stats -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTiendas">0</div>
+                    <div class="stat-label">Tiendas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalUsuarios">0</div>
+                    <div class="stat-label">Usuarios Admin</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalProductos">0</div>
+                    <div class="stat-label">Productos Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPedidos">0</div>
+                    <div class="stat-label">Pedidos Totales</div>
+                </div>
+            </div>
+
+            <!-- Sección Tiendas -->
+            <div id="seccionTiendas">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>🏪 Tiendas</h3>
+                        <button class="btn-primary" onclick="abrirModalTienda()">+ Nueva Tienda</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Slug</th>
+                                <th>Nombre</th>
+                                <th>Estado</th>
+                                <th>Admins</th>
+                                <th>Productos</th>
+                                <th>Pedidos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaTiendas"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sección Usuarios -->
+            <div id="seccionUsuarios" class="hidden">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>👥 Usuarios Admin</h3>
+                        <button class="btn-primary" onclick="abrirModalUsuario()">+ Nuevo Admin</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Tienda ID</th>
+                                <th>Super Admin</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaUsuarios"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Tienda -->
+    <div id="modalTienda" class="modal-overlay hidden" onclick="cerrarModal(event, 'modalTienda')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modalTiendaTitle">Nueva Tienda</h2>
+            <div class="form-group">
+                <label>Slug (identificador único)</label>
+                <input type="text" id="tiendaSlug" placeholder="ej: tienda2" />
+            </div>
+            <div class="form-group">
+                <label>Nombre de la tienda</label>
+                <input type="text" id="tiendaNombre" placeholder="ej: Tienda de María" />
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="cerrarModal(null, 'modalTienda')">Cancelar</button>
+                <button class="btn-primary" onclick="guardarTienda()">Crear Tienda</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Usuario -->
+    <div id="modalUsuario" class="modal-overlay hidden" onclick="cerrarModal(event, 'modalUsuario')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Nuevo Admin</h2>
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="usuarioNombre" placeholder="ej: maria_admin" />
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="usuarioPassword" placeholder="Contraseña" />
+            </div>
+            <div class="form-group">
+                <label>Tienda</label>
+                <select id="usuarioTienda"></select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="cerrarModal(null, 'modalUsuario')">Cancelar</button>
+                <button class="btn-primary" onclick="guardarUsuario()">Crear Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/superadmin.js"></script>
+    <script>
+        verificarAuth();
+    </script>
+</body>
+</html>

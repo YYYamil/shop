@@ -344,7 +344,9 @@ async function finalizarCompra() {
 
     // Enviar pedido al servidor (no crítico para el mensaje)
     try {
-        await fetch('/pedidos', {
+        const slug = window.obtenerSlug ? obtenerSlug() : null;
+        const url = slug ? '/pedidos?slug=' + slug : '/pedidos';
+        await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
