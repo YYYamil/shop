@@ -229,13 +229,18 @@ async function guardarProducto() {
         const id = document.getElementById('idProducto').value;
         let respuesta;
 
+        // Query params para nuevo y descuento (por si multer no procesa campos de texto)
+        const params = new URLSearchParams();
+        params.append('nuevo', document.getElementById('nuevo').checked ? 'true' : 'false');
+        params.append('descuento', document.getElementById('descuento').value || 0);
+
         if (id === '') {
-            respuesta = await fetch('/productos', {
+            respuesta = await fetch('/productos?' + params.toString(), {
                 method: 'POST',
                 body: formData
             });
         } else {
-            respuesta = await fetch('/productos/' + id, {
+            respuesta = await fetch('/productos/' + id + '?' + params.toString(), {
                 method: 'PUT',
                 body: formData
             });

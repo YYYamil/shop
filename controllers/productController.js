@@ -59,15 +59,15 @@ exports.getProductosPublic = (req, res) => {
 };
 
 exports.crearProducto = (req, res) => {
-    const {
-        nombre,
-        precio,
-        descripcion,
-        stock,
-        categoria_id,
-        nuevo,
-        descuento
-    } = req.body;
+    const nombre = req.body.nombre || req.query.nombre;
+    const precio = req.body.precio || req.query.precio;
+    const descripcion = req.body.descripcion || req.query.descripcion;
+    const stock = req.body.stock || req.query.stock;
+    const categoria_id = req.body.categoria_id || req.query.categoria_id;
+    let nuevo = req.body.nuevo;
+    if (nuevo === undefined) nuevo = req.query.nuevo;
+    let descuento = req.body.descuento;
+    if (descuento === undefined) descuento = req.query.descuento;
 
     if (!nombre || precio <= 0 || stock < 0) {
         return res.status(400).json({ error: 'Datos invalidos' });
@@ -103,16 +103,19 @@ exports.crearProducto = (req, res) => {
 
 exports.editarProducto = (req, res) => {
     const id = req.params.id;
-    const {
-        nombre,
-        precio,
-        descripcion,
-        stock,
-        categoria_id,
-        imagenesActual,
-        nuevo,
-        descuento
-    } = req.body;
+
+    // Leer campos del body (multer puede no procesar algunos campos de texto)
+    // Fallback a req.query por si el frontend los envía como query params
+    const nombre = req.body.nombre || req.query.nombre;
+    const precio = req.body.precio || req.query.precio;
+    const descripcion = req.body.descripcion || req.query.descripcion;
+    const stock = req.body.stock || req.query.stock;
+    const categoria_id = req.body.categoria_id || req.query.categoria_id;
+    const imagenesActual = req.body.imagenesActual || req.query.imagenesActual;
+    let nuevo = req.body.nuevo;
+    if (nuevo === undefined) nuevo = req.query.nuevo;
+    let descuento = req.body.descuento;
+    if (descuento === undefined) descuento = req.query.descuento;
 
     // Validar datos requeridos
     if (!nombre || precio <= 0 || stock < 0) {

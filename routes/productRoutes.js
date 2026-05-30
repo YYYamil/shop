@@ -34,21 +34,7 @@ router.put(
 
     authMiddleware,
 
-    (req, res, next) => {
-        console.log('[DEBUG PUT] Content-Type:', req.headers['content-type']);
-        console.log('[DEBUG PUT] body keys:', Object.keys(req.body));
-        console.log('[DEBUG PUT] files:', req.files ? req.files.length : 0);
-        next();
-    },
-
     upload.any(),
-
-    (req, res, next) => {
-        console.log('[DEBUG PUT AFTER MULTER] body keys:', Object.keys(req.body));
-        console.log('[DEBUG PUT AFTER MULTER] body:', JSON.stringify(req.body));
-        console.log('[DEBUG PUT AFTER MULTER] files:', req.files ? req.files.length : 0);
-        next();
-    },
 
     productController.editarProducto
 
