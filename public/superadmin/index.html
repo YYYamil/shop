@@ -7,6 +7,26 @@
     <link rel="stylesheet" href="/css/admin.css">
     <link href="/css/output.css" rel="stylesheet">
     <style>
+        /* ===== HAMBURGER MENU (mobile) ===== */
+        .hamburger-superadmin {
+            display: none;
+            background: none;
+            border: none;
+            color: #1e293b;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            margin-right: 12px;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 998;
+        }
+
         .superadmin-layout {
             display: flex;
             min-height: 100vh;
@@ -19,6 +39,7 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            transition: transform 0.3s ease;
         }
         .superadmin-sidebar h2 {
             padding: 0 20px 20px;
@@ -70,6 +91,14 @@
             padding: 32px;
             background: #f1f5f9;
             overflow-y: auto;
+        }
+        .superadmin-content .top-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .superadmin-content .top-bar h1 {
+            margin-bottom: 0;
         }
         .superadmin-content h1 {
             font-size: 24px;
@@ -318,12 +347,179 @@
             font-size: 12px;
             font-weight: 500;
         }
+
+        /* ===== FILA CLICKEABLE ===== */
+        .tienda-row {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .tienda-row:hover {
+            background: #f1f5f9;
+        }
+        .tienda-row:active {
+            background: #e2e8f0;
+        }
+
+        /* ===== MODAL GESTIÓN ===== */
+        .gestion-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0 20px;
+        }
+        .gestion-stat {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+        }
+        .gestion-stat .gestion-valor {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .gestion-stat .gestion-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .gestion-info {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .gestion-info strong {
+            color: #1e293b;
+        }
+        .gestion-acciones {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .gestion-acciones button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-align: center;
+        }
+        .gestion-acciones button:active {
+            opacity: 0.7;
+        }
+        .btn-gestion-admin {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-gestion-toggle {
+            background: #22c55e;
+            color: white;
+        }
+        .btn-gestion-toggle.off {
+            background: #64748b;
+        }
+        .btn-gestion-eliminar {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-gestion-cancelar {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        /* ===== RESPONSIVE MOBILE ===== */
+        @media(max-width: 768px) {
+            .hamburger-superadmin {
+                display: inline-block;
+            }
+            .superadmin-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 999;
+                transform: translateX(-100%);
+            }
+            .superadmin-sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .superadmin-content {
+                padding: 16px;
+            }
+            .superadmin-content .top-bar h1 {
+                font-size: 18px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 14px;
+            }
+            .stat-card .stat-value {
+                font-size: 22px;
+            }
+            /* Tabla horizontal scroll */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table-container table {
+                min-width: 700px;
+            }
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .table-header h3 {
+                font-size: 15px;
+            }
+            .table-header .btn-primary {
+                width: 100%;
+                text-align: center;
+                padding: 10px;
+            }
+            th, td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            .modal-content {
+                padding: 24px 20px;
+                margin: 16px;
+                width: 100%;
+                max-width: none;
+            }
+            .toast {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                text-align: center;
+            }
+            .acciones-desktop {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="superadmin-layout">
+        <!-- Overlay for mobile sidebar -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
         <!-- Sidebar -->
-        <aside class="superadmin-sidebar">
+        <aside class="superadmin-sidebar" id="superadminSidebar">
             <h2>⚙️ Super Admin</h2>
             <div class="nav-item active" data-section="tiendas" onclick="mostrarSeccion('tiendas')">
                 <span class="icon">🏪</span> Tiendas
@@ -335,7 +531,10 @@
 
         <!-- Content -->
         <main class="superadmin-content">
-            <h1>Panel de Control Super Admin</h1>
+            <div class="top-bar">
+                <button class="hamburger-superadmin" onclick="toggleSidebar()" aria-label="Menú">☰</button>
+                <h1>Panel de Control Super Admin</h1>
+            </div>
 
             <!-- Stats -->
             <div class="stats-grid" id="statsGrid">
@@ -425,9 +624,64 @@
         </div>
     </div>
 
-    <script src="/js/auth.js?v=2"></script>
-    <script src="/superadmin/superadmin.js?v=2"></script>
+    <!-- Modal Gestión de Tienda (mobile) -->
+    <div id="modalGestion" class="modal-overlay hidden" onclick="cerrarModal(event, 'modalGestion')">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width:420px;">
+            <h2 id="gestionTitulo">🏪 Gestión de Tienda</h2>
+
+            <!-- Stats rápidas -->
+            <div class="gestion-stats">
+                <div class="gestion-stat">
+                    <div class="gestion-valor" id="gestionProductos">0</div>
+                    <div class="gestion-label">Productos</div>
+                </div>
+                <div class="gestion-stat">
+                    <div class="gestion-valor" id="gestionPedidos">0</div>
+                    <div class="gestion-label">Pedidos</div>
+                </div>
+                <div class="gestion-stat">
+                    <div class="gestion-valor" id="gestionAdmins">0</div>
+                    <div class="gestion-label">Admins</div>
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="gestion-info" id="gestionInfo">
+                Cargando...
+            </div>
+
+            <!-- Acciones -->
+            <div class="gestion-acciones">
+                <button class="btn-gestion-admin" id="gestionBtnAdmin" onclick="gestionEditarAdmin()">👤 Modificar Admin</button>
+                <button class="btn-gestion-toggle" id="gestionBtnToggle" onclick="gestionToggleTienda()">Activar / Desactivar</button>
+                <button class="btn-gestion-eliminar" id="gestionBtnEliminar" onclick="gestionEliminarTienda()">🗑️ Eliminar tienda</button>
+                <button class="btn-gestion-cancelar" onclick="cerrarModal(null, 'modalGestion')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js?v=4"></script>
+    <script src="/superadmin/superadmin.js?v=4"></script>
     <script>
+        // Toggle sidebar en mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('superadminSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Cerrar sidebar al hacer clic en un nav-item (mobile)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.superadmin-sidebar .nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+
         // Esperar a que verificarAuth() termine, luego cargar datos
         (async function() {
             try {

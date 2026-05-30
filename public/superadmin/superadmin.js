@@ -1,6 +1,7 @@
 /* ===== SUPER ADMIN - GESTIÓN MULTI-TIENDA ===== */
 
 let tiendas = [];
+let tiendaGestionActual = null; // tienda seleccionada en el modal de gestión
 
 function mostrarToast(mensaje, tipo) {
     const toast = document.createElement('div');
@@ -58,7 +59,7 @@ function actualizarStats() {
 function renderizarTiendas() {
     const tbody = document.getElementById('tablaTiendas');
     tbody.innerHTML = tiendas.map(t => `
-        <tr>
+        <tr class="tienda-row" onclick="abrirModalGestion(${t.id})">
             <td>${t.id}</td>
             <td><code>${t.slug}</code></td>
             <td><strong>${escapeHtml(t.nombre)}</strong></td>
@@ -70,16 +71,16 @@ function renderizarTiendas() {
             <td>${t.total_admins || 0}</td>
             <td>${t.total_productos || 0}</td>
             <td>${t.total_pedidos || 0}</td>
-            <td>
+            <td class="acciones-desktop">
                 <div class="action-buttons">
-                    <button class="btn-warning" onclick="abrirModalEditarAdmin(${t.id}, '${escapeHtml(t.admin_usuario || '')}')" title="Modificar admin y contraseña">
+                    <button class="btn-warning" onclick="event.stopPropagation(); abrirModalEditarAdmin(${t.id}, '${escapeHtml(t.admin_usuario || '')}')" title="Modificar admin y contraseña">
                         👤 Admin
                     </button>
-                    <button class="btn-success" onclick="toggleTienda(${t.id}, ${t.activo ? 0 : 1})">
+                    <button class="btn-success" onclick="event.stopPropagation(); toggleTienda(${t.id}, ${t.activo ? 0 : 1})">
                         ${t.activo ? 'Desactivar' : 'Activar'}
                     </button>
                     ${t.id > 1 ? `
-                        <button class="btn-danger" onclick="eliminarTienda(${t.id}, '${escapeHtml(t.nombre)}')">Eliminar</button>
+                        <button class="btn-danger" onclick="event.stopPropagation(); eliminarTienda(${t.id}, '${escapeHtml(t.nombre)}')">Eliminar</button>
                     ` : ''}
                 </div>
             </td>
@@ -278,6 +279,65 @@ async function guardarEditarAdmin() {
         console.error('Error:', err);
         mostrarToast('Error de conexión', 'error');
     }
+}
+
+// ===== MODAL GESTIÓN DE TIENDA (mobile) =====
+
+function abrirModalGestion(id) {
+    const t = tiendas.find(t => t.id === id);
+    if (!t) return;
+    tiendaGestionActual = t;
+
+    document.getElementById('gestionTitulo').textContent = '🏪 ' + escapeHtml(t.nombre);
+    document.getElementById('gestionProductos').textContent = t.total_productos || 0;
+    document.getElementById('gestionPedidos').textContent = t.total_pedidos || 0;
+    document.getElementById('gestionAdmins').textContent = t.total_admins || 0;
+
+    const slug = t.slug;
+    const adminUser = t.admin_usuario || '—';
+    document.getElementById('gestionInfo').innerHTML =
+        '<strong>Slug:</strong> ' + slug + '<br>' +
+        '<strong>Admin:</strong> ' + escapeHtml(adminUser) + '<br>' +
+        '<strong>Estado:</strong> ' + (t.activo ? '✅ Activo' : '❌ Inactivo');
+
+    // Botón toggle
+    const btnToggle = document.getElementById('gestionBtnToggle');
+    btnToggle.textContent = t.activo ? '🔴 Desactivar tienda' : '🟢 Activar tienda';
+    btnToggle.className = t.activo ? 'btn-gestion-toggle' : 'btn-gestion-toggle off';
+
+    // Botón eliminar: ocultar para tienda 1 (principal)
+    const btnEliminar = document.getElementById('gestionBtnEliminar');
+    btnEliminar.style.display = t.id > 1 ? 'block' : 'none';
+
+    document.getElementById('modalGestion').classList.remove('hidden');
+}
+
+function gestionEditarAdmin() {
+    const t = tiendaGestionActual;
+    if (!t) return;
+    cerrarModal(null, 'modalGestion');
+    // Pequeño delay para que se cierre el modal antes de abrir el otro
+    setTimeout(() => {
+        abrirModalEditarAdmin(t.id, t.admin_usuario || '');
+    }, 200);
+}
+
+function gestionToggleTienda() {
+    const t = tiendaGestionActual;
+    if (!t) return;
+    cerrarModal(null, 'modalGestion');
+    setTimeout(() => {
+        toggleTienda(t.id, t.activo ? 0 : 1);
+    }, 200);
+}
+
+function gestionEliminarTienda() {
+    const t = tiendaGestionActual;
+    if (!t) return;
+    cerrarModal(null, 'modalGestion');
+    setTimeout(() => {
+        eliminarTienda(t.id, t.nombre);
+    }, 200);
 }
 
 // NOTA: La inicialización se hace desde index.html después de verificarAuth()
