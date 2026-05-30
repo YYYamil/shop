@@ -54,17 +54,18 @@ exports.crearTienda = (req, res) => {
         const tiendaId = result.lastInsertRowid;
 
         // Crear configuración por defecto para la nueva tienda
+        // Mismos valores que el botón "Restaurar todos los textos" en Personalización
         const defaults = [
             ['tienda_nombre', nombre, 'texto', 'general'],
-            ['tienda_descripcion', 'Bienvenido a ' + nombre, 'texto', 'general'],
+            ['tienda_descripcion', 'Descripción de mi tienda - Aquí podés contar qué ofrecés', 'texto', 'general'],
             ['color_primario', '#000000', 'color', 'oculto'],
             ['color_secundario', '#444444', 'color', 'oculto'],
             ['color_fondo', '#f4f4f4', 'color', 'oculto'],
             ['color_texto', '#111827', 'color', 'oculto'],
             ['color_boton', '#000000', 'color', 'apariencia'],
             ['color_boton_texto', '#ffffff', 'color', 'apariencia'],
-            ['hero_titulo', 'Descubrí tu próximo estilo', 'texto', 'hero'],
-            ['hero_descripcion', 'Productos modernos, elegantes y seleccionados para vos', 'texto', 'hero'],
+            ['hero_titulo', 'Título de portada', 'texto', 'hero'],
+            ['hero_descripcion', 'Descripción de portada - Contá lo que quieras destacar', 'texto', 'hero'],
             ['hero_fondo', '#ffffff', 'texto', 'hero'],
             ['hero_titulo_color', '#ffffff', 'color', 'hero'],
             ['hero_imagen', '', 'imagen', 'hero'],
@@ -75,9 +76,9 @@ exports.crearTienda = (req, res) => {
             ['contacto_email', '', 'texto', 'contacto'],
             ['contacto_telefono', '', 'texto', 'contacto'],
             ['contacto_direccion', '', 'texto', 'contacto'],
-            ['redes_instagram', 'https://instagram.com', 'texto', 'redes'],
-            ['redes_facebook', 'https://facebook.com', 'texto', 'redes'],
-            ['redes_tiktok', 'https://tiktok.com', 'texto', 'redes'],
+            ['redes_instagram', 'https://instagram.com/', 'texto', 'redes'],
+            ['redes_facebook', 'https://facebook.com/', 'texto', 'redes'],
+            ['redes_tiktok', 'https://tiktok.com/', 'texto', 'redes'],
             ['redes_whatsapp', 'https://www.pagina.com/', 'texto', 'redes'],
             ['logo_imagen', '', 'imagen', 'apariencia'],
         ];

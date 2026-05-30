@@ -60,6 +60,7 @@ function renderizarCategoriasAdmin(categorias) {
 
     contenedor.innerHTML = categorias.map(cat => {
         const visible = cat.visible === 1 || cat.visible === true;
+        const nombreOriginal = cat.nombre || 'Categoría ' + cat.id;
         const nombrePersonalizado = cat.nombre_personalizado || '';
         const count = cat.product_count || 0;
 
@@ -67,7 +68,7 @@ function renderizarCategoriasAdmin(categorias) {
             <div class="categoria-card" data-id="${cat.id}">
                 <div class="categoria-card-header">
                     <div class="categoria-card-titulo">
-                        <h3>Categoría ${cat.id}</h3>
+                        <h3>${escapeHtml(nombreOriginal)}</h3>
                         <span class="categoria-card-id">#${cat.id}</span>
                     </div>
                     <span class="categoria-card-count">${count} producto(s)</span>
@@ -79,8 +80,8 @@ function renderizarCategoriasAdmin(categorias) {
                                id="nombre_${cat.id}"
                                class="input-nombre"
                                value="${escapeHtml(nombrePersonalizado)}"
-                               placeholder="Ej: Ofertas, Novedades, etc.">
-                        <small class="categoria-ayuda">En caso de vacío se dejará "Categoría ${cat.id}"</small>
+                               placeholder="${escapeHtml(nombreOriginal)}">
+                        <small class="categoria-ayuda">Dejá vacío para usar: "${escapeHtml(nombreOriginal)}"</small>
                     </div>
                     <div class="categoria-campo-toggle">
                         <label>Visible en tienda</label>

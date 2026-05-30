@@ -265,20 +265,28 @@ function aplicarLogo(config) {
 function aplicarHero(config) {
 
     // Hero título
+    const titulo = document.querySelector('.hero-content h1');
     if (config.hero_titulo) {
 
-        const titulo = document.querySelector('.hero-content h1');
-
         if (titulo) titulo.textContent = config.hero_titulo;
+
+    } else {
+
+        // Si no hay título configurado, limpiar el HTML hardcodeado
+        if (titulo) titulo.textContent = '';
 
     }
 
     // Hero descripción
+    const desc = document.querySelector('.hero-content p');
     if (config.hero_descripcion) {
 
-        const desc = document.querySelector('.hero-content p');
-
         if (desc) desc.textContent = config.hero_descripcion;
+
+    } else {
+
+        // Si no hay descripción configurada, limpiar el HTML hardcodeado
+        if (desc) desc.textContent = '';
 
     }
 
