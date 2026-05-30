@@ -1466,6 +1466,17 @@ body {
 
 /* ===== PÁGINA CARRITO ===== */
 
+/* Sticky Footer: body flex column para que el footer siempre esté al fondo */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body > main {
+    flex: 1;
+}
+
 .carrito-page {
 
     max-width: 1100px;
@@ -1474,6 +1485,7 @@ body {
 
     padding: 30px 20px;
 
+    width: 100%;
 }
 
 .carrito-titulo {
@@ -2615,7 +2627,7 @@ body {
 
 .footer {
 
-    margin-top: 80px;
+    margin-top: 56px;
 
     background:
         linear-gradient(
@@ -2626,7 +2638,7 @@ body {
 
     color: #ffffff;
 
-    padding: 60px 20px 30px;
+    padding: 42px 20px 20px;
 
     position: relative;
 
@@ -2718,28 +2730,27 @@ body {
 
     color: #ffffff;
 
-    transition: .3s;
-
-    background:
-        rgba(255,255,255,.08);
+    transition: transform .3s, box-shadow .3s;
 
     backdrop-filter: blur(12px);
 
     border:
-        1px solid rgba(255,255,255,.08);
+        1px solid rgba(255,255,255,.15);
 
     box-shadow:
-        0 8px 20px rgba(0,0,0,.15);
+        0 4px 15px rgba(0,0,0,.2);
 }
 
 .social-btn:hover {
 
     transform:
-        translateY(-5px)
-        scale(1.05);
+        scale(1.15);
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.3);
 }
 
-.instagram:hover {
+.instagram {
 
     background:
         linear-gradient(
@@ -2750,19 +2761,19 @@ body {
         );
 }
 
-.facebook:hover {
+.facebook {
 
     background:
         #1877f2;
 }
 
-.tiktok:hover {
+.tiktok {
 
     background:
         #111;
 }
 
-.whatsapp:hover {
+.whatsapp {
 
     background:
         #25D366;
@@ -2772,9 +2783,9 @@ body {
 
 .footer-bottom {
 
-    margin-top: 40px;
+    margin-top: 28px;
 
-    padding-top: 20px;
+    padding-top: 14px;
 
     text-align: center;
 
@@ -2794,7 +2805,7 @@ body {
 
     .footer {
 
-        padding: 50px 20px 24px;
+        padding: 35px 20px 16px;
     }
 
     .footer-content {
@@ -3253,6 +3264,10 @@ body {
 
     .categorias {
         display: none;
+    }
+
+    .hide-mobile {
+        display: none !important;
     }
 
 }
