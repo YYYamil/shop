@@ -1,5 +1,29 @@
 let productosGlobal = [];
 
+/* ===== MENÚ HAMBURGUESA CATEGORÍAS (mobile) ===== */
+
+function toggleMenuCategorias() {
+    const sidebar = document.getElementById('sidebarCategorias');
+    const overlay = document.getElementById('sidebarOverlay');
+    const btn = document.getElementById('hamburgerBtn');
+    if (!sidebar || !overlay || !btn) return;
+    const abrir = !sidebar.classList.contains('abierto');
+    sidebar.classList.toggle('abierto');
+    overlay.classList.toggle('abierto');
+    btn.classList.toggle('abierto');
+    document.body.style.overflow = abrir ? 'hidden' : '';
+}
+
+// Cerrar menú con tecla Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const sidebar = document.getElementById('sidebarCategorias');
+        if (sidebar && sidebar.classList.contains('abierto')) {
+            toggleMenuCategorias();
+        }
+    }
+});
+
 
 
 let carrito = JSON.parse(

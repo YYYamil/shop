@@ -296,6 +296,7 @@ function aplicarHero(config) {
 async function renderizarCategorias() {
 
     const contenedor = document.getElementById('categorias');
+    const menuLateral = document.getElementById('menuCategorias');
 
     if (!contenedor) return;
 
@@ -313,26 +314,39 @@ async function renderizarCategorias() {
 
         const categorias = await respuesta.json();
 
+        // Renderizar en contenedor horizontal (desktop)
         let html = '';
-
-        // Botón "Todos" al inicio, activo por defecto
         html += `
             <button class="activo" data-cat-id="0" onclick="filtrarCategoria(0)">
                 Todos
             </button>
         `;
-
         categorias.forEach((cat) => {
-
             html += `
                 <button data-cat-id="${cat.id}" onclick="filtrarCategoria(${cat.id})">
                     ${cat.nombre}
                 </button>
             `;
-
         });
-
         contenedor.innerHTML = html;
+
+        // Renderizar también en menú lateral (mobile)
+        if (menuLateral) {
+            let htmlMenu = '';
+            htmlMenu += `
+                <button class="activo" data-cat-id="0" onclick="filtrarCategoria(0);toggleMenuCategorias()">
+                    🏠 Todos
+                </button>
+            `;
+            categorias.forEach((cat) => {
+                htmlMenu += `
+                    <button data-cat-id="${cat.id}" onclick="filtrarCategoria(${cat.id});toggleMenuCategorias()">
+                        📁 ${cat.nombre}
+                    </button>
+                `;
+            });
+            menuLateral.innerHTML = htmlMenu;
+        }
 
     } catch (error) {
 

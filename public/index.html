@@ -11,7 +11,7 @@
     <title>Mi Shop</title>
 
     <link rel="stylesheet"
-          href="/css/store.css?v=12">
+          href="/css/store.css?v=13">
 
     <link href="/css/output.css"
           rel="stylesheet">
@@ -32,6 +32,13 @@
 
     <!-- NAVBAR -->
     <header class="navbar">
+
+        <!-- Hamburguesa (solo mobile) -->
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMenuCategorias()" aria-label="Menú de categorías">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
         <!-- Logo centrado -->
         <div class="logo">
@@ -74,6 +81,18 @@
         </div>
 
     </header>
+
+    <!-- SIDEBAR CATEGORÍAS MÓVIL -->
+    <aside class="sidebar-categorias" id="sidebarCategorias">
+        <div class="sidebar-categorias-header">
+            <h3>Categorías</h3>
+            <button class="sidebar-categorias-cerrar" onclick="toggleMenuCategorias()" aria-label="Cerrar menú">&times;</button>
+        </div>
+        <nav class="sidebar-categorias-nav" id="menuCategorias">
+            <!-- Se renderiza dinámicamente desde renderizarCategorias() -->
+        </nav>
+    </aside>
+    <div class="sidebar-categorias-overlay" id="sidebarOverlay" onclick="toggleMenuCategorias()"></div>
 
     <!-- HERO -->
     <section class="hero">
@@ -183,8 +202,8 @@
 
     </footer>
 
-    <script src="/js/config.js?v=2"></script>
-    <script src="/js/script.js?v=2"></script>
+    <script src="/js/config.js?v=3"></script>
+    <script src="/js/script.js?v=3"></script>
 
 </body>
 
