@@ -164,11 +164,12 @@ function cargarCarrito() {
 
     carrito.forEach(producto => {
 
+        // Usar precioConDescuento si existe, sino el precio original (redondeado a 2 decimales)
+        const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
+
         const subtotal =
 
-            producto.precio *
-
-            producto.cantidad;
+            Math.round(precioUnitario * producto.cantidad * 100) / 100;
 
 
 
@@ -202,7 +203,7 @@ function cargarCarrito() {
 
                     <h3>${producto.nombre}</h3>
 
-                    <p class="carrito-item-precio">$ ${producto.precio}</p>
+                    <p class="carrito-item-precio">$ ${precioUnitario}</p>
 
                     <div class="carrito-item-controles">
 
@@ -312,7 +313,8 @@ async function finalizarCompra() {
 
     carrito.forEach(producto => {
 
-        const subtotal = producto.precio * producto.cantidad;
+        const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
+        const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
 
         total += subtotal;
 
@@ -365,7 +367,5 @@ async function finalizarCompra() {
 
 
 }
-
-
 
 cargarCarrito();

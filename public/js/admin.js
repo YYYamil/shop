@@ -97,6 +97,8 @@ function abrirPanelProducto(id) {
     document.getElementById('descripcion').value = producto.descripcion;
     document.getElementById('categoria_id').value = producto.categoria_id;
     document.getElementById('imagenesActual').value = JSON.stringify(producto.imagenes || []);
+    document.getElementById('nuevo').checked = producto.nuevo == 1;
+    document.getElementById('descuento').value = producto.descuento || 0;
 
     // Mostrar preview de imágenes existentes
     const imagenes = producto.imagenes || [];
@@ -212,6 +214,8 @@ async function guardarProducto() {
     formData.append('descripcion', document.getElementById('descripcion').value.trim());
     formData.append('categoria_id', categoria_id);
     formData.append('imagenesActual', document.getElementById('imagenesActual').value);
+    formData.append('nuevo', document.getElementById('nuevo').checked ? 'true' : 'false');
+    formData.append('descuento', document.getElementById('descuento').value || 0);
 
     // Agregar imágenes nuevas
     for (let i = 0; i < 4; i++) {
@@ -291,6 +295,8 @@ function limpiarFormulario() {
     document.getElementById('descripcion').value = '';
     document.getElementById('categoria_id').value = '';
     document.getElementById('imagenesActual').value = '';
+    document.getElementById('nuevo').checked = false;
+    document.getElementById('descuento').value = 0;
     imagenesAEliminar = [];
 
     for (let i = 0; i < 4; i++) {

@@ -179,21 +179,35 @@ function toggleSearch() {
 }
 
 // Cerrar búsqueda al hacer clic fuera del wrapper
+
 document.addEventListener('click', function(e) {
+
     const wrapper = document.querySelector('.search-wrapper');
+
     const toggle = document.querySelector('.search-toggle');
+
     if (!wrapper || !toggle) return;
+
     if (!wrapper.contains(e.target) && !toggle.contains(e.target)) {
+
         wrapper.classList.remove('active');
+
     }
+
 });
 
 // Cerrar búsqueda con Escape
+
 document.addEventListener('keydown', function(e) {
+
     if (e.key === 'Escape') {
+
         const wrapper = document.querySelector('.search-wrapper');
+
         if (wrapper) wrapper.classList.remove('active');
+
     }
+
 });
 
 
@@ -285,6 +299,7 @@ function renderizarCarrusel(imagenes) {
 // Intervalos de auto-play por carrusel
 
 const carruselIntervalos = new Map();
+
 function iniciarAutoPlay(carrusel) {
 
     const idCarrusel =
@@ -414,9 +429,10 @@ function renderizarProductos(productos) {
                     </p>
 
                     <div class="precio">
-
-                        $ ${producto.precio}
-
+                        ${producto.descuento
+                            ? `<span class="precio-original">$ ${producto.precio}</span><span class="precio-descuento">$ ${(producto.precio * (1 - producto.descuento / 100)).toFixed(2)}</span>`
+                            : `$ ${producto.precio}`
+                        }
                     </div>
 
                     <div class="stock">
@@ -518,7 +534,6 @@ function agregarCarrito(id) {
         );
 
 
-
     if (producto.stock <= 0) {
 
         mostrarToast('✗ Producto sin stock');
@@ -526,6 +541,11 @@ function agregarCarrito(id) {
         return;
 
     }
+
+    // Calcular precio con descuento si aplica (redondeado a 2 decimales)
+    const precioConDescuento = producto.descuento
+        ? Math.round(producto.precio * (1 - producto.descuento / 100) * 100) / 100
+        : producto.precio;
 
     const existente =
 
@@ -551,13 +571,25 @@ function agregarCarrito(id) {
 
         existente.cantidad++;
 
+        // Actualizar precio por si cambió el descuento
+        existente.precioConDescuento = precioConDescuento;
+
     }
 
     else {
 
-        producto.cantidad = 1;
+        const item = {
+            id: producto.id,
+            nombre: producto.nombre,
+            precio: producto.precio,
+            precioConDescuento: precioConDescuento,
+            descuento: producto.descuento || 0,
+            imagenes: producto.imagenes,
+            stock: producto.stock,
+            cantidad: 1
+        };
 
-        carrito.push(producto);
+        carrito.push(item);
 
     }
 
@@ -590,9 +622,16 @@ function filtrarCategoria(id) {
         btn.classList.add('activo');
     });
 
+    // Activar animación de entrada en las cards al cambiar de categoría
+    const contenedor = document.getElementById('productos');
+    contenedor.classList.add('cambiando');
+
     if (id === 0) {
 
         renderizarProductos(productosGlobal);
+
+        // Quitar la clase después de que termine la animación
+        setTimeout(() => contenedor.classList.remove('cambiando'), 400);
 
         return;
 
@@ -607,6 +646,9 @@ function filtrarCategoria(id) {
         );
 
     renderizarProductos(filtrados);
+
+    // Quitar la clase después de que termine la animación
+    setTimeout(() => contenedor.classList.remove('cambiando'), 400);
 
 }
 
@@ -714,6 +756,7 @@ function actualizarPreviewCarrito() {
     preview.innerHTML = html;
 
 }
+
 function actualizarCarrusel(carrusel, index) {
 
     const track =

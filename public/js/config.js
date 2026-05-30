@@ -124,7 +124,10 @@ function aplicarNombreTienda(config) {
     // Logo en navbar
     const logo = document.querySelector('.logo');
 
-    if (logo) logo.textContent = nombre;
+    if (logo) {
+        logo.textContent = nombre;
+        logo.style.opacity = '1';
+    }
 
     // Nombre en footer
     const footerTitulo = document.querySelector('.footer-brand h2');

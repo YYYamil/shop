@@ -31,9 +31,19 @@ db.exec(`
         descripcion TEXT,
         imagenes TEXT DEFAULT '[]',
         stock INTEGER,
-        categoria_id INTEGER
+        categoria_id INTEGER,
+        nuevo INTEGER DEFAULT 0,
+        descuento INTEGER DEFAULT 0
     )
 `);
+
+// Migración: agregar columnas nuevo y descuento si no existen
+try {
+    db.exec(`ALTER TABLE productos ADD COLUMN nuevo INTEGER DEFAULT 0`);
+} catch(e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE productos ADD COLUMN descuento INTEGER DEFAULT 0`);
+} catch(e) { /* ya existe */ }
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS pedidos (

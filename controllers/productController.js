@@ -64,7 +64,9 @@ exports.crearProducto = (req, res) => {
         precio,
         descripcion,
         stock,
-        categoria_id
+        categoria_id,
+        nuevo,
+        descuento
     } = req.body;
 
     if (!nombre || precio <= 0 || stock < 0) {
@@ -76,12 +78,15 @@ exports.crearProducto = (req, res) => {
         imagenes = req.files.map(f => '/uploads/' + f.filename);
     }
 
+    const esNuevo = (nuevo === 'true' || nuevo === true || nuevo === 1 || nuevo === '1') ? 1 : 0;
+    const desc = Math.min(Math.max(parseInt(descuento) || 0, 0), 100);
+
     try {
         db.prepare(`
             INSERT INTO productos
-            (nombre, precio, descripcion, imagenes, stock, categoria_id)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id);
+            (nombre, precio, descripcion, imagenes, stock, categoria_id, nuevo, descuento)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc);
 
         res.json({ ok: true });
     } catch (err) {
@@ -98,7 +103,9 @@ exports.editarProducto = (req, res) => {
         descripcion,
         stock,
         categoria_id,
-        imagenesActual
+        imagenesActual,
+        nuevo,
+        descuento
     } = req.body;
 
     // Validar datos requeridos
@@ -150,13 +157,17 @@ exports.editarProducto = (req, res) => {
         }
     }
 
+    const esNuevo = (nuevo === 'true' || nuevo === true || nuevo === 1 || nuevo === '1') ? 1 : 0;
+    const desc = Math.min(Math.max(parseInt(descuento) || 0, 0), 100);
+
     try {
         const result = db.prepare(`
             UPDATE productos
             SET nombre = ?, precio = ?, descripcion = ?,
-                imagenes = ?, stock = ?, categoria_id = ?
+                imagenes = ?, stock = ?, categoria_id = ?,
+                nuevo = ?, descuento = ?
             WHERE id = ?
-        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, id);
+        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, id);
 
         if (result.changes === 0) {
             return res.status(404).json({ error: 'Producto no encontrado' });
