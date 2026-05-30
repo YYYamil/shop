@@ -48,6 +48,11 @@ exports.updateConfig = (req, res) => {
         const tipo = existente.tipo;
         let valorFinal = String(valor);
 
+        // Validar que tienda_nombre no esté vacío
+        if (clave === 'tienda_nombre' && !valorFinal.trim()) {
+            return res.status(400).json({ error: 'El nombre de la tienda no puede estar vacío' });
+        }
+
         if (tipo === 'color') {
             if (!/^#[0-9a-fA-F]{6}$/.test(valorFinal)) {
                 return res.status(400).json({ error: 'Formato de color inválido. Use #RRGGBB' });

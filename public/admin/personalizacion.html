@@ -434,9 +434,38 @@
                     input.type = 'text';
                     input.id = 'input-tienda_nombre';
                     input.value = itemNombre.valor || '';
-                    input.addEventListener('change', function() { guardarCambio('tienda_nombre', this.value); });
+                    const errorMsg = document.createElement('span');
+                    errorMsg.style.cssText = 'color:#dc2626;font-size:12px;display:none;margin-top:4px;';
+                    errorMsg.textContent = 'El nombre de la tienda no puede estar vacío';
+
+                    function validarNombre() {
+                        if (!input.value.trim()) {
+                            input.style.borderColor = '#dc2626';
+                            input.style.outline = 'none';
+                            input.style.boxShadow = '0 0 0 3px rgba(220,38,38,.15)';
+                            errorMsg.style.display = 'block';
+                            return false;
+                        }
+                        input.style.borderColor = '';
+                        input.style.boxShadow = '';
+                        errorMsg.style.display = 'none';
+                        return true;
+                    }
+
+                    // Validar al cargar si ya está vacío
+                    if (!itemNombre.valor || !itemNombre.valor.trim()) {
+                        validarNombre();
+                    }
+
+                    input.addEventListener('input', validarNombre);
+                    input.addEventListener('blur', function() {
+                        if (validarNombre()) {
+                            guardarCambio('tienda_nombre', this.value);
+                        }
+                    });
                     grupo.appendChild(label);
                     grupo.appendChild(input);
+                    grupo.appendChild(errorMsg);
                     fila.appendChild(grupo);
                 }
 

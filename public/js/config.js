@@ -77,6 +77,54 @@ function aplicarConfiguracion(config) {
     // 10. WhatsApp flotante
     renderizarWhatsApp(config);
 
+    // 11. Splash screen: asignar logo y ocultar
+    aplicarSplash(config);
+
+}
+
+/* ===== SPLASH SCREEN ===== */
+
+// Tiempo mínimo que el splash se muestra para que se aprecie la animación (ms)
+const SPLASH_TIEMPO_MINIMO = 2000;
+
+// Momento en que se inició la carga de la página
+const SPLASH_INICIO = Date.now();
+
+function aplicarSplash(config) {
+
+    const splashLogo = document.getElementById('splashLogo');
+
+    if (splashLogo && config.logo_imagen) {
+        splashLogo.src = config.logo_imagen;
+    }
+
+    ocultarSplash();
+
+}
+
+function ocultarSplash() {
+
+    const splash = document.getElementById('splashScreen');
+
+    if (!splash) return;
+
+    const tiempoTranscurrido = Date.now() - SPLASH_INICIO;
+
+    const tiempoRestante = Math.max(0, SPLASH_TIEMPO_MINIMO - tiempoTranscurrido);
+
+    setTimeout(() => {
+
+        splash.classList.add('hidden');
+
+        // Remover del DOM después de la transición
+        setTimeout(() => {
+            if (splash.parentNode) {
+                splash.parentNode.removeChild(splash);
+            }
+        }, 700);
+
+    }, tiempoRestante);
+
 }
 
 /* ===== COLORES ===== */
