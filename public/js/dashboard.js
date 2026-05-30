@@ -94,7 +94,52 @@ async function cargarDashboard() {
             `;
         });
 
-    // CHART GENERAL
+    // CHART: Ventas de la última semana
+    const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+    // Generar los últimos 7 días (hoy + 6 anteriores)
+    const hoy = new Date();
+    const ultimos7Dias = [];
+    for (let i = 6; i >= 0; i--) {
+        const fecha = new Date(hoy);
+        fecha.setDate(hoy.getDate() - i);
+        ultimos7Dias.push(fecha);
+    }
+
+    // Agrupar pedidos por día (normalizar a YYYY-MM-DD)
+    const ventasPorDia = {};
+    pedidos.forEach(p => {
+        if (!p.fecha) return;
+        // La fecha viene en formato locale: "DD/MM/YYYY, HH:mm:ss" ej: "28/5/2026, 01:05:41"
+        // Extraer solo la parte de la fecha (antes de la coma)
+        const comaIdx = p.fecha.indexOf(',');
+        const raw = comaIdx !== -1 ? p.fecha.substring(0, comaIdx) : p.fecha.substring(0, 10);
+        const parts = raw.split('/'); // ["28", "5", "2026"]
+        if (parts.length === 3) {
+            const dd = parts[0].padStart(2, '0');
+            const mm = parts[1].padStart(2, '0');
+            const yyyy = parts[2];
+            const dia = `${yyyy}-${mm}-${dd}`; // "2026-05-28"
+            if (!ventasPorDia[dia]) {
+                ventasPorDia[dia] = 0;
+            }
+            ventasPorDia[dia]++;
+        }
+    });
+
+    // Construir labels y datos para los últimos 7 días
+    const labels = [];
+    const data = [];
+    ultimos7Dias.forEach(fecha => {
+        const yyyy = fecha.getFullYear();
+        const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+        const dd = String(fecha.getDate()).padStart(2, '0');
+        const clave = `${yyyy}-${mm}-${dd}`;
+        const diaSemana = diasSemana[fecha.getDay()];
+        labels.push(`${diaSemana} ${dd}/${mm}`);
+        data.push(ventasPorDia[clave] || 0);
+    });
+
     new Chart(
 
         document.getElementById(
@@ -106,23 +151,23 @@ async function cargarDashboard() {
 
             data: {
 
-                labels: [
-                    'Pedidos',
-                    'Productos',
-                    'Sin stock'
-                ],
+                labels: labels,
 
                 datasets: [{
 
-                    label: 'Cantidad',
+                    label: 'Ventas',
 
-                    data: [
-                        pedidos.length,
-                        productos.length,
-                        sinStock.length
-                    ],
+                    data: data,
 
-                    borderWidth: 1
+                    backgroundColor: 'rgba(99, 102, 241, 0.7)',
+
+                    borderColor: 'rgba(99, 102, 241, 1)',
+
+                    borderWidth: 2,
+
+                    borderRadius: 6,
+
+                    barPercentage: 0.6
                 }]
             },
 
@@ -134,6 +179,36 @@ async function cargarDashboard() {
 
                     legend: {
                         display: false
+                    },
+
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.y + ' pedido' + (context.parsed.y !== 1 ? 's' : '');
+                            }
+                        }
+                    }
+                },
+
+                scales: {
+
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        },
+                        title: {
+                            display: true,
+                            text: 'Cantidad de ventas'
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Día de la semana'
+                        }
                     }
                 }
             }

@@ -98,6 +98,14 @@ function aplicarSplash(config) {
         splashLogo.src = config.logo_imagen;
     }
 
+    // Colores aleatorios para los dots del splash
+    const dots = document.querySelectorAll('.splash-dot');
+    const colores = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6b9d', '#c084fc', '#fb923c', '#22d3ee'];
+    dots.forEach(dot => {
+        const color = colores[Math.floor(Math.random() * colores.length)];
+        dot.style.background = color;
+    });
+
     ocultarSplash();
 
 }
