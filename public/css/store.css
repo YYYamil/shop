@@ -3029,7 +3029,9 @@ body {
 
 .splash-content {
 
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     animation: splashFadeIn 0.8s ease-out;
 
 }
@@ -3043,25 +3045,35 @@ body {
 
 }
 
-.splash-loader {
+.splash-dots {
 
-    width: 140px;
-    height: 3px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 4px;
-    margin: 0 auto;
-    overflow: hidden;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 8px;
 
 }
 
-.splash-loader-bar {
+.splash-dot {
 
-    height: 100%;
-    width: 0%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
     background: var(--color-boton, #000000);
-    border-radius: 4px;
-    animation: splashLoad 1.8s ease-in-out forwards;
+    animation: splashDotBounce 1.2s ease-in-out infinite;
 
+}
+
+.splash-dot:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.splash-dot:nth-child(2) {
+    animation-delay: 200ms;
+}
+
+.splash-dot:nth-child(3) {
+    animation-delay: 400ms;
 }
 
 @keyframes splashFadeIn {
@@ -3090,18 +3102,16 @@ body {
 
 }
 
-@keyframes splashLoad {
+@keyframes splashDotBounce {
 
-    0% {
-        width: 0%;
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.3;
     }
 
-    80% {
-        width: 100%;
-    }
-
-    100% {
-        width: 100%;
+    40% {
+        transform: translateY(-14px);
+        opacity: 1;
     }
 
 }
@@ -3158,8 +3168,8 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 290px;
-    max-width: 80vw;
+    width: 220px;
+    max-width: 75vw;
     height: 100vh;
     background: #111827;
     color: white;
@@ -3178,22 +3188,22 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 20px 16px;
+    padding: 18px 16px 12px;
     border-bottom: 1px solid #1f2937;
 }
 .sidebar-categorias-header h3 {
-    font-size: 22px;
+    font-size: 16px;
     font-weight: 700;
     margin: 0;
 }
 .sidebar-categorias-cerrar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border: none;
     background: #1f2937;
     color: white;
-    border-radius: 12px;
-    font-size: 22px;
+    border-radius: 10px;
+    font-size: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -3207,21 +3217,23 @@ body {
 .sidebar-categorias-nav {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 .sidebar-categorias-nav button {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     text-align: left;
-    padding: 14px 18px;
+    padding: 10px 14px;
     border: none;
-    border-radius: 14px;
+    border-radius: 10px;
     background: #1f2937;
     color: white;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.25s;

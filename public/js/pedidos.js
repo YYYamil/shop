@@ -3,6 +3,52 @@
 let pedidosGlobal = [];
 let paginaActual = 1;
 const pedidosPorPagina = 6;
+let confirmCallback = null;
+
+/* ===== Toast ===== */
+function mostrarToast(mensaje, tipo) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast' + (tipo ? ' ' + tipo : '');
+    toast.textContent = mensaje;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('oculto');
+        setTimeout(() => toast.remove(), 250);
+    }, 2500);
+}
+
+/* ===== Confirm personalizado ===== */
+function mostrarConfirm(mensaje, callback) {
+    const overlay = document.getElementById('confirmOverlay');
+    const mensajeEl = document.getElementById('confirmMensaje');
+    const btnAceptar = document.getElementById('confirmAceptar');
+    const btnCancelar = document.getElementById('confirmCancelar');
+
+    if (!overlay) return;
+
+    confirmCallback = callback;
+    mensajeEl.textContent = mensaje;
+    overlay.style.display = 'flex';
+
+    btnAceptar.onclick = () => {
+        overlay.style.display = 'none';
+        if (confirmCallback) confirmCallback();
+    };
+    btnCancelar.onclick = () => {
+        overlay.style.display = 'none';
+        confirmCallback = null;
+    };
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            overlay.style.display = 'none';
+            confirmCallback = null;
+        }
+    };
+}
 
 async function cargarPedidos() {
 
@@ -154,15 +200,15 @@ function renderizarPedidos() {
                     </button>
 
                     <button
-                        onclick="cambiarEstado(${pedido.id}, 'Enviado')"
-                        class="primary-btn" style="background: #2563eb;">
-                        Enviado
-                    </button>
-
-                    <button
                         onclick="cambiarEstado(${pedido.id}, 'Entregado')"
                         class="primary-btn" style="background: #16a34a;">
                         Entregado
+                    </button>
+
+                    <button
+                        onclick="eliminarPedido(${pedido.id})"
+                        class="primary-btn" style="background: #dc2626;">
+                        Eliminar
                     </button>
 
                 </div>
@@ -202,14 +248,38 @@ async function cambiarEstado(id, estado) {
             body: JSON.stringify({ estado })
         });
 
+        mostrarToast('Estado actualizado', 'exito');
         cargarPedidos();
 
     } catch (error) {
 
         console.error('Error al cambiar estado:', error);
 
-        alert('Error al actualizar el estado');
+        mostrarToast('Error al actualizar el estado', 'error');
     }
+}
+
+function eliminarPedido(id) {
+
+    mostrarConfirm('¿Eliminar este pedido definitivamente?', async () => {
+
+        try {
+
+            await fetch(`/pedidos/${id}`, {
+                method: 'DELETE',
+                credentials: 'same-origin'
+            });
+
+            mostrarToast('Pedido eliminado', 'exito');
+            cargarPedidos();
+
+        } catch (error) {
+
+            console.error('Error al eliminar pedido:', error);
+
+            mostrarToast('Error al eliminar el pedido', 'error');
+        }
+    });
 }
 
 // BUSCADOR

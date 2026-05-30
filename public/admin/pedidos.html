@@ -132,6 +132,20 @@
 
     </div>
 
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal de confirmación -->
+    <div class="confirm-overlay" id="confirmOverlay" style="display:none;">
+        <div class="confirm-dialog">
+            <p class="confirm-mensaje" id="confirmMensaje"></p>
+            <div class="confirm-acciones">
+                <button class="confirm-btn confirm-cancelar" id="confirmCancelar">Cancelar</button>
+                <button class="confirm-btn confirm-aceptar" id="confirmAceptar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/auth.js"></script>
 
     <script>

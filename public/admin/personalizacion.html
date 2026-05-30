@@ -1075,8 +1075,35 @@
             }
         }
 
+        let confirmCallback = null;
+
+        function mostrarConfirm(mensaje, callback) {
+            const overlay = document.getElementById('confirmOverlay');
+            const mensajeEl = document.getElementById('confirmMensaje');
+            const btnAceptar = document.getElementById('confirmAceptar');
+            const btnCancelar = document.getElementById('confirmCancelar');
+            if (!overlay) return;
+            confirmCallback = callback;
+            mensajeEl.textContent = mensaje;
+            overlay.style.display = 'flex';
+            btnAceptar.onclick = () => {
+                overlay.style.display = 'none';
+                if (confirmCallback) confirmCallback();
+            };
+            btnCancelar.onclick = () => {
+                overlay.style.display = 'none';
+                confirmCallback = null;
+            };
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    overlay.style.display = 'none';
+                    confirmCallback = null;
+                }
+            };
+        }
+
         async function restaurarColores() {
-            if (!confirm('¿Restaurar colores a sus valores por defecto?\n\n• Fondo de botón: Negro (#000000)\n• Texto de botón: Blanco (#ffffff)\n• Título del Hero: Blanco (#ffffff)\n• Fondo de página: Blanco (#ffffff)')) return;
+            mostrarConfirm('¿Restaurar colores a sus valores por defecto?\n\n• Fondo de botón: Negro (#000000)\n• Texto de botón: Blanco (#ffffff)\n• Título del Hero: Blanco (#ffffff)\n• Fondo de página: Blanco (#ffffff)', async () => {
 
             const coloresDefault = {
                 color_boton: '#000000',
@@ -1108,10 +1135,11 @@
             }
 
             mostrarToast('✓ Colores restaurados a valores por defecto', 'success');
+            });
         }
 
         async function restaurarTextos() {
-            if (!confirm('¿Restaurar todos los textos y valores a sus valores por defecto?\n\nLos campos se llenarán con textos de ejemplo para que sepas dónde escribir cada cosa.')) return;
+            mostrarConfirm('¿Restaurar todos los textos y valores a sus valores por defecto?\n\nLos campos se llenarán con textos de ejemplo para que sepas dónde escribir cada cosa.', async () => {
 
             for (const [clave, valor] of Object.entries(textosDefault)) {
                 await guardarCambio(clave, valor);
@@ -1149,6 +1177,7 @@
             }
 
             mostrarToast('✓ Todos los textos restaurados a valores por defecto', 'success');
+            });
         }
 
         function mostrarToast(mensaje, tipo) {
@@ -1191,6 +1220,17 @@
         });
 
     </script>
+
+    <!-- Modal de confirmación -->
+    <div class="confirm-overlay" id="confirmOverlay" style="display:none;">
+        <div class="confirm-dialog">
+            <p class="confirm-mensaje" id="confirmMensaje"></p>
+            <div class="confirm-acciones">
+                <button class="confirm-btn confirm-cancelar" id="confirmCancelar">Cancelar</button>
+                <button class="confirm-btn confirm-aceptar" id="confirmAceptar">Restaurar</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 

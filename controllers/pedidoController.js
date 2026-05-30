@@ -78,6 +78,20 @@ exports.cambiarEstado = (req, res) => {
     }
 };
 
+exports.eliminarPedido = (req, res) => {
+    const id = req.params.id;
+
+    try {
+        // Primero eliminar los items asociados (por la FK)
+        db.prepare('DELETE FROM pedido_items WHERE pedido_id = ?').run(id);
+        db.prepare('DELETE FROM pedidos WHERE id = ?').run(id);
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error al eliminar pedido:', err.message);
+        res.status(500).json({ error: 'Error al eliminar pedido' });
+    }
+};
+
 exports.getItemsPedido = (req, res) => {
     const id = req.params.id;
 

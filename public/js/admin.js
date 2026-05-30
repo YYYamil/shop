@@ -1,4 +1,34 @@
 let productosGlobal = [];
+let confirmCallback = null;
+
+/* ===== Confirm personalizado ===== */
+function mostrarConfirm(mensaje, callback) {
+    const overlay = document.getElementById('confirmOverlay');
+    const mensajeEl = document.getElementById('confirmMensaje');
+    const btnAceptar = document.getElementById('confirmAceptar');
+    const btnCancelar = document.getElementById('confirmCancelar');
+
+    if (!overlay) return;
+
+    confirmCallback = callback;
+    mensajeEl.textContent = mensaje;
+    overlay.style.display = 'flex';
+
+    btnAceptar.onclick = () => {
+        overlay.style.display = 'none';
+        if (confirmCallback) confirmCallback();
+    };
+    btnCancelar.onclick = () => {
+        overlay.style.display = 'none';
+        confirmCallback = null;
+    };
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            overlay.style.display = 'none';
+            confirmCallback = null;
+        }
+    };
+}
 let paginaActual = 1;
 const productosPorPagina = 10;
 let editandoId = null;
@@ -269,26 +299,27 @@ async function guardarProducto() {
 }
 
 /* ===== ELIMINAR PRODUCTO ===== */
-async function eliminarProducto(id) {
+function eliminarProducto(id) {
     const producto = productosGlobal.find(p => p.id === id);
     if (!producto) return;
 
-    if (!confirm(`¿Eliminar "${producto.nombre}"?`)) return;
+    mostrarConfirm(`¿Eliminar "${producto.nombre}"?`, async () => {
 
-    try {
-        const respuesta = await fetch('/productos/' + id, { method: 'DELETE' });
+        try {
+            const respuesta = await fetch('/productos/' + id, { method: 'DELETE' });
 
-        if (!respuesta.ok) {
-            const err = await respuesta.json().catch(() => ({}));
-            mostrarToast(err.error || 'Error al eliminar', 'error');
-            return;
+            if (!respuesta.ok) {
+                const err = await respuesta.json().catch(() => ({}));
+                mostrarToast(err.error || 'Error al eliminar', 'error');
+                return;
+            }
+
+            mostrarToast('✓ Producto eliminado', 'exito');
+            await cargarProductos();
+        } catch (error) {
+            mostrarToast('Error de conexión', 'error');
         }
-
-        mostrarToast('✓ Producto eliminado', 'exito');
-        await cargarProductos();
-    } catch (error) {
-        mostrarToast('Error de conexión', 'error');
-    }
+    });
 }
 
 /* ===== LIMPIAR FORMULARIO ===== */

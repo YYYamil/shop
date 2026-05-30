@@ -1,3 +1,17 @@
+/* ===== Toast ===== */
+function mostrarToast(mensaje) {
+    const existente = document.querySelector('.toast');
+    if (existente) existente.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = mensaje;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('oculto');
+        setTimeout(() => toast.remove(), 300);
+    }, 2500);
+}
+
 /* ===== Cargar configuración al iniciar ===== */
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -277,7 +291,7 @@ async function finalizarCompra() {
 
     ) {
 
-        alert('Completá tu nombre y teléfono para finalizar');
+        mostrarToast('Completá tu nombre y teléfono para finalizar');
 
         return;
 
@@ -357,7 +371,7 @@ async function finalizarCompra() {
             '_blank'
         );
     } else {
-        alert('No hay número de WhatsApp configurado para recibir pedidos');
+        mostrarToast('No hay número de WhatsApp configurado para recibir pedidos');
     }
 
     localStorage.removeItem('carrito');

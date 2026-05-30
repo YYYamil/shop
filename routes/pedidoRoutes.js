@@ -42,6 +42,14 @@ router.put(
 
 
 
+router.delete(
+    '/:id',
+    authMiddleware,
+    pedidoController.eliminarPedido
+);
+
+
+
 router.get(
 
     '/:id/items',
