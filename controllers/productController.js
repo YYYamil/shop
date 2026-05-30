@@ -74,8 +74,14 @@ exports.crearProducto = (req, res) => {
     }
 
     let imagenes = [];
-    if (req.files && req.files.length > 0) {
-        imagenes = req.files.map(f => '/uploads/' + f.filename);
+    let archivos = [];
+    if (Array.isArray(req.files)) {
+        archivos = req.files;
+    } else if (req.files && req.files.imagenes) {
+        archivos = req.files.imagenes;
+    }
+    if (archivos.length > 0) {
+        imagenes = archivos.map(f => '/uploads/' + f.filename);
     }
 
     const esNuevo = (nuevo === 'true' || nuevo === true || nuevo === 1 || nuevo === '1') ? 1 : 0;
@@ -124,8 +130,16 @@ exports.editarProducto = (req, res) => {
     if (!Array.isArray(imagenes)) imagenes = [];
     imagenes = imagenes.slice(0, 4);
 
-    if (req.files && req.files.length > 0) {
-        const nuevasImagenes = req.files.map(f => '/uploads/' + f.filename);
+    // Obtener archivos: soporta tanto upload.any() (array) como upload.fields() (objeto)
+    let archivos = [];
+    if (Array.isArray(req.files)) {
+        archivos = req.files;
+    } else if (req.files && req.files.imagenes) {
+        archivos = req.files.imagenes;
+    }
+
+    if (archivos.length > 0) {
+        const nuevasImagenes = archivos.map(f => '/uploads/' + f.filename);
 
         // Reemplazar slots vacíos o agregar al final (máximo 4)
         for (let i = 0; i < nuevasImagenes.length && i < 4; i++) {

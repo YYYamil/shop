@@ -22,7 +22,9 @@ router.post(
 
     authMiddleware,
 
-    upload.any(),
+    upload.fields([
+        { name: 'imagenes', maxCount: 4 }
+    ]),
 
     productController.crearProducto
 
@@ -34,7 +36,9 @@ router.put(
 
     authMiddleware,
 
-    upload.any(),
+    upload.fields([
+        { name: 'imagenes', maxCount: 4 }
+    ]),
 
     productController.editarProducto
 
