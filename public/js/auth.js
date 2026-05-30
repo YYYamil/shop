@@ -50,7 +50,13 @@ async function verificarAuth() {
             if (pathname.startsWith('/superadmin')) {
                 window.location = '/superadmin/login.html';
             } else {
-                window.location = '/admin/login.html';
+                // Preservar el slug si la URL actual lo tiene (ej: /deportes-rodriguez/admin/dashboard.html)
+                const parts = pathname.split('/').filter(Boolean);
+                if (parts.length >= 2 && parts[1] === 'admin') {
+                    window.location = '/' + parts[0] + '/admin/login.html';
+                } else {
+                    window.location = '/admin/login.html';
+                }
             }
             return false;
         }

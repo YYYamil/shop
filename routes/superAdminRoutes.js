@@ -17,6 +17,7 @@ router.delete('/tiendas/:id', superAdminController.eliminarTienda);
 // Usuarios
 router.get('/usuarios', superAdminController.getUsuarios);
 router.post('/usuarios', superAdminController.crearUsuario);
+router.put('/usuarios/:id', superAdminController.actualizarUsuario);
 router.delete('/usuarios/:id', superAdminController.eliminarUsuario);
 
 module.exports = router;

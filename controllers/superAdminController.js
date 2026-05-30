@@ -8,7 +8,8 @@ exports.getTiendas = (req, res) => {
             SELECT t.*,
                    (SELECT COUNT(*) FROM usuarios WHERE tienda_id = t.id) as total_admins,
                    (SELECT COUNT(*) FROM productos WHERE tienda_id = t.id) as total_productos,
-                   (SELECT COUNT(*) FROM pedidos WHERE tienda_id = t.id) as total_pedidos
+                   (SELECT COUNT(*) FROM pedidos WHERE tienda_id = t.id) as total_pedidos,
+                   (SELECT usuario FROM usuarios WHERE tienda_id = t.id AND es_superadmin = 0 LIMIT 1) as admin_usuario
             FROM tiendas t
             ORDER BY t.id ASC
         `).all();
@@ -212,6 +213,57 @@ exports.crearUsuario = async (req, res) => {
     } catch (err) {
         console.error('Error al crear usuario:', err.message);
         res.status(500).json({ error: 'Error al crear usuario' });
+    }
+};
+
+// PUT /api/superadmin/usuarios/:id - Actualizar usuario (admin) y/o contraseña
+exports.actualizarUsuario = async (req, res) => {
+    const id = req.params.id;
+    const { usuario, password } = req.body;
+
+    try {
+        // Verificar que el usuario existe
+        const existente = db.prepare('SELECT id, tienda_id, es_superadmin FROM usuarios WHERE id = ?').get(id);
+        if (!existente) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        // No permitir modificar al SuperAdmin
+        if (existente.es_superadmin) {
+            return res.status(400).json({ error: 'No se puede modificar al SuperAdmin' });
+        }
+
+        const updates = [];
+        const params = [];
+
+        if (usuario !== undefined && usuario !== null && usuario.trim() !== '') {
+            // Verificar que el nuevo nombre de usuario no exista (excepto el mismo)
+            const duplicado = db.prepare('SELECT id FROM usuarios WHERE usuario = ? AND id != ?').get(usuario.trim(), id);
+            if (duplicado) {
+                return res.status(400).json({ error: 'Ya existe otro usuario con ese nombre' });
+            }
+            updates.push('usuario = ?');
+            params.push(usuario.trim());
+        }
+
+        if (password !== undefined && password !== null && password.trim() !== '') {
+            const hash = bcrypt.hashSync(password.trim(), 10);
+            updates.push('password = ?');
+            params.push(hash);
+            updates.push('password_plain = ?');
+            params.push(password.trim());
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No hay campos para actualizar' });
+        }
+
+        params.push(id);
+        db.prepare(`UPDATE usuarios SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+        res.json({ ok: true, mensaje: 'Admin actualizado correctamente' });
+    } catch (err) {
+        console.error('Error al actualizar usuario:', err.message);
+        res.status(500).json({ error: 'Error al actualizar usuario' });
     }
 };
 

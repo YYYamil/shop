@@ -160,6 +160,19 @@
         .btn-success:hover {
             background: #16a34a;
         }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -204,6 +217,7 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            opacity: 1;
         }
         .modal-content {
             background: white;
@@ -267,6 +281,7 @@
         .action-buttons {
             display: flex;
             gap: 6px;
+            flex-wrap: wrap;
         }
         .toast {
             position: fixed;
@@ -294,6 +309,15 @@
         .link-tienda:hover {
             text-decoration: underline;
         }
+        .admin-badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -303,9 +327,6 @@
             <h2>⚙️ Super Admin</h2>
             <div class="nav-item active" data-section="tiendas" onclick="mostrarSeccion('tiendas')">
                 <span class="icon">🏪</span> Tiendas
-            </div>
-            <div class="nav-item" data-section="usuarios" onclick="mostrarSeccion('usuarios')">
-                <span class="icon">👥</span> Usuarios
             </div>
             <div class="nav-footer">
                 <a href="#" onclick="logout(); return false;">← Cerrar sesión</a>
@@ -323,10 +344,6 @@
                     <div class="stat-label">Tiendas</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalUsuarios">0</div>
-                    <div class="stat-label">Usuarios Admin</div>
-                </div>
-                <div class="stat-card">
                     <div class="stat-value" id="totalProductos">0</div>
                     <div class="stat-label">Productos Totales</div>
                 </div>
@@ -336,7 +353,7 @@
                 </div>
             </div>
 
-            <!-- Sección Tiendas -->
+            <!-- Sección Tiendas (única sección) -->
             <div id="seccionTiendas">
                 <div class="table-container">
                     <div class="table-header">
@@ -350,7 +367,7 @@
                                 <th>Slug</th>
                                 <th>Nombre</th>
                                 <th>Estado</th>
-                                <th>Admins</th>
+                                <th>Admin</th>
                                 <th>Productos</th>
                                 <th>Pedidos</th>
                                 <th>Acciones</th>
@@ -360,33 +377,10 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Sección Usuarios -->
-            <div id="seccionUsuarios" class="hidden">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h3>👥 Usuarios Admin</h3>
-                        <button class="btn-primary" onclick="abrirModalUsuario()">+ Nuevo Admin</button>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Usuario</th>
-                                <th>Contraseña</th>
-                                <th>Tienda ID</th>
-                                <th>Super Admin</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaUsuarios"></tbody>
-                    </table>
-                </div>
-            </div>
         </main>
     </div>
 
-    <!-- Modal Tienda -->
+    <!-- Modal Crear Tienda -->
     <div id="modalTienda" class="modal-overlay hidden" onclick="cerrarModal(event, 'modalTienda')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 id="modalTiendaTitle">Nueva Tienda</h2>
@@ -394,7 +388,7 @@
             <div class="form-group">
                 <label>Nombre de la tienda</label>
                 <input type="text" id="tiendaNombre" placeholder="ej: Deportes Rodríguez" />
-                <p style="font-size:12px;color:#94a3b8;margin-top:4px;">La URL será: shop.yamy.fun/<strong id="previewSlug">deportes-rodriguez</strong></p>
+                <p style="font-size:12px;color:#94a3b8;margin-top:4px;">La URL será: shop.yamy.fun/<strong id="previewSlug">nombre-de-la-tienda</strong></p>
             </div>
             <div class="form-group">
                 <label>Usuario admin</label>
@@ -411,31 +405,28 @@
         </div>
     </div>
 
-    <!-- Modal Usuario -->
-    <div id="modalUsuario" class="modal-overlay hidden" onclick="cerrarModal(event, 'modalUsuario')">
+    <!-- Modal Editar Admin -->
+    <div id="modalEditarAdmin" class="modal-overlay hidden" onclick="cerrarModal(event, 'modalEditarAdmin')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2>Nuevo Admin</h2>
+            <h2>✏️ Modificar Admin de Tienda</h2>
+            <p style="font-size:14px;color:#64748b;margin-bottom:20px;">Modificá el usuario y/o la contraseña del admin de esta tienda:</p>
             <div class="form-group">
-                <label>Usuario</label>
-                <input type="text" id="usuarioNombre" placeholder="ej: maria_admin" />
+                <label>Nuevo nombre de usuario</label>
+                <input type="text" id="editarAdminUsuario" placeholder="Dejá vacío para no cambiar" />
             </div>
             <div class="form-group">
-                <label>Contraseña</label>
-                <input type="password" id="usuarioPassword" placeholder="Contraseña" />
-            </div>
-            <div class="form-group">
-                <label>Tienda</label>
-                <select id="usuarioTienda"></select>
+                <label>Nueva contraseña</label>
+                <input type="password" id="editarAdminPassword" placeholder="Dejá vacío para no cambiar" />
             </div>
             <div class="modal-actions">
-                <button class="btn-secondary" onclick="cerrarModal(null, 'modalUsuario')">Cancelar</button>
-                <button class="btn-primary" onclick="guardarUsuario()">Crear Admin</button>
+                <button class="btn-secondary" onclick="cerrarModal(null, 'modalEditarAdmin')">Cancelar</button>
+                <button class="btn-primary" onclick="guardarEditarAdmin()">Guardar Cambios</button>
             </div>
         </div>
     </div>
 
-    <script src="/js/auth.js"></script>
-    <script src="/superadmin/superadmin.js"></script>
+    <script src="/js/auth.js?v=2"></script>
+    <script src="/superadmin/superadmin.js?v=2"></script>
     <script>
         // Esperar a que verificarAuth() termine, luego cargar datos
         (async function() {

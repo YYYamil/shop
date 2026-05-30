@@ -1,7 +1,6 @@
 /* ===== SUPER ADMIN - GESTIÓN MULTI-TIENDA ===== */
 
 let tiendas = [];
-let usuarios = [];
 
 function mostrarToast(mensaje, tipo) {
     const toast = document.createElement('div');
@@ -12,10 +11,8 @@ function mostrarToast(mensaje, tipo) {
 }
 
 function mostrarSeccion(seccion) {
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    document.querySelector(`.nav-item[data-section="${seccion}"]`).classList.add('active');
-    document.getElementById('seccionTiendas').classList.toggle('hidden', seccion !== 'tiendas');
-    document.getElementById('seccionUsuarios').classList.toggle('hidden', seccion !== 'usuarios');
+    // Ya no hay múltiples secciones, solo tiendas
+    // Esta función se mantiene por compatibilidad
 }
 
 function cerrarModal(event, modalId) {
@@ -25,10 +22,7 @@ function cerrarModal(event, modalId) {
 
 async function cargarDatos() {
     try {
-        const [tiendasRes, usuariosRes] = await Promise.all([
-            fetch('/api/superadmin/tiendas', { credentials: 'same-origin' }),
-            fetch('/api/superadmin/usuarios', { credentials: 'same-origin' })
-        ]);
+        const tiendasRes = await fetch('/api/superadmin/tiendas', { credentials: 'same-origin' });
 
         if (!tiendasRes.ok) {
             if (tiendasRes.status === 401) {
@@ -40,12 +34,8 @@ async function cargarDatos() {
         }
 
         tiendas = await tiendasRes.json();
-        usuarios = await usuariosRes.json();
-
         actualizarStats();
         renderizarTiendas();
-        renderizarUsuarios();
-        cargarSelectTiendas();
     } catch (err) {
         console.error('Error al cargar datos:', err);
         mostrarToast('Error al cargar datos del servidor', 'error');
@@ -54,7 +44,6 @@ async function cargarDatos() {
 
 function actualizarStats() {
     document.getElementById('totalTiendas').textContent = tiendas.length;
-    document.getElementById('totalUsuarios').textContent = usuarios.length;
 
     let totalProductos = 0;
     let totalPedidos = 0;
@@ -83,6 +72,9 @@ function renderizarTiendas() {
             <td>${t.total_pedidos || 0}</td>
             <td>
                 <div class="action-buttons">
+                    <button class="btn-warning" onclick="abrirModalEditarAdmin(${t.id}, '${escapeHtml(t.admin_usuario || '')}')" title="Modificar admin y contraseña">
+                        👤 Admin
+                    </button>
                     <button class="btn-success" onclick="toggleTienda(${t.id}, ${t.activo ? 0 : 1})">
                         ${t.activo ? 'Desactivar' : 'Activar'}
                     </button>
@@ -92,31 +84,6 @@ function renderizarTiendas() {
                 </div>
             </td>
         </tr>
-    `).join('');
-}
-
-function renderizarUsuarios() {
-    const tbody = document.getElementById('tablaUsuarios');
-    tbody.innerHTML = usuarios.map(u => `
-        <tr>
-            <td>${u.id}</td>
-            <td>${escapeHtml(u.usuario)}</td>
-            <td><code style="background:#f1f5f9;padding:2px 8px;border-radius:4px;font-size:13px;">${escapeHtml(u.password_plain || '—')}</code></td>
-            <td>${u.tienda_id}</td>
-            <td>${u.es_superadmin ? '✅ Sí' : '❌ No'}</td>
-            <td>
-                ${!u.es_superadmin ? `
-                    <button class="btn-danger" onclick="eliminarUsuario(${u.id})">Eliminar</button>
-                ` : '<span style="color:#94a3b8;font-size:12px;">Protegido</span>'}
-            </td>
-        </tr>
-    `).join('');
-}
-
-function cargarSelectTiendas() {
-    const select = document.getElementById('usuarioTienda');
-    select.innerHTML = tiendas.map(t => `
-        <option value="${t.id}">${escapeHtml(t.nombre)} (${t.slug})</option>
     `).join('');
 }
 
@@ -137,14 +104,17 @@ function nombreToSlug(texto) {
         .replace(/^-|-$/g, '');         // quitar guiones al inicio/final
 }
 
-// ===== MODAL TIENDA =====
+// ===== MODAL CREAR TIENDA =====
 function abrirModalTienda() {
+    const modal = document.getElementById('modalTienda');
+    if (!modal) return;
     document.getElementById('tiendaNombre').value = '';
     document.getElementById('tiendaAdminUsuario').value = '';
     document.getElementById('tiendaAdminPassword').value = '';
     document.getElementById('previewSlug').textContent = 'nombre-de-la-tienda';
     document.getElementById('modalTiendaTitle').textContent = 'Nueva Tienda';
-    document.getElementById('modalTienda').classList.remove('hidden');
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
 }
 
 // Preview del slug en vivo
@@ -248,62 +218,61 @@ async function toggleTienda(id, activo) {
     }
 }
 
-// ===== MODAL USUARIO =====
-function abrirModalUsuario() {
-    document.getElementById('usuarioNombre').value = '';
-    document.getElementById('usuarioPassword').value = '';
-    document.getElementById('modalUsuario').classList.remove('hidden');
+// ===== MODAL EDITAR ADMIN DE TIENDA =====
+let tiendaEditandoId = null;
+
+function abrirModalEditarAdmin(tiendaId, adminUsuario) {
+    const modal = document.getElementById('modalEditarAdmin');
+    if (!modal) return;
+    tiendaEditandoId = tiendaId;
+    document.getElementById('editarAdminUsuario').value = adminUsuario || '';
+    document.getElementById('editarAdminPassword').value = '';
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+    document.getElementById('editarAdminUsuario').focus();
 }
 
-async function guardarUsuario() {
-    const usuario = document.getElementById('usuarioNombre').value.trim();
-    const password = document.getElementById('usuarioPassword').value;
-    const tienda_id = document.getElementById('usuarioTienda').value;
+async function guardarEditarAdmin() {
+    const usuario = document.getElementById('editarAdminUsuario').value.trim();
+    const password = document.getElementById('editarAdminPassword').value;
 
-    if (!usuario || !password || !tienda_id) {
-        mostrarToast('Completá todos los campos', 'error');
+    if (!usuario && !password) {
+        mostrarToast('Completá al menos el usuario o la contraseña', 'error');
         return;
     }
 
     try {
-        const res = await fetch('/api/superadmin/usuarios', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({ usuario, password, tienda_id: parseInt(tienda_id) })
-        });
-
-        const data = await res.json();
-
-        if (data.ok) {
-            mostrarToast('Admin creado exitosamente', 'success');
-            cerrarModal(null, 'modalUsuario');
-            cargarDatos();
-        } else {
-            mostrarToast(data.error || 'Error al crear admin', 'error');
-        }
-    } catch (err) {
-        console.error('Error:', err);
-        mostrarToast('Error de conexión', 'error');
-    }
-}
-
-async function eliminarUsuario(id) {
-    if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
-
-    try {
-        const res = await fetch('/api/superadmin/usuarios/' + id, {
-            method: 'DELETE',
+        // Primero obtener el admin de esta tienda
+        const usuariosRes = await fetch('/api/superadmin/usuarios?tienda_id=' + tiendaEditandoId, {
             credentials: 'same-origin'
         });
+        const usuarios = await usuariosRes.json();
+        const admin = usuarios.find(u => !u.es_superadmin);
+
+        if (!admin) {
+            mostrarToast('No se encontró un admin para esta tienda', 'error');
+            return;
+        }
+
+        const body = {};
+        if (usuario) body.usuario = usuario;
+        if (password) body.password = password;
+
+        const res = await fetch('/api/superadmin/usuarios/' + admin.id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(body)
+        });
 
         const data = await res.json();
 
         if (data.ok) {
-            mostrarToast('Usuario eliminado', 'success');
+            mostrarToast('Admin actualizado correctamente', 'success');
+            cerrarModal(null, 'modalEditarAdmin');
             cargarDatos();
         } else {
-            mostrarToast(data.error || 'Error al eliminar', 'error');
+            mostrarToast(data.error || 'Error al actualizar admin', 'error');
         }
     } catch (err) {
         console.error('Error:', err);
