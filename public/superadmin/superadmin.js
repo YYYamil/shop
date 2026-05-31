@@ -12,8 +12,22 @@ function mostrarToast(mensaje, tipo) {
 }
 
 function mostrarSeccion(seccion) {
-    // Ya no hay múltiples secciones, solo tiendas
-    // Esta función se mantiene por compatibilidad
+    // Ocultar todas las secciones
+    document.getElementById('seccionTiendas').classList.add('hidden');
+    document.getElementById('seccionBackups').classList.add('hidden');
+
+    // Mostrar la sección seleccionada
+    document.getElementById('seccion' + seccion.charAt(0).toUpperCase() + seccion.slice(1)).classList.remove('hidden');
+
+    // Actualizar nav items
+    document.querySelectorAll('.superadmin-sidebar .nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.section === seccion);
+    });
+
+    // Si es la sección de backups, cargar la lista
+    if (seccion === 'backups') {
+        cargarBackups();
+    }
 }
 
 function cerrarModal(event, modalId) {
@@ -339,6 +353,100 @@ function gestionEliminarTienda() {
         eliminarTienda(t.id, t.nombre);
     }, 200);
 }
+
+// ===== BACKUPS =====
+
+
+async function cargarBackups() {
+    try {
+        const res = await fetch('/api/superadmin/backups', { credentials: 'same-origin' });
+        if (!res.ok) {
+            mostrarToast('Error al cargar backups', 'error');
+            return;
+        }
+        const backups = await res.json();
+        renderizarBackups(backups);
+    } catch (err) {
+        console.error('Error al cargar backups:', err);
+        mostrarToast('Error al cargar backups', 'error');
+    }
+}
+
+function renderizarBackups(backups) {
+    const tbody = document.getElementById('tablaBackups');
+    if (!backups || backups.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No hay backups todavía</td></tr>';
+        return;
+    }
+    tbody.innerHTML = backups.map(b => `
+        <tr>
+            <td><code>${escapeHtml(b.nombre)}</code></td>
+            <td>${b.fechaFormateada}</td>
+            <td>${b.tamano}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-success" onclick="descargarBackup('${escapeHtml(b.nombre)}')" title="Descargar backup">⬇️ Descargar</button>
+                    <button class="btn-danger" onclick="eliminarBackup('${escapeHtml(b.nombre)}')" title="Eliminar backup">🗑️ Eliminar</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function crearBackup() {
+    const btn = document.querySelector('#seccionBackups .btn-primary');
+    btn.disabled = true;
+    btn.textContent = '⏳ Creando...';
+
+    try {
+        const res = await fetch('/api/superadmin/backups', {
+            method: 'POST',
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            mostrarToast('✅ Backup creado: ' + data.backup.nombre, 'success');
+            cargarBackups();
+        } else {
+            mostrarToast(data.error || 'Error al crear backup', 'error');
+        }
+    } catch (err) {
+        console.error('Error al crear backup:', err);
+        mostrarToast('Error de conexión al crear backup', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '+ Crear Backup';
+    }
+}
+
+function descargarBackup(nombre) {
+    // Abrir en nueva pestaña para descargar
+    window.open('/api/superadmin/backups/' + encodeURIComponent(nombre) + '/download', '_blank');
+}
+
+async function eliminarBackup(nombre) {
+    if (!confirm('¿Eliminar el backup "' + nombre + '"?\n\nEsta acción no se puede deshacer.')) return;
+
+    try {
+        const res = await fetch('/api/superadmin/backups/' + encodeURIComponent(nombre), {
+            method: 'DELETE',
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            mostrarToast('Backup eliminado', 'success');
+            cargarBackups();
+        } else {
+            mostrarToast(data.error || 'Error al eliminar backup', 'error');
+        }
+    } catch (err) {
+        console.error('Error al eliminar backup:', err);
+        mostrarToast('Error de conexión', 'error');
+    }
+}
+
 
 // NOTA: La inicialización se hace desde index.html después de verificarAuth()
 // para asegurar que la sesión esté lista antes de cargar datos.

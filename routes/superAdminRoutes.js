@@ -20,4 +20,10 @@ router.post('/usuarios', superAdminController.crearUsuario);
 router.put('/usuarios/:id', superAdminController.actualizarUsuario);
 router.delete('/usuarios/:id', superAdminController.eliminarUsuario);
 
+// Backups
+router.get('/backups', superAdminController.listarBackups);
+router.post('/backups', superAdminController.crearBackup);
+router.delete('/backups/:nombre', superAdminController.eliminarBackup);
+router.get('/backups/:nombre/download', superAdminController.descargarBackup);
+
 module.exports = router;

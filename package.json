@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "seed": "node createAdmin.js"
+    "seed": "node database/createSuperAdmin.js"
   },
   "keywords": [
     "shop",

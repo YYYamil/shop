@@ -524,6 +524,9 @@
             <div class="nav-item active" data-section="tiendas" onclick="mostrarSeccion('tiendas')">
                 <span class="icon">🏪</span> Tiendas
             </div>
+            <div class="nav-item" data-section="backups" onclick="mostrarSeccion('backups')">
+                <span class="icon">💾</span> Backups
+            </div>
             <div class="nav-footer">
                 <a href="#" onclick="logout(); return false;">← Cerrar sesión</a>
             </div>
@@ -573,6 +576,33 @@
                             </tr>
                         </thead>
                         <tbody id="tablaTiendas"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sección Backups -->
+            <div id="seccionBackups" class="hidden">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>💾 Backups de Base de Datos</h3>
+                        <button class="btn-primary" onclick="crearBackup()">+ Crear Backup</button>
+                    </div>
+                    <div style="padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b;">
+                        Los backups se guardan en la carpeta <code>backups/</code> del servidor.
+                        Podés descargarlos o eliminarlos desde aquí.
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Archivo</th>
+                                <th>Fecha</th>
+                                <th>Tamaño</th>
+                                <th style="min-width:200px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBackups">
+                            <tr><td colspan="4" style="text-align:center;color:#94a3b8;">No hay backups todavía</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>

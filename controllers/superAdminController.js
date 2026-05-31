@@ -1,5 +1,7 @@
 const db = require('../database/db');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
 
 // GET /api/superadmin/tiendas - Listar todas las tiendas
 exports.getTiendas = (req, res) => {
@@ -283,5 +285,138 @@ exports.eliminarUsuario = (req, res) => {
     } catch (err) {
         console.error('Error al eliminar usuario:', err.message);
         res.status(500).json({ error: 'Error al eliminar usuario' });
+    }
+};
+
+// ============================================
+// BACKUPS
+// ============================================
+
+const BACKUP_DIR = path.join(__dirname, '..', 'backups');
+
+// Asegurar que el directorio de backups exista
+function asegurarBackupDir() {
+    if (!fs.existsSync(BACKUP_DIR)) {
+        fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    }
+}
+
+// GET /api/superadmin/backups - Listar backups disponibles
+exports.listarBackups = (req, res) => {
+    try {
+        asegurarBackupDir();
+        const archivos = fs.readdirSync(BACKUP_DIR)
+            .filter(f => f.endsWith('.db'))
+            .map(f => {
+                const stats = fs.statSync(path.join(BACKUP_DIR, f));
+                const tamanoKB = (stats.size / 1024).toFixed(1);
+                return {
+                    nombre: f,
+                    tamano: tamanoKB + ' KB',
+                    fecha: stats.mtime,
+                    fechaFormateada: new Date(stats.mtime).toLocaleString('es-AR', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    })
+                };
+            })
+            .sort((a, b) => b.fecha - a.fecha); // más reciente primero
+
+        res.json(archivos);
+    } catch (err) {
+        console.error('Error al listar backups:', err.message);
+        res.status(500).json({ error: 'Error al listar backups' });
+    }
+};
+
+// POST /api/superadmin/backups - Crear un backup
+exports.crearBackup = (req, res) => {
+    try {
+        asegurarBackupDir();
+
+        const dbPath = path.join(__dirname, '..', 'database.db');
+        if (!fs.existsSync(dbPath)) {
+            return res.status(404).json({ error: 'No se encuentra la base de datos' });
+        }
+
+        // Generar nombre: backup-YYYY-MM-DD_HH-mm-ss.db
+        const now = new Date();
+        const sufijo = now.getFullYear() + '-'
+            + String(now.getMonth() + 1).padStart(2, '0') + '-'
+            + String(now.getDate()).padStart(2, '0') + '_'
+            + String(now.getHours()).padStart(2, '0') + '-'
+            + String(now.getMinutes()).padStart(2, '0') + '-'
+            + String(now.getSeconds()).padStart(2, '0');
+        const nombreBackup = 'backup-' + sufijo + '.db';
+        const backupPath = path.join(BACKUP_DIR, nombreBackup);
+
+        // Hacer una copia del archivo database.db
+        fs.copyFileSync(dbPath, backupPath);
+
+        const stats = fs.statSync(backupPath);
+        const tamanoKB = (stats.size / 1024).toFixed(1);
+
+        console.log('[BACKUP] Creado: ' + nombreBackup + ' (' + tamanoKB + ' KB)');
+        res.json({
+            ok: true,
+            backup: {
+                nombre: nombreBackup,
+                tamano: tamanoKB + ' KB',
+                fechaFormateada: new Date().toLocaleString('es-AR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                })
+            }
+        });
+    } catch (err) {
+        console.error('Error al crear backup:', err.message);
+        res.status(500).json({ error: 'Error al crear backup' });
+    }
+};
+
+// DELETE /api/superadmin/backups/:nombre - Eliminar un backup
+exports.eliminarBackup = (req, res) => {
+    try {
+        asegurarBackupDir();
+        const nombre = req.params.nombre;
+
+        // Validar que el nombre sea seguro (solo backup-*.db)
+        if (!nombre || !nombre.match(/^backup-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.db$/)) {
+            return res.status(400).json({ error: 'Nombre de backup inválido' });
+        }
+
+        const backupPath = path.join(BACKUP_DIR, nombre);
+        if (!fs.existsSync(backupPath)) {
+            return res.status(404).json({ error: 'Backup no encontrado' });
+        }
+
+        fs.unlinkSync(backupPath);
+        console.log('[BACKUP] Eliminado: ' + nombre);
+        res.json({ ok: true, mensaje: 'Backup eliminado correctamente' });
+    } catch (err) {
+        console.error('Error al eliminar backup:', err.message);
+        res.status(500).json({ error: 'Error al eliminar backup' });
+    }
+};
+
+// GET /api/superadmin/backups/:nombre/download - Descargar un backup
+exports.descargarBackup = (req, res) => {
+    try {
+        asegurarBackupDir();
+        const nombre = req.params.nombre;
+
+        if (!nombre || !nombre.match(/^backup-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.db$/)) {
+            return res.status(400).json({ error: 'Nombre de backup inválido' });
+        }
+
+        const backupPath = path.join(BACKUP_DIR, nombre);
+        if (!fs.existsSync(backupPath)) {
+            return res.status(404).json({ error: 'Backup no encontrado' });
+        }
+
+        res.download(backupPath, nombre);
+    } catch (err) {
+        console.error('Error al descargar backup:', err.message);
+        res.status(500).json({ error: 'Error al descargar backup' });
     }
 };
