@@ -5,7 +5,9 @@
  * Ejemplo: /tienda1/... → 'tienda1'
  */
 function obtenerSlug() {
-    const match = window.location.pathname.match(/^\/([a-z0-9-]+)\//);
+    // Captura el slug desde la URL, con o sin slash final
+    // Ej: /glitter/ → 'glitter', /glitter → 'glitter', /vibra/admin/... → 'vibra'
+    const match = window.location.pathname.match(/^\/([a-z0-9-]+)(?:\/|$)/);
     return match ? match[1] : null;
 }
 

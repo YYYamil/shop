@@ -153,13 +153,14 @@ app.get('/:slug/', (req, res, next) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// /:slug (sin slash) - Redirige a /:slug/
+// /:slug (sin slash) - Sirve index.html directamente (sin redirección)
+// para evitar problemas con express.static que podría interceptar la ruta
 app.get('/:slug', (req, res, next) => {
     const { slug } = req.params;
     if (!slug.match(/^[a-z0-9-]+$/)) {
         return next();
     }
-    res.redirect('/' + slug + '/');
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 
