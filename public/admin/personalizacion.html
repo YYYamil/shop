@@ -13,6 +13,104 @@
     <link rel="stylesheet"
           href="/css/admin.css?v=13">
 
+    <style>
+        /* ===== MEDIA QUERIES PARA MOBILE ===== */
+
+        /* Tablets y mobile grandes */
+        @media (max-width: 1024px) {
+            .admin-content {
+                padding: 16px !important;
+            }
+            .form-card {
+                padding: 16px !important;
+            }
+            .topbar {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+            .topbar h1 {
+                font-size: 22px !important;
+            }
+        }
+
+        /* Mobile < 768px */
+        @media (max-width: 768px) {
+            .admin-content {
+                padding: 12px !important;
+            }
+            .form-card {
+                padding: 12px !important;
+                border-radius: 10px !important;
+            }
+            .form-header h2 {
+                font-size: 17px !important;
+            }
+            .topbar h1 {
+                font-size: 20px !important;
+            }
+            .topbar p {
+                font-size: 13px !important;
+            }
+
+            /* Grids de 2 columnas pasan a 1 */
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Imágenes: apilar verticalmente */
+            .imagenes-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Tarjetas de tipografía: 2 columnas en mobile */
+            .font-card {
+                padding: 10px 8px !important;
+            }
+            .font-card div:first-child {
+                font-size: 15px !important;
+            }
+
+            /* Inputs y selects: ancho completo */
+            .input-group input,
+            .input-group select,
+            .input-group textarea {
+                font-size: 16px !important; /* Evita zoom en iOS */
+            }
+
+            /* Botones de restaurar: apilar */
+            .form-card:last-child div[style*="flex-wrap"] {
+                flex-direction: column !important;
+            }
+            .form-card:last-child button {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            /* Stats card */
+            .stats-card {
+                width: 100% !important;
+                text-align: center !important;
+            }
+        }
+
+        /* Mobile muy chico < 480px */
+        @media (max-width: 480px) {
+            .admin-content {
+                padding: 8px !important;
+            }
+            .form-card {
+                padding: 10px !important;
+            }
+            .topbar h1 {
+                font-size: 18px !important;
+            }
+            .form-header h2 {
+                font-size: 15px !important;
+            }
+        }
+    </style>
+
 </head>
 
 <body class="bg-gray-100">
@@ -117,7 +215,24 @@
 
             </div>
 
-            <!-- 2. TIPOGRAFÍA -->
+            <!-- 2. PORTADA (HERO) -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Portada</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-hero">
+
+                    <!-- Se llena dinámicamente: hero_titulo, hero_descripcion, hero_titulo_color -->
+
+                </div>
+
+            </div>
+
+            <!-- 3. TIPOGRAFÍA -->
             <div class="form-card">
 
                 <div class="form-header">
@@ -134,29 +249,12 @@
 
             </div>
 
-            <!-- 3. MARQUESINA -->
+            <!-- 4. COLOR -->
             <div class="form-card">
 
                 <div class="form-header">
 
-                    <h2>Marquesina</h2>
-
-                </div>
-
-                <div class="form-grid" id="grupo-marquee">
-
-                    <!-- Se llena dinámicamente: marquee_textos -->
-
-                </div>
-
-            </div>
-
-            <!-- 3. COLOR -->
-            <div class="form-card">
-
-                <div class="form-header">
-
-                    <h2>Color</h2>
+                    <h2>Colores</h2>
 
                 </div>
 
@@ -168,75 +266,7 @@
 
             </div>
 
-            <!-- 4. PORTADA (HERO) -->
-            <div class="form-card">
-
-                <div class="form-header">
-
-                    <h2>Portada</h2>
-
-                </div>
-
-                <div class="form-grid" id="grupo-hero">
-
-                    <!-- Se llena dinámicamente: hero_titulo, hero_descripcion -->
-
-                </div>
-
-            </div>
-
-            <!-- 5. PEDIDOS -->
-            <div class="form-card">
-
-                <div class="form-header">
-
-                    <h2>Pedidos</h2>
-
-                </div>
-
-                <div class="form-grid" id="grupo-whatsapp">
-
-                    <!-- Se llena dinámicamente -->
-
-                </div>
-
-            </div>
-
-            <!-- 5. CONTACTO (oculto) -->
-            <div class="form-card" style="display:none;">
-
-                <div class="form-header">
-
-                    <h2>Contacto</h2>
-
-                </div>
-
-                <div class="form-grid" id="grupo-contacto">
-
-                    <!-- Se llena dinámicamente -->
-
-                </div>
-
-            </div>
-
-            <!-- 6. REDES SOCIALES -->
-            <div class="form-card">
-
-                <div class="form-header">
-
-                    <h2>Redes en pie de página</h2>
-
-                </div>
-
-                <div class="form-grid" id="grupo-redes">
-
-                    <!-- Se llena dinámicamente -->
-
-                </div>
-
-            </div>
-
-            <!-- SECCIÓN DE IMÁGENES -->
+            <!-- 5. IMÁGENES -->
             <div class="form-card">
 
                 <div class="form-header">
@@ -274,6 +304,74 @@
                         </div>
 
                     </div>
+
+                </div>
+
+            </div>
+
+            <!-- 6. MARQUESINA -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Marquesina</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-marquee">
+
+                    <!-- Se llena dinámicamente: marquee_textos -->
+
+                </div>
+
+            </div>
+
+            <!-- 7. REDES SOCIALES -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Redes en pie de página</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-redes">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <!-- 8. PEDIDOS (WHATSAPP) -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Pedidos por WhatsApp</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-whatsapp">
+
+                    <!-- Se llena dinámicamente -->
+
+                </div>
+
+            </div>
+
+            <!-- 9. CONTACTO (oculto) -->
+            <div class="form-card" style="display:none;">
+
+                <div class="form-header">
+
+                    <h2>Contacto</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-contacto">
+
+                    <!-- Se llena dinámicamente -->
 
                 </div>
 
@@ -446,6 +544,7 @@
                 const itemDesc = datos.find(d => d.clave === 'tienda_descripcion');
 
                 const fila = document.createElement('div');
+                fila.className = 'grid-2cols';
                 fila.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;';
 
                 if (itemNombre) {
@@ -481,7 +580,9 @@
                         validarNombre();
                     }
 
-                    input.addEventListener('input', validarNombre);
+                    input.addEventListener('input', function() {
+                        validarNombre();
+                    });
                     input.addEventListener('blur', function() {
                         if (validarNombre()) {
                             guardarCambio('tienda_nombre', this.value);
@@ -513,7 +614,7 @@
             }
 
             // ============================================
-            // 2. MARQUESINA: marquee_textos como textarea
+            // 2. MARQUESINA: editor visual de chips/tags
             // ============================================
             const contMarquee = document.getElementById('grupo-marquee');
             if (contMarquee) {
@@ -521,22 +622,145 @@
                 if (itemMarquee) {
                     const grupo = document.createElement('div');
                     grupo.className = 'input-group';
+
                     const label = document.createElement('label');
-                    label.htmlFor = 'input-marquee_textos';
-                    label.textContent = 'Textos del marquee (separados por | )';
-                    const textarea = document.createElement('textarea');
-                    textarea.id = 'input-marquee_textos';
-                    textarea.value = itemMarquee.valor || '';
-                    textarea.style.cssText = 'width:100%;min-height:80px;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;resize:vertical;box-sizing:border-box;';
-                    textarea.addEventListener('change', function() { guardarCambio('marquee_textos', this.value); });
+                    label.textContent = 'Textos del marquee';
                     grupo.appendChild(label);
-                    grupo.appendChild(textarea);
+
+                    const helpText = document.createElement('small');
+                    helpText.textContent = 'Agregá textos que se mostrarán en la barra deslizante';
+                    helpText.style.cssText = 'color:#6b7280;font-size:13px;display:block;margin-bottom:8px;';
+                    grupo.appendChild(helpText);
+
+                    // Input oculto para guardar el valor real (separado por |)
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.id = 'input-marquee_textos';
+                    hiddenInput.value = itemMarquee.valor || '';
+                    grupo.appendChild(hiddenInput);
+
+                    // Contenedor de chips
+                    const chipsContainer = document.createElement('div');
+                    chipsContainer.id = 'marquee-chips';
+                    chipsContainer.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;padding:12px;border:2px solid #e5e7eb;border-radius:10px;background:#fafafa;min-height:50px;margin-bottom:10px;transition:border-color 0.2s;';
+
+                    // Fila para agregar nuevo chip
+                    const addRow = document.createElement('div');
+                    addRow.style.cssText = 'display:flex;gap:8px;align-items:center;';
+
+                    const addInput = document.createElement('input');
+                    addInput.type = 'text';
+                    addInput.id = 'marquee-add-input';
+                    addInput.placeholder = 'Ej: 🔥 20% OFF';
+                    addInput.style.cssText = 'flex:1;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;';
+
+                    const addBtn = document.createElement('button');
+                    addBtn.type = 'button';
+                    addBtn.textContent = '➕ Agregar';
+                    addBtn.style.cssText = 'padding:10px 18px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;white-space:nowrap;';
+                    addBtn.addEventListener('mouseenter', function() { this.style.background = '#1d4ed8'; });
+                    addBtn.addEventListener('mouseleave', function() { this.style.background = '#2563eb'; });
+
+                    addRow.appendChild(addInput);
+                    addRow.appendChild(addBtn);
+
+                    // Función para guardar el estado actual de chips
+                    function guardarMarquee() {
+                        const chips = chipsContainer.querySelectorAll('.marquee-chip');
+                        const textos = [];
+                        chips.forEach(chip => {
+                            const span = chip.querySelector('.marquee-chip-text');
+                            if (span && span.textContent.trim()) {
+                                textos.push(span.textContent.trim());
+                            }
+                        });
+                        // No guardar si está vacío — evitar bug de textos por defecto
+                        if (textos.length === 0) return;
+                        const valor = textos.join(' | ');
+                        hiddenInput.value = valor;
+                        guardarCambio('marquee_textos', valor);
+                    }
+
+                    // Función para crear un chip
+                    function crearChip(texto) {
+                        const chip = document.createElement('div');
+                        chip.className = 'marquee-chip';
+                        chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 10px 6px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;font-size:14px;color:#1e40af;transition:all 0.2s;cursor:default;';
+
+                        const textSpan = document.createElement('span');
+                        textSpan.className = 'marquee-chip-text';
+                        textSpan.textContent = texto;
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.type = 'button';
+                        deleteBtn.textContent = '✕';
+                        deleteBtn.style.cssText = 'background:none;border:none;color:#93c5fd;cursor:pointer;font-size:14px;padding:0 2px;line-height:1;transition:color 0.2s;';
+                        deleteBtn.addEventListener('mouseenter', function() { this.style.color = '#dc2626'; });
+                        deleteBtn.addEventListener('mouseleave', function() { this.style.color = '#93c5fd'; });
+                        deleteBtn.addEventListener('click', function() {
+                            const remaining = chipsContainer.querySelectorAll('.marquee-chip');
+                            if (remaining.length <= 1) {
+                                // Mostrar advertencia visual en el container
+                                chipsContainer.style.borderColor = '#dc2626';
+                                chipsContainer.style.background = '#fef2f2';
+                                setTimeout(() => {
+                                    chipsContainer.style.borderColor = '#e5e7eb';
+                                    chipsContainer.style.background = '#fafafa';
+                                }, 2000);
+                                return;
+                            }
+                            chip.remove();
+                            guardarMarquee();
+                        });
+
+                        chip.appendChild(textSpan);
+                        chip.appendChild(deleteBtn);
+                        return chip;
+                    }
+
+                    // Renderizar chips iniciales
+                    function renderizarChips(valor) {
+                        chipsContainer.innerHTML = '';
+                        if (valor) {
+                            const textos = valor.split('|').map(t => t.trim()).filter(t => t);
+                            textos.forEach(t => {
+                                chipsContainer.appendChild(crearChip(t));
+                            });
+                        }
+                    }
+
+                    renderizarChips(itemMarquee.valor || '');
+
+                    // Agregar nuevo chip
+                    function agregarChip() {
+                        const texto = addInput.value.trim();
+                        if (!texto) {
+                            addInput.style.borderColor = '#dc2626';
+                            setTimeout(() => { addInput.style.borderColor = '#e5e7eb'; }, 1500);
+                            return;
+                        }
+                        chipsContainer.appendChild(crearChip(texto));
+                        addInput.value = '';
+                        addInput.focus();
+                        guardarMarquee();
+                    }
+
+                    addBtn.addEventListener('click', agregarChip);
+                    addInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            agregarChip();
+                        }
+                    });
+
+                    grupo.appendChild(chipsContainer);
+                    grupo.appendChild(addRow);
                     contMarquee.appendChild(grupo);
                 }
             }
 
             // ============================================
-            // 2b. TIPOGRAFÍA: font_family (selector de 10 tipografías)
+            // 2b. TIPOGRAFÍA: font_family (tarjetas visuales)
             // ============================================
             const contTipografia = document.getElementById('grupo-tipografia');
             if (contTipografia) {
@@ -546,11 +770,10 @@
                     grupo.className = 'input-group';
 
                     const label = document.createElement('label');
-                    label.htmlFor = 'input-font_family';
                     label.textContent = 'Tipografía para el sitio';
                     grupo.appendChild(label);
 
-                    // Lista de 10 tipografías (nombre para mostrar, valor para Google Fonts, familia CSS)
+                    // Lista de 10 tipografías
                     const tipografias = [
                         { label: 'Arial (clásica)', value: 'Arial', family: 'Arial, sans-serif', google: '' },
                         { label: 'Georgia (elegante)', value: 'Georgia', family: 'Georgia, serif', google: '' },
@@ -564,42 +787,20 @@
                         { label: 'Dancing Script (manuscrita)', value: 'Dancing Script', family: "'Dancing Script', cursive", google: 'Dancing+Script:wght@400;600' },
                     ];
 
-                    const select = document.createElement('select');
-                    select.id = 'input-font_family';
-                    select.style.cssText = 'width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;background:white;cursor:pointer;';
+                    // Input oculto para guardar el valor seleccionado
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.id = 'input-font_family';
+                    hiddenInput.value = itemFont.valor;
+                    grupo.appendChild(hiddenInput);
 
-                    tipografias.forEach(t => {
-                        const option = document.createElement('option');
-                        option.value = t.value;
-                        option.textContent = t.label;
-                        if (t.value === itemFont.valor) {
-                            option.selected = true;
-                        }
-                        select.appendChild(option);
-                    });
-
-                    // Vista previa en vivo
-                    const preview = document.createElement('div');
-                    preview.id = 'preview-font_family';
-                    preview.style.cssText = 'margin-top:12px;padding:16px 20px;border-radius:10px;background:#f9fafb;border:2px solid #e5e7eb;text-align:center;transition:all 0.3s;';
-
-                    const previewTitle = document.createElement('div');
-                    previewTitle.id = 'preview-font-title';
-                    previewTitle.textContent = 'Nombre de la Tienda';
-                    previewTitle.style.cssText = 'font-size:28px;font-weight:bold;margin-bottom:6px;';
-
-                    const previewSub = document.createElement('div');
-                    previewSub.id = 'preview-font-sub';
-                    previewSub.textContent = 'Título del Hero';
-                    previewSub.style.cssText = 'font-size:20px;opacity:0.8;';
-
-                    preview.appendChild(previewTitle);
-                    preview.appendChild(previewSub);
+                    // Contenedor de tarjetas en grid
+                    const cardsContainer = document.createElement('div');
+                    cardsContainer.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:8px;';
 
                     function cargarGoogleFont(fontValue) {
                         const t = tipografias.find(t => t.value === fontValue);
                         if (t && t.google) {
-                            // Verificar si ya está cargada
                             const fontId = 'gf-' + t.value.replace(/\s+/g, '-').toLowerCase();
                             if (!document.getElementById(fontId)) {
                                 const link = document.createElement('link');
@@ -611,27 +812,72 @@
                         }
                     }
 
-                    function actualizarPreview(fontValue) {
-                        const t = tipografias.find(t => t.value === fontValue);
-                        if (t) {
-                            // Cargar la Google Font si es necesario
-                            cargarGoogleFont(fontValue);
-                            previewTitle.style.fontFamily = t.family;
-                            previewSub.style.fontFamily = t.family;
+                    // Cargar todas las Google Fonts al inicio
+                    tipografias.forEach(t => cargarGoogleFont(t.value));
+
+                    function seleccionarFuente(valor) {
+                        hiddenInput.value = valor;
+                        // Quitar selected de todas
+                        cardsContainer.querySelectorAll('.font-card').forEach(c => {
+                            c.classList.remove('font-card-selected');
+                            c.style.borderColor = '#e5e7eb';
+                            c.style.boxShadow = 'none';
+                        });
+                        // Marcar la seleccionada
+                        const selected = cardsContainer.querySelector('.font-card[data-value="' + valor + '"]');
+                        if (selected) {
+                            selected.classList.add('font-card-selected');
+                            selected.style.borderColor = '#3b82f6';
+                            selected.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.2)';
                         }
+                        guardarCambio('font_family', valor);
                     }
 
-                    // Inicializar preview con el valor actual (cargando la fuente)
-                    cargarGoogleFont(itemFont.valor);
-                    actualizarPreview(itemFont.valor);
+                    tipografias.forEach(t => {
+                        const card = document.createElement('div');
+                        card.className = 'font-card';
+                        card.setAttribute('data-value', t.value);
+                        card.style.cssText = 'padding:14px 12px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;transition:all 0.2s ease;' + (t.value === itemFont.valor ? 'border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,0.2);' : '');
 
-                    select.addEventListener('change', function() {
-                        actualizarPreview(this.value);
-                        guardarCambio('font_family', this.value);
+                        // Nombre de la fuente renderizado en su propia tipografía
+                        const nameEl = document.createElement('div');
+                        nameEl.textContent = t.label.split('(')[0].trim();
+                        nameEl.style.cssText = 'font-size:18px;font-weight:600;margin-bottom:4px;line-height:1.3;';
+                        nameEl.style.fontFamily = t.family;
+
+                        // Subtítulo de muestra
+                        const subEl = document.createElement('div');
+                        subEl.textContent = 'AaBbCc 123';
+                        subEl.style.cssText = 'font-size:13px;opacity:0.6;line-height:1.3;';
+                        subEl.style.fontFamily = t.family;
+
+                        card.appendChild(nameEl);
+                        card.appendChild(subEl);
+
+                        card.addEventListener('click', function() {
+                            seleccionarFuente(t.value);
+                        });
+
+                        // Hover effect
+                        card.addEventListener('mouseenter', function() {
+                            if (!this.classList.contains('font-card-selected')) {
+                                this.style.borderColor = '#93c5fd';
+                                this.style.transform = 'translateY(-2px)';
+                                this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+                            }
+                        });
+                        card.addEventListener('mouseleave', function() {
+                            if (!this.classList.contains('font-card-selected')) {
+                                this.style.borderColor = '#e5e7eb';
+                                this.style.transform = 'none';
+                                this.style.boxShadow = 'none';
+                            }
+                        });
+
+                        cardsContainer.appendChild(card);
                     });
 
-                    grupo.appendChild(select);
-                    grupo.appendChild(preview);
+                    grupo.appendChild(cardsContainer);
                     contTipografia.appendChild(grupo);
                 }
             }
@@ -690,7 +936,9 @@
                     input.id = 'input-hero_titulo_color';
                     input.value = itemColor.valor || '#ffffff';
                     input.style.cssText = 'width:60px;height:50px;padding:4px;cursor:pointer;border:2px solid #e5e7eb;border-radius:8px;';
-                    input.addEventListener('input', function() { guardarCambio('hero_titulo_color', this.value); });
+                    input.addEventListener('input', function() {
+                        guardarCambio('hero_titulo_color', this.value);
+                    });
                     grupo.appendChild(label);
                     grupo.appendChild(input);
                     contHero.appendChild(grupo);
@@ -967,60 +1215,38 @@
                     previewSpan.style.cssText = 'font-size:13px;color:#2563eb;font-weight:600;background:#eff6ff;padding:6px 12px;border-radius:6px;white-space:nowrap;';
                     previewSpan.textContent = val ? '549 ' + codigo + ' ' + numero : '(completá los campos)';
 
-                    // Botón guardar
-                    const guardarBtn = document.createElement('button');
-                    guardarBtn.type = 'button';
-                    guardarBtn.id = 'btn-guardar-whatsapp';
-                    guardarBtn.textContent = '💾 Guardar';
-                    guardarBtn.style.cssText = 'padding:10px 20px;background:#2563eb;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s,opacity 0.2s;white-space:nowrap;height:42px;';
-                    guardarBtn.disabled = true;
-                    guardarBtn.style.opacity = '0.5';
-                    guardarBtn.style.cursor = 'not-allowed';
+                    // Auto-save con debounce
+                    let whatsappTimeout = null;
 
-                    function validarCampos() {
+                    function autoGuardarWhatsapp() {
                         const c = document.getElementById('input-whatsapp_codigo').value.replace(/\D/g, '');
                         const n = document.getElementById('input-whatsapp_numero').value.replace(/\D/g, '');
                         const completo = '549' + c + n;
                         document.getElementById('preview-whatsapp_numero').textContent = completo ? '549 ' + c + ' ' + n : '(completá los campos)';
 
-                        // Validar: código >= 3 dígitos, número >= 5 dígitos
-                        const valido = c.length >= 3 && n.length >= 5;
-                        guardarBtn.disabled = !valido;
-                        guardarBtn.style.opacity = valido ? '1' : '0.5';
-                        guardarBtn.style.cursor = valido ? 'pointer' : 'not-allowed';
-
                         // Feedback visual en inputs
                         codigoInput.style.borderColor = c.length >= 3 ? '#10b981' : '#e5e7eb';
                         numeroInput.style.borderColor = n.length >= 5 ? '#10b981' : '#e5e7eb';
 
-                        return valido;
+                        // Auto-guardar si ambos campos son válidos
+                        if (c.length >= 3 && n.length >= 5) {
+                            if (whatsappTimeout) clearTimeout(whatsappTimeout);
+                            whatsappTimeout = setTimeout(() => {
+                                guardarCambio('whatsapp_numero', completo);
+                            }, 600);
+                        }
                     }
 
                     codigoInput.addEventListener('input', function() {
                         this.value = this.value.replace(/\D/g, '');
                         if (this.value.length > 4) this.value = this.value.substring(0, 4);
-                        validarCampos();
+                        autoGuardarWhatsapp();
                     });
 
                     numeroInput.addEventListener('input', function() {
                         this.value = this.value.replace(/\D/g, '');
                         if (this.value.length > 9) this.value = this.value.substring(0, 9);
-                        validarCampos();
-                    });
-
-                    guardarBtn.addEventListener('click', function() {
-                        const c = document.getElementById('input-whatsapp_codigo').value.replace(/\D/g, '');
-                        const n = document.getElementById('input-whatsapp_numero').value.replace(/\D/g, '');
-                        if (c.length < 3) {
-                            mostrarToast('El código de área debe tener al menos 3 dígitos', 'error');
-                            return;
-                        }
-                        if (n.length < 5) {
-                            mostrarToast('El número debe tener al menos 5 dígitos', 'error');
-                            return;
-                        }
-                        const completo = '549' + c + n;
-                        guardarCambio('whatsapp_numero', completo);
+                        autoGuardarWhatsapp();
                     });
 
                     codigoGroup.appendChild(codigoLabel);
@@ -1031,7 +1257,6 @@
                     fieldsRow.appendChild(codigoGroup);
                     fieldsRow.appendChild(numeroGroup);
                     fieldsRow.appendChild(previewSpan);
-                    fieldsRow.appendChild(guardarBtn);
 
                     wrapper.appendChild(helpText);
                     wrapper.appendChild(fieldsRow);
@@ -1292,11 +1517,42 @@
                     if (numeroInput) numeroInput.value = '';
                     const preview = document.getElementById('preview-whatsapp_numero');
                     if (preview) preview.textContent = '(completá los campos)';
-                    const guardarBtn = document.getElementById('btn-guardar-whatsapp');
-                    if (guardarBtn) {
-                        guardarBtn.disabled = true;
-                        guardarBtn.style.opacity = '0.5';
-                        guardarBtn.style.cursor = 'not-allowed';
+                }
+                // Re-renderizar chips de marquesina
+                if (clave === 'marquee_textos') {
+                    const chipsContainer = document.getElementById('marquee-chips');
+                    if (chipsContainer) {
+                        chipsContainer.innerHTML = '';
+                        const textos = valor.split('|').map(t => t.trim()).filter(t => t);
+                        textos.forEach(t => {
+                            const chip = document.createElement('div');
+                            chip.className = 'marquee-chip';
+                            chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 10px 6px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;font-size:14px;color:#1e40af;transition:all 0.2s;cursor:default;';
+                            const textSpan = document.createElement('span');
+                            textSpan.className = 'marquee-chip-text';
+                            textSpan.textContent = t;
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.type = 'button';
+                            deleteBtn.textContent = '✕';
+                            deleteBtn.style.cssText = 'background:none;border:none;color:#93c5fd;cursor:pointer;font-size:14px;padding:0 2px;line-height:1;transition:color 0.2s;';
+                            deleteBtn.addEventListener('mouseenter', function() { this.style.color = '#dc2626'; });
+                            deleteBtn.addEventListener('mouseleave', function() { this.style.color = '#93c5fd'; });
+                            deleteBtn.addEventListener('click', function() {
+                                chip.remove();
+                                // Reconstruir valor y guardar
+                                const chips = document.querySelectorAll('#marquee-chips .marquee-chip');
+                                const textos = [];
+                                chips.forEach(c => {
+                                    const s = c.querySelector('.marquee-chip-text');
+                                    if (s && s.textContent.trim()) textos.push(s.textContent.trim());
+                                });
+                                document.getElementById('input-marquee_textos').value = textos.join(' | ');
+                                guardarCambio('marquee_textos', textos.join(' | '));
+                            });
+                            chip.appendChild(textSpan);
+                            chip.appendChild(deleteBtn);
+                            chipsContainer.appendChild(chip);
+                        });
                     }
                 }
             }
