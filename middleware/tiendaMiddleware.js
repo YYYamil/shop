@@ -46,11 +46,12 @@ function tiendaMiddleware(req, res, next) {
                 const matchCarrito = referer.match(/\/([a-z0-9-]+)\/carrito\.html/);
                 if (matchCarrito) refSlug = matchCarrito[1];
             }
-            // Patrón 3: /:slug/ (tienda pública) - funciona con y sin puerto
+            // Patrón 3: /:slug/ o /:slug (tienda pública) - funciona con y sin slash final
             //   https://shop.yamy.fun/vibra/  → match
+            //   https://shop.yamy.fun/vibra   → match
             //   http://localhost:3001/vibra/   → match
             if (!refSlug) {
-                const matchTienda = referer.match(/https?:\/\/[^\/]+\/([a-z0-9-]+)\/$/);
+                const matchTienda = referer.match(/https?:\/\/[^\/]+\/([a-z0-9-]+)(?:\/|$)/);
                 if (matchTienda) refSlug = matchTienda[1];
             }
             if (refSlug && refSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(refSlug)) {
