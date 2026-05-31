@@ -9,3 +9,5 @@ database.db-wal
 uploads/*
 shop.sqlite
 FETCH_HEAD
+database.backup.db
+backups/
