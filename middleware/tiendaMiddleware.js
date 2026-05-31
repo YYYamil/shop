@@ -35,6 +35,7 @@ function tiendaMiddleware(req, res, next) {
             // El Referer es una URL absoluta como:
             //   https://shop.yamy.fun/mitienda/admin/personalizacion.html
             //   http://localhost:3001/mitienda/admin/personalizacion.html
+            //   https://shop.yamy.fun/vibra/  (tienda pública, sin puerto)
             // Buscamos el slug antes de /admin/ o /carrito.html o al inicio del path
             let refSlug = null;
             // Patrón 1: /:slug/admin/...
@@ -45,9 +46,11 @@ function tiendaMiddleware(req, res, next) {
                 const matchCarrito = referer.match(/\/([a-z0-9-]+)\/carrito\.html/);
                 if (matchCarrito) refSlug = matchCarrito[1];
             }
-            // Patrón 3: /:slug/ (tienda pública)
+            // Patrón 3: /:slug/ (tienda pública) - funciona con y sin puerto
+            //   https://shop.yamy.fun/vibra/  → match
+            //   http://localhost:3001/vibra/   → match
             if (!refSlug) {
-                const matchTienda = referer.match(/:\d+\/([a-z0-9-]+)\/$/);
+                const matchTienda = referer.match(/https?:\/\/[^\/]+\/([a-z0-9-]+)\/$/);
                 if (matchTienda) refSlug = matchTienda[1];
             }
             if (refSlug && refSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(refSlug)) {
@@ -62,18 +65,23 @@ function tiendaMiddleware(req, res, next) {
 
     // --- PASO 1: Detectar slug desde URL path (/:slug/...) ---
     // Esto tiene la MÁXIMA prioridad. Si se detecta un slug en la URL,
-    // se actualiza la sesión si el usuario autenticado pertenece a esa tienda.
+    // se actualiza la sesión (incluso para visitantes no autenticados).
     const tiendaUrl = detectarSlugDesdeUrl();
     if (tiendaUrl) {
         req.tiendaId = tiendaUrl.id;
         req.tiendaSlug = tiendaUrl.slug;
         console.log('[TIENDA-MW] URL path: slug=' + tiendaUrl.slug + ' id=' + tiendaUrl.id);
+        // Guardar slug en sesión para peticiones subsecuentes (recursos estáticos, etc.)
+        if (req.session) {
+            req.session.tiendaSlugVisitante = tiendaUrl.slug;
+            req.session.tiendaIdVisitante = tiendaUrl.id;
+        }
         // Actualizar sesión si el usuario está autenticado y pertenece a esta tienda
         if (req.session && req.session.user && !req.session.user.es_superadmin) {
             if (req.session.user.tienda_id !== tiendaUrl.id) {
                 req.session.user.tienda_id = tiendaUrl.id;
                 req.session.user.tiendaSlug = tiendaUrl.slug;
-                console.log('[TIENDA-MW] Sesión actualizada a tienda_id=' + tiendaUrl.id);
+                console.log('[TIENDA-MW] Sesión usuario actualizada a tienda_id=' + tiendaUrl.id);
             }
         }
         return next();
@@ -87,12 +95,17 @@ function tiendaMiddleware(req, res, next) {
         req.tiendaId = tiendaRef.id;
         req.tiendaSlug = tiendaRef.slug;
         console.log('[TIENDA-MW] Referer: slug=' + tiendaRef.slug + ' id=' + tiendaRef.id);
+        // Guardar slug en sesión para peticiones subsecuentes
+        if (req.session) {
+            req.session.tiendaSlugVisitante = tiendaRef.slug;
+            req.session.tiendaIdVisitante = tiendaRef.id;
+        }
         // Actualizar sesión si el usuario está autenticado y pertenece a esta tienda
         if (req.session && req.session.user && !req.session.user.es_superadmin) {
             if (req.session.user.tienda_id !== tiendaRef.id) {
                 req.session.user.tienda_id = tiendaRef.id;
                 req.session.user.tiendaSlug = tiendaRef.slug;
-                console.log('[TIENDA-MW] Sesión actualizada a tienda_id=' + tiendaRef.id);
+                console.log('[TIENDA-MW] Sesión usuario actualizada a tienda_id=' + tiendaRef.id);
             }
         }
         return next();
@@ -102,11 +115,27 @@ function tiendaMiddleware(req, res, next) {
     if (req.session && req.session.user && req.session.user.tienda_id && !req.session.user.es_superadmin) {
         req.tiendaId = req.session.user.tienda_id;
         req.tiendaSlug = req.session.user.tiendaSlug;
-        console.log('[TIENDA-MW] Sesión: tienda_id=' + req.session.user.tienda_id + ' user=' + req.session.user.usuario);
+        console.log('[TIENDA-MW] Sesión usuario: tienda_id=' + req.session.user.tienda_id + ' user=' + req.session.user.usuario);
         return next();
     }
 
-    // 3. Detectar slug desde query param (para rutas API: /productos/public?slug=tienda1)
+    // --- PASO 4: Slug de visitante guardado en sesión (para recursos estáticos sin Referer) ---
+    // Cuando un visitante navega a /:slug/ por primera vez, el PASO 1 guarda el slug
+    // en req.session.tiendaSlugVisitante. Las peticiones subsecuentes de recursos
+    // estáticos (JS, CSS, imágenes) pueden recuperarlo desde aquí.
+    if (req.session && req.session.tiendaSlugVisitante) {
+        try {
+            const tienda = db.prepare('SELECT id, slug, nombre FROM tiendas WHERE slug = ? AND activo = 1').get(req.session.tiendaSlugVisitante);
+            if (tienda) {
+                req.tiendaId = tienda.id;
+                req.tiendaSlug = tienda.slug;
+                console.log('[TIENDA-MW] Sesión visitante: slug=' + tienda.slug + ' id=' + tienda.id);
+                return next();
+            }
+        } catch (e) {}
+    }
+
+    // --- PASO 5: Detectar slug desde query param (para rutas API: /productos/public?slug=tienda1) ---
     const slug = req.query.slug;
     if (slug) {
         try {
@@ -115,6 +144,11 @@ function tiendaMiddleware(req, res, next) {
                 req.tiendaId = tienda.id;
                 req.tiendaSlug = tienda.slug;
                 console.log('[TIENDA-MW] Query param: slug=' + tienda.slug + ' id=' + tienda.id);
+                // Guardar en sesión visitante para próximas peticiones
+                if (req.session) {
+                    req.session.tiendaSlugVisitante = tienda.slug;
+                    req.session.tiendaIdVisitante = tienda.id;
+                }
                 return next();
             }
         } catch (e) {
@@ -122,7 +156,7 @@ function tiendaMiddleware(req, res, next) {
         }
     }
 
-    // 4. Fallback: tienda por defecto (sin log para no ensuciar la consola)
+    // --- PASO 6: Fallback: tienda por defecto ---
     try {
         const tiendaDefault = db.prepare('SELECT id, slug FROM tiendas WHERE slug = ?').get('tienda1');
         if (tiendaDefault) {
