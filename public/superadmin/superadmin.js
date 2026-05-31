@@ -354,6 +354,35 @@ function gestionEliminarTienda() {
     }, 200);
 }
 
+async function gestionBackupTienda() {
+    const t = tiendaGestionActual;
+    if (!t) return;
+
+    const btn = document.getElementById('gestionBtnBackup');
+    btn.disabled = true;
+    btn.textContent = '⏳ Respaldando...';
+
+    try {
+        const res = await fetch('/api/superadmin/backups/tienda/' + t.id, {
+            method: 'POST',
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            mostrarToast('✅ Backup de "' + t.nombre + '" creado: ' + data.backup.nombre, 'success');
+        } else {
+            mostrarToast(data.error || 'Error al crear backup', 'error');
+        }
+    } catch (err) {
+        console.error('Error al crear backup de tienda:', err);
+        mostrarToast('Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Backup tienda';
+    }
+}
+
 // ===== BACKUPS =====
 
 
@@ -378,9 +407,14 @@ function renderizarBackups(backups) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">No hay backups todavía</td></tr>';
         return;
     }
-    tbody.innerHTML = backups.map(b => `
+    tbody.innerHTML = backups.map(b => {
+        const esTienda = b.tipo === 'tienda';
+        const badge = esTienda
+            ? '<span style="display:inline-block;background:#dbeafe;color:#1d4ed8;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:6px;">TIENDA</span>'
+            : '<span style="display:inline-block;background:#f3e8ff;color:#7c3aed;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:6px;">COMPLETO</span>';
+        return `
         <tr>
-            <td><code>${escapeHtml(b.nombre)}</code></td>
+            <td><code>${escapeHtml(b.nombre)}</code>${badge}</td>
             <td>${b.fechaFormateada}</td>
             <td>${b.tamano}</td>
             <td>
@@ -389,8 +423,8 @@ function renderizarBackups(backups) {
                     <button class="btn-danger" onclick="eliminarBackup('${escapeHtml(b.nombre)}')" title="Eliminar backup">🗑️ Eliminar</button>
                 </div>
             </td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
 }
 
 async function crearBackup() {

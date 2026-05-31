@@ -23,6 +23,7 @@ router.delete('/usuarios/:id', superAdminController.eliminarUsuario);
 // Backups
 router.get('/backups', superAdminController.listarBackups);
 router.post('/backups', superAdminController.crearBackup);
+router.post('/backups/tienda/:id', superAdminController.backupTienda);
 router.delete('/backups/:nombre', superAdminController.eliminarBackup);
 router.get('/backups/:nombre/download', superAdminController.descargarBackup);
 

@@ -1,0 +1,225 @@
+{
+  "version": 1,
+  "tipo": "backup-tienda",
+  "creado": "2026-05-31T02:01:28.100Z",
+  "tienda": {
+    "id": 2,
+    "slug": "riv",
+    "nombre": "riv",
+    "activo": 1
+  },
+  "datos": {
+    "usuarios": [
+      {
+        "id": 3,
+        "usuario": "riv",
+        "password_plain": "1234",
+        "tienda_id": 2,
+        "es_superadmin": 0
+      }
+    ],
+    "configuracion": [
+      {
+        "clave": "tienda_nombre",
+        "valor": "riv",
+        "tipo": "texto",
+        "grupo": "general",
+        "tienda_id": 2
+      },
+      {
+        "clave": "tienda_descripcion",
+        "valor": "Descripción de mi tienda - Aquí podés contar qué ofrecés",
+        "tipo": "texto",
+        "grupo": "general",
+        "tienda_id": 2
+      },
+      {
+        "clave": "color_primario",
+        "valor": "#000000",
+        "tipo": "color",
+        "grupo": "oculto",
+        "tienda_id": 2
+      },
+      {
+        "clave": "color_secundario",
+        "valor": "#444444",
+        "tipo": "color",
+        "grupo": "oculto",
+        "tienda_id": 2
+      },
+      {
+        "clave": "color_fondo",
+        "valor": "#f4f4f4",
+        "tipo": "color",
+        "grupo": "oculto",
+        "tienda_id": 2
+      },
+      {
+        "clave": "color_texto",
+        "valor": "#111827",
+        "tipo": "color",
+        "grupo": "oculto",
+        "tienda_id": 2
+      },
+      {
+        "clave": "color_boton",
+        "valor": "#000000",
+        "tipo": "color",
+        "grupo": "botones",
+        "tienda_id": 2
+      },
+      {
+        "clave": "color_boton_texto",
+        "valor": "#ffffff",
+        "tipo": "color",
+        "grupo": "botones",
+        "tienda_id": 2
+      },
+      {
+        "clave": "hero_titulo",
+        "valor": "Título de portada",
+        "tipo": "texto",
+        "grupo": "hero",
+        "tienda_id": 2
+      },
+      {
+        "clave": "hero_descripcion",
+        "valor": "Descripción de portada - Contá lo que quieras destacar",
+        "tipo": "texto",
+        "grupo": "hero",
+        "tienda_id": 2
+      },
+      {
+        "clave": "hero_fondo",
+        "valor": "#ffffff",
+        "tipo": "texto",
+        "grupo": "hero",
+        "tienda_id": 2
+      },
+      {
+        "clave": "hero_titulo_color",
+        "valor": "#ffffff",
+        "tipo": "color",
+        "grupo": "hero",
+        "tienda_id": 2
+      },
+      {
+        "clave": "hero_imagen",
+        "valor": "",
+        "tipo": "imagen",
+        "grupo": "hero",
+        "tienda_id": 2
+      },
+      {
+        "clave": "marquee_textos",
+        "valor": "🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA",
+        "tipo": "texto",
+        "grupo": "general",
+        "tienda_id": 2
+      },
+      {
+        "clave": "whatsapp_numero",
+        "valor": "",
+        "tipo": "texto",
+        "grupo": "whatsapp",
+        "tienda_id": 2
+      },
+      {
+        "clave": "whatsapp_mensaje",
+        "valor": "Hola! Quiero consultar por un producto",
+        "tipo": "texto",
+        "grupo": "whatsapp",
+        "tienda_id": 2
+      },
+      {
+        "clave": "whatsapp_activo",
+        "valor": "true",
+        "tipo": "booleano",
+        "grupo": "whatsapp",
+        "tienda_id": 2
+      },
+      {
+        "clave": "contacto_email",
+        "valor": "",
+        "tipo": "texto",
+        "grupo": "contacto",
+        "tienda_id": 2
+      },
+      {
+        "clave": "contacto_telefono",
+        "valor": "",
+        "tipo": "texto",
+        "grupo": "contacto",
+        "tienda_id": 2
+      },
+      {
+        "clave": "contacto_direccion",
+        "valor": "",
+        "tipo": "texto",
+        "grupo": "contacto",
+        "tienda_id": 2
+      },
+      {
+        "clave": "redes_instagram",
+        "valor": "https://instagram.com/",
+        "tipo": "texto",
+        "grupo": "redes",
+        "tienda_id": 2
+      },
+      {
+        "clave": "redes_facebook",
+        "valor": "https://facebook.com/",
+        "tipo": "texto",
+        "grupo": "redes",
+        "tienda_id": 2
+      },
+      {
+        "clave": "redes_tiktok",
+        "valor": "https://tiktok.com/",
+        "tipo": "texto",
+        "grupo": "redes",
+        "tienda_id": 2
+      },
+      {
+        "clave": "redes_whatsapp",
+        "valor": "https://www.pagina.com/",
+        "tipo": "texto",
+        "grupo": "redes",
+        "tienda_id": 2
+      },
+      {
+        "clave": "logo_imagen",
+        "valor": "",
+        "tipo": "imagen",
+        "grupo": "apariencia",
+        "tienda_id": 2
+      }
+    ],
+    "categorias": [
+      {
+        "id": 4,
+        "nombre": "Ropa",
+        "tienda_id": 2,
+        "visible": 1,
+        "nombre_personalizado": null
+      },
+      {
+        "id": 5,
+        "nombre": "Calzado",
+        "tienda_id": 2,
+        "visible": 1,
+        "nombre_personalizado": null
+      },
+      {
+        "id": 6,
+        "nombre": "Accesorios",
+        "tienda_id": 2,
+        "visible": 1,
+        "nombre_personalizado": null
+      }
+    ],
+    "productos": [],
+    "pedidos": [],
+    "pedidoItems": []
+  }
+}

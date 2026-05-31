@@ -306,10 +306,11 @@ exports.listarBackups = (req, res) => {
     try {
         asegurarBackupDir();
         const archivos = fs.readdirSync(BACKUP_DIR)
-            .filter(f => f.endsWith('.db'))
+            .filter(f => f.endsWith('.db') || f.endsWith('.json'))
             .map(f => {
                 const stats = fs.statSync(path.join(BACKUP_DIR, f));
                 const tamanoKB = (stats.size / 1024).toFixed(1);
+                const esTienda = f.startsWith('backup-tienda-');
                 return {
                     nombre: f,
                     tamano: tamanoKB + ' KB',
@@ -317,7 +318,8 @@ exports.listarBackups = (req, res) => {
                     fechaFormateada: new Date(stats.mtime).toLocaleString('es-AR', {
                         day: '2-digit', month: '2-digit', year: 'numeric',
                         hour: '2-digit', minute: '2-digit'
-                    })
+                    }),
+                    tipo: esTienda ? 'tienda' : 'completo'
                 };
             })
             .sort((a, b) => b.fecha - a.fecha); // más reciente primero
@@ -380,8 +382,10 @@ exports.eliminarBackup = (req, res) => {
         asegurarBackupDir();
         const nombre = req.params.nombre;
 
-        // Validar que el nombre sea seguro (solo backup-*.db)
-        if (!nombre || !nombre.match(/^backup-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.db$/)) {
+        // Validar que el nombre sea seguro
+        const esValido = /^backup-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.db$/.test(nombre) ||
+                         /^backup-tienda-[a-z0-9-]+\.json$/.test(nombre);
+        if (!nombre || !esValido) {
             return res.status(400).json({ error: 'Nombre de backup inválido' });
         }
 
@@ -405,7 +409,10 @@ exports.descargarBackup = (req, res) => {
         asegurarBackupDir();
         const nombre = req.params.nombre;
 
-        if (!nombre || !nombre.match(/^backup-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.db$/)) {
+        // Validar que el nombre sea seguro
+        const esValido = /^backup-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.db$/.test(nombre) ||
+                         /^backup-tienda-[a-z0-9-]+\.json$/.test(nombre);
+        if (!nombre || !esValido) {
             return res.status(400).json({ error: 'Nombre de backup inválido' });
         }
 
@@ -418,5 +425,88 @@ exports.descargarBackup = (req, res) => {
     } catch (err) {
         console.error('Error al descargar backup:', err.message);
         res.status(500).json({ error: 'Error al descargar backup' });
+    }
+};
+
+// POST /api/superadmin/backups/tienda/:id - Backup de una tienda específica (solo texto, reemplaza el anterior)
+exports.backupTienda = (req, res) => {
+    try {
+        asegurarBackupDir();
+        const tiendaId = parseInt(req.params.id);
+        if (!tiendaId) {
+            return res.status(400).json({ error: 'ID de tienda inválido' });
+        }
+
+        // Obtener datos de la tienda
+        const tienda = db.prepare('SELECT * FROM tiendas WHERE id = ?').get(tiendaId);
+        if (!tienda) {
+            return res.status(404).json({ error: 'Tienda no encontrada' });
+        }
+
+        // Obtener usuarios admin de la tienda (sin SuperAdmin)
+        const usuarios = db.prepare('SELECT id, usuario, password_plain, tienda_id, es_superadmin FROM usuarios WHERE tienda_id = ? AND es_superadmin = 0').all(tiendaId);
+
+        // Obtener configuración
+        const configuracion = db.prepare('SELECT * FROM configuracion WHERE tienda_id = ?').all(tiendaId);
+
+        // Obtener categorías
+        const categorias = db.prepare('SELECT * FROM categorias WHERE tienda_id = ?').all(tiendaId);
+
+        // Obtener productos (SIN imagenes)
+        const productos = db.prepare('SELECT id, nombre, precio, descripcion, stock, categoria_id, nuevo, descuento, tienda_id FROM productos WHERE tienda_id = ?').all(tiendaId);
+
+        // Obtener pedidos
+        const pedidos = db.prepare('SELECT * FROM pedidos WHERE tienda_id = ?').all(tiendaId);
+
+        // Obtener items de pedidos
+        const pedidoItems = db.prepare('SELECT * FROM pedido_items WHERE tienda_id = ?').all(tiendaId);
+
+        // Armar objeto de backup
+        const backupData = {
+            version: 1,
+            tipo: 'backup-tienda',
+            creado: new Date().toISOString(),
+            tienda: {
+                id: tienda.id,
+                slug: tienda.slug,
+                nombre: tienda.nombre,
+                activo: tienda.activo
+            },
+            datos: {
+                usuarios,
+                configuracion,
+                categorias,
+                productos,
+                pedidos,
+                pedidoItems
+            }
+        };
+
+        // Nombre del archivo: backup-tienda-[slug].json (SIEMPRE el mismo, reemplaza al anterior)
+        const nombreArchivo = 'backup-tienda-' + tienda.slug + '.json';
+        const rutaBackup = path.join(BACKUP_DIR, nombreArchivo);
+
+        // Guardar como JSON
+        fs.writeFileSync(rutaBackup, JSON.stringify(backupData, null, 2), 'utf-8');
+
+        const stats = fs.statSync(rutaBackup);
+        const tamanoKB = (stats.size / 1024).toFixed(1);
+
+        console.log('[BACKUP-TIENDA] Creado: ' + nombreArchivo + ' (' + tamanoKB + ' KB) - Tienda: ' + tienda.nombre + ' (ID: ' + tiendaId + ')');
+        res.json({
+            ok: true,
+            backup: {
+                nombre: nombreArchivo,
+                tamano: tamanoKB + ' KB',
+                fechaFormateada: new Date().toLocaleString('es-AR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                }),
+                tipo: 'tienda'
+            }
+        });
+    } catch (err) {
+        console.error('Error al crear backup de tienda:', err.message);
+        res.status(500).json({ error: 'Error al crear backup de tienda: ' + err.message });
     }
 };
