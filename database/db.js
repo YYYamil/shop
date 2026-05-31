@@ -155,9 +155,11 @@ if (needsMigration) {
             FOREIGN KEY (tienda_id) REFERENCES tiendas(id)
         )
     `);
+    // NOTA: La tabla original NO tiene columna tienda_id (se agrega después),
+    // por lo tanto en la migración asignamos NULL directamente.
     db.exec(`
         INSERT INTO configuracion_nueva (clave, valor, tipo, grupo, tienda_id)
-        SELECT clave, valor, COALESCE(tipo, 'texto'), COALESCE(grupo, 'general'), COALESCE(tienda_id, NULL)
+        SELECT clave, valor, COALESCE(tipo, 'texto'), COALESCE(grupo, 'general'), NULL
         FROM configuracion
     `);
     db.exec(`DROP TABLE configuracion`);
