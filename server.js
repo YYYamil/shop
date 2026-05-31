@@ -71,19 +71,21 @@ app.use(tiendaMiddleware);
 
 
 
-// Middleware para deshabilitar cache en archivos JS y HTML (evitar problemas de cache en desarrollo)
-app.use((req, res, next) => {
-    if (req.path.endsWith('.js') || req.path.endsWith('.html') || req.path.endsWith('.css')) {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-    }
-    next();
-});
-
 app.use('/uploads', express.static('uploads'));
 
-app.use(express.static('public'));
+// Servir archivos estáticos con headers anti-caché para JS, HTML y CSS
+// Esto evita que el navegador use versiones cacheadas de archivos críticos
+app.use(express.static('public', {
+    etag: false,
+    lastModified: false,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.endsWith('.css')) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
+    }
+}));
 
 
 
