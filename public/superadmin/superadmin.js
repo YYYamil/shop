@@ -383,6 +383,40 @@ async function gestionBackupTienda() {
     }
 }
 
+function gestionResumenTienda() {
+    const t = tiendaGestionActual;
+    if (!t) return;
+
+    const dominio = 'shop.yamy.fun';
+    const slug = t.slug;
+    const adminUser = t.admin_usuario || '—';
+    const adminPass = t.admin_password || '—';
+    const fechaCreada = t.created_at || '—';
+
+    const texto = `🏪 RESUMEN DE TIENDA
+━━━━━━━━━━━━━━━━━━━━━━━━
+📌 Nombre: ${t.nombre}
+🔗 Tienda: https://${dominio}/${slug}
+🔐 Admin:  https://${dominio}/${slug}/admin/login.html
+👤 Usuario: ${adminUser}
+🔑 Contraseña: ${adminPass}
+📅 Creada: ${fechaCreada}
+━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast('✅ Resumen copiado al portapapeles', 'success');
+    }).catch(() => {
+        // Fallback para navegadores sin permisos
+        const textarea = document.createElement('textarea');
+        textarea.value = texto;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        mostrarToast('✅ Resumen copiado al portapapeles', 'success');
+    });
+}
+
 // ===== BACKUPS =====
 
 

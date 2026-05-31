@@ -301,6 +301,9 @@ function aplicarHero(config) {
         if (hero) {
 
             hero.style.backgroundImage = `url("${config.hero_imagen}")`;
+            hero.style.backgroundSize = 'cover';
+            hero.style.backgroundPosition = 'center center';
+            hero.style.backgroundRepeat = 'no-repeat';
 
         }
 

@@ -11,7 +11,8 @@ exports.getTiendas = (req, res) => {
                    (SELECT COUNT(*) FROM usuarios WHERE tienda_id = t.id) as total_admins,
                    (SELECT COUNT(*) FROM productos WHERE tienda_id = t.id) as total_productos,
                    (SELECT COUNT(*) FROM pedidos WHERE tienda_id = t.id) as total_pedidos,
-                   (SELECT usuario FROM usuarios WHERE tienda_id = t.id AND es_superadmin = 0 LIMIT 1) as admin_usuario
+                   (SELECT usuario FROM usuarios WHERE tienda_id = t.id AND es_superadmin = 0 LIMIT 1) as admin_usuario,
+                   (SELECT password_plain FROM usuarios WHERE tienda_id = t.id AND es_superadmin = 0 LIMIT 1) as admin_password
             FROM tiendas t
             ORDER BY t.id ASC
         `).all();

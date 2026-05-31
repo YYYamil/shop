@@ -108,22 +108,19 @@ function tiendaMiddleware(req, res, next) {
         }
     }
 
-    // 4. Fallback: tienda por defecto
+    // 4. Fallback: tienda por defecto (sin log para no ensuciar la consola)
     try {
         const tiendaDefault = db.prepare('SELECT id, slug FROM tiendas WHERE slug = ?').get('tienda1');
         if (tiendaDefault) {
             req.tiendaId = tiendaDefault.id;
             req.tiendaSlug = tiendaDefault.slug;
-            console.log('[TIENDA-MW] Fallback: slug=' + tiendaDefault.slug + ' id=' + tiendaDefault.id);
         } else {
             req.tiendaId = 1;
             req.tiendaSlug = 'tienda1';
-            console.log('[TIENDA-MW] Fallback hardcode: tienda1');
         }
     } catch (e) {
         req.tiendaId = 1;
         req.tiendaSlug = 'tienda1';
-        console.log('[TIENDA-MW] Fallback error: tienda1');
     }
 
     next();
