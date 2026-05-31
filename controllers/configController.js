@@ -130,12 +130,13 @@ exports.updateConfig = (req, res) => {
 exports.uploadLogo = (req, res) => {
     try {
         const tiendaId = req.tiendaId || 1;
+        const tiendaSlug = req.tiendaSlug || 'general';
 
         if (!req.file) {
             return res.status(400).json({ error: 'Archivo de imagen requerido' });
         }
 
-        const url = '/uploads/' + req.file.filename;
+        const url = '/uploads/' + tiendaSlug + '/' + req.file.filename;
 
         // Actualizar la clave logo_imagen en la DB
         db.prepare('UPDATE configuracion SET valor = ? WHERE clave = ? AND tienda_id = ?').run(url, 'logo_imagen', tiendaId);
@@ -151,12 +152,13 @@ exports.uploadLogo = (req, res) => {
 exports.uploadHero = (req, res) => {
     try {
         const tiendaId = req.tiendaId || 1;
+        const tiendaSlug = req.tiendaSlug || 'general';
 
         if (!req.file) {
             return res.status(400).json({ error: 'Archivo de imagen requerido' });
         }
 
-        const url = '/uploads/' + req.file.filename;
+        const url = '/uploads/' + tiendaSlug + '/' + req.file.filename;
 
         // Actualizar la clave hero_imagen en la DB
         db.prepare('UPDATE configuracion SET valor = ? WHERE clave = ? AND tienda_id = ?').run(url, 'hero_imagen', tiendaId);

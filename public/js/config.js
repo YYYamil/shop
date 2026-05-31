@@ -338,7 +338,12 @@ async function renderizarCategorias() {
 
     try {
 
-        const respuesta = await fetch('/categorias/public');
+        // Incluir slug como query param para multi-tenant
+        const slug = window.obtenerSlug ? obtenerSlug() : null;
+        const cacheBuster = '&_=' + Date.now();
+        const url = slug ? '/categorias/public?slug=' + slug + cacheBuster : '/categorias/public?_=' + Date.now();
+
+        const respuesta = await fetch(url);
 
         if (!respuesta.ok) {
 

@@ -32,15 +32,29 @@ function tiendaMiddleware(req, res, next) {
     function detectarSlugDesdeReferer() {
         const referer = req.get('Referer') || '';
         if (referer) {
-            const refererMatch = referer.match(/^\/([a-z0-9-]+)\//);
-            if (refererMatch) {
-                const refSlug = refererMatch[1];
-                if (refSlug && refSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(refSlug)) {
-                    try {
-                        const tienda = db.prepare('SELECT id, slug, nombre FROM tiendas WHERE slug = ? AND activo = 1').get(refSlug);
-                        if (tienda) return tienda;
-                    } catch (e) {}
-                }
+            // El Referer es una URL absoluta como:
+            //   https://shop.yamy.fun/mitienda/admin/personalizacion.html
+            //   http://localhost:3001/mitienda/admin/personalizacion.html
+            // Buscamos el slug antes de /admin/ o /carrito.html o al inicio del path
+            let refSlug = null;
+            // Patrón 1: /:slug/admin/...
+            const matchAdmin = referer.match(/\/([a-z0-9-]+)\/admin\//);
+            if (matchAdmin) refSlug = matchAdmin[1];
+            // Patrón 2: /:slug/carrito.html
+            if (!refSlug) {
+                const matchCarrito = referer.match(/\/([a-z0-9-]+)\/carrito\.html/);
+                if (matchCarrito) refSlug = matchCarrito[1];
+            }
+            // Patrón 3: /:slug/ (tienda pública)
+            if (!refSlug) {
+                const matchTienda = referer.match(/:\d+\/([a-z0-9-]+)\/$/);
+                if (matchTienda) refSlug = matchTienda[1];
+            }
+            if (refSlug && refSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(refSlug)) {
+                try {
+                    const tienda = db.prepare('SELECT id, slug, nombre FROM tiendas WHERE slug = ? AND activo = 1').get(refSlug);
+                    if (tienda) return tienda;
+                } catch (e) {}
             }
         }
         return null;

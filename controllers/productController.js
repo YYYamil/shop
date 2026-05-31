@@ -78,6 +78,7 @@ exports.crearProducto = (req, res) => {
         return res.status(400).json({ error: 'Datos invalidos' });
     }
 
+    const tiendaSlug = req.tiendaSlug || 'general';
     let imagenes = [];
     let archivos = [];
     if (Array.isArray(req.files)) {
@@ -86,7 +87,7 @@ exports.crearProducto = (req, res) => {
         archivos = req.files.imagenes;
     }
     if (archivos.length > 0) {
-        imagenes = archivos.map(f => '/uploads/' + f.filename);
+        imagenes = archivos.map(f => '/uploads/' + tiendaSlug + '/' + f.filename);
     }
 
     const esNuevo = (nuevo === 'true' || nuevo === true || nuevo === 1 || nuevo === '1') ? 1 : 0;
@@ -147,8 +148,10 @@ exports.editarProducto = (req, res) => {
         archivos = req.files.imagenes;
     }
 
+    const tiendaSlug = req.tiendaSlug || 'general';
+
     if (archivos.length > 0) {
-        const nuevasImagenes = archivos.map(f => '/uploads/' + f.filename);
+        const nuevasImagenes = archivos.map(f => '/uploads/' + tiendaSlug + '/' + f.filename);
 
         // Reemplazar slots vacíos o agregar al final (máximo 4)
         for (let i = 0; i < nuevasImagenes.length && i < 4; i++) {
