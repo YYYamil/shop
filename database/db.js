@@ -142,6 +142,8 @@ const tableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' A
 const needsMigration = tableInfo && tableInfo.sql && !tableInfo.sql.includes('PRIMARY KEY (clave, tienda_id)');
 if (needsMigration) {
     console.log('[DB] Migrando tabla configuracion a PK compuesta (clave, tienda_id)...');
+    // Eliminar tabla temporal si quedó de una migración anterior fallida
+    db.exec(`DROP TABLE IF EXISTS configuracion_nueva`);
     db.exec(`
         CREATE TABLE configuracion_nueva (
             clave TEXT,
