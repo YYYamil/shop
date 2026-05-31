@@ -12,61 +12,84 @@ function tiendaMiddleware(req, res, next) {
         return next();
     }
 
-    // 1. Detectar slug desde URL path (/:slug/...)
-    // IMPORTANTE: Esto va ANTES de la sesión para que cuando el superadmin
-    // visite /deportes-rodriguez/admin/personalizacion.html, se use el slug
-    // de la URL en lugar del tienda_id de su sesión (que es de tienda1).
-    const pathParts = req.path.split('/').filter(Boolean);
-    if (pathParts.length > 0) {
-        const pathSlug = pathParts[0];
-        // Validar que parezca un slug de tienda (letras, números, guiones)
-        // PERO no debe ser una ruta conocida del sistema
-        const rutasConocidas = ['api', 'auth', 'productos', 'pedidos', 'categorias', 'uploads', 'css', 'js', 'admin', 'superadmin', 'carrito.html'];
-        if (pathSlug && pathSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(pathSlug)) {
-            try {
-                const tienda = db.prepare('SELECT id, slug, nombre FROM tiendas WHERE slug = ? AND activo = 1').get(pathSlug);
-                if (tienda) {
-                    req.tiendaId = tienda.id;
-                    req.tiendaSlug = tienda.slug;
-                    console.log('[TIENDA-MW] URL path: slug=' + tienda.slug + ' id=' + tienda.id);
-                    return next();
-                }
-            } catch (e) {
-                // Si la tabla no existe aún, continuar
+    const rutasConocidas = ['api', 'auth', 'productos', 'pedidos', 'categorias', 'uploads', 'css', 'js', 'admin', 'superadmin', 'carrito.html'];
+
+    // --- FUNCIÓN AUXILIAR: detectar slug desde URL o Referer ---
+    function detectarSlugDesdeUrl() {
+        const pathParts = req.path.split('/').filter(Boolean);
+        if (pathParts.length > 0) {
+            const pathSlug = pathParts[0];
+            if (pathSlug && pathSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(pathSlug)) {
+                try {
+                    const tienda = db.prepare('SELECT id, slug, nombre FROM tiendas WHERE slug = ? AND activo = 1').get(pathSlug);
+                    if (tienda) return tienda;
+                } catch (e) {}
             }
         }
+        return null;
     }
 
-    // 2. Si el usuario está autenticado (NO superadmin) y NO se detectó slug en la URL, usar su tienda_id de la sesión
+    function detectarSlugDesdeReferer() {
+        const referer = req.get('Referer') || '';
+        if (referer) {
+            const refererMatch = referer.match(/^\/([a-z0-9-]+)\//);
+            if (refererMatch) {
+                const refSlug = refererMatch[1];
+                if (refSlug && refSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(refSlug)) {
+                    try {
+                        const tienda = db.prepare('SELECT id, slug, nombre FROM tiendas WHERE slug = ? AND activo = 1').get(refSlug);
+                        if (tienda) return tienda;
+                    } catch (e) {}
+                }
+            }
+        }
+        return null;
+    }
+
+    // --- PASO 1: Detectar slug desde URL path (/:slug/...) ---
+    // Esto tiene la MÁXIMA prioridad. Si se detecta un slug en la URL,
+    // se actualiza la sesión si el usuario autenticado pertenece a esa tienda.
+    const tiendaUrl = detectarSlugDesdeUrl();
+    if (tiendaUrl) {
+        req.tiendaId = tiendaUrl.id;
+        req.tiendaSlug = tiendaUrl.slug;
+        console.log('[TIENDA-MW] URL path: slug=' + tiendaUrl.slug + ' id=' + tiendaUrl.id);
+        // Actualizar sesión si el usuario está autenticado y pertenece a esta tienda
+        if (req.session && req.session.user && !req.session.user.es_superadmin) {
+            if (req.session.user.tienda_id !== tiendaUrl.id) {
+                req.session.user.tienda_id = tiendaUrl.id;
+                req.session.user.tiendaSlug = tiendaUrl.slug;
+                console.log('[TIENDA-MW] Sesión actualizada a tienda_id=' + tiendaUrl.id);
+            }
+        }
+        return next();
+    }
+
+    // --- PASO 2: Detectar slug desde Referer header (para rutas API sin slug) ---
+    // Tiene prioridad sobre la sesión porque el Referer refleja la tienda actual
+    // desde la cual se hizo la petición AJAX.
+    const tiendaRef = detectarSlugDesdeReferer();
+    if (tiendaRef) {
+        req.tiendaId = tiendaRef.id;
+        req.tiendaSlug = tiendaRef.slug;
+        console.log('[TIENDA-MW] Referer: slug=' + tiendaRef.slug + ' id=' + tiendaRef.id);
+        // Actualizar sesión si el usuario está autenticado y pertenece a esta tienda
+        if (req.session && req.session.user && !req.session.user.es_superadmin) {
+            if (req.session.user.tienda_id !== tiendaRef.id) {
+                req.session.user.tienda_id = tiendaRef.id;
+                req.session.user.tiendaSlug = tiendaRef.slug;
+                console.log('[TIENDA-MW] Sesión actualizada a tienda_id=' + tiendaRef.id);
+            }
+        }
+        return next();
+    }
+
+    // --- PASO 3: Si el usuario está autenticado (NO superadmin), usar su tienda_id de la sesión ---
     if (req.session && req.session.user && req.session.user.tienda_id && !req.session.user.es_superadmin) {
         req.tiendaId = req.session.user.tienda_id;
         req.tiendaSlug = req.session.user.tiendaSlug;
         console.log('[TIENDA-MW] Sesión: tienda_id=' + req.session.user.tienda_id + ' user=' + req.session.user.usuario);
         return next();
-    }
-
-    // 2b. Detectar slug desde Referer header (para rutas API como POST /api/config/logo)
-    // Cuando el admin está en /deportes-rodriguez/admin/personalizacion.html y hace un fetch
-    // a /api/config/logo, el Referer contiene el slug en la URL.
-    const referer = req.get('Referer') || '';
-    if (referer) {
-        const refererMatch = referer.match(/^\/([a-z0-9-]+)\//);
-        if (refererMatch) {
-            const refSlug = refererMatch[1];
-            if (refSlug && refSlug.match(/^[a-z0-9-]+$/) && !rutasConocidas.includes(refSlug)) {
-                try {
-                    const tienda = db.prepare('SELECT id, slug, nombre FROM tiendas WHERE slug = ? AND activo = 1').get(refSlug);
-                    if (tienda) {
-                        req.tiendaId = tienda.id;
-                        req.tiendaSlug = tienda.slug;
-                        console.log('[TIENDA-MW] Referer: slug=' + tienda.slug + ' id=' + tienda.id);
-                        return next();
-                    }
-                } catch (e) {
-                    // Si la tabla no existe aún, continuar
-                }
-            }
-        }
     }
 
     // 3. Detectar slug desde query param (para rutas API: /productos/public?slug=tienda1)

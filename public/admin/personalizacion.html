@@ -117,7 +117,24 @@
 
             </div>
 
-            <!-- 2. MARQUESINA -->
+            <!-- 2. TIPOGRAFÍA -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Tipografía</h2>
+
+                </div>
+
+                <div class="form-grid" id="grupo-tipografia">
+
+                    <!-- Se llena dinámicamente: font_family -->
+
+                </div>
+
+            </div>
+
+            <!-- 3. MARQUESINA -->
             <div class="form-card">
 
                 <div class="form-header">
@@ -329,6 +346,7 @@
             redes_tiktok: 'TikTok (URL)',
             redes_whatsapp: 'WhatsApp (URL)',
             logo_imagen: 'Logo de la tienda (se sube abajo)',
+            font_family: 'Tipografía para el nombre de la tienda y título del Hero',
         };
 
         // Grupos para cada clave
@@ -336,6 +354,7 @@
             tienda_nombre: 'general',
             tienda_descripcion: 'general',
             marquee_textos: 'general',
+            font_family: 'tipografia',
             hero_titulo: 'hero',
             hero_descripcion: 'hero',
             hero_imagen: 'hero',
@@ -369,6 +388,7 @@
             hero_descripcion: 'Descripción de portada - Contá lo que quieras destacar',
             hero_titulo_color: '#ffffff',
             hero_fondo: '#ffffff',
+            font_family: 'Arial',
             whatsapp_numero: '',
             contacto_email: '',
             contacto_telefono: '',
@@ -512,6 +532,107 @@
                     grupo.appendChild(label);
                     grupo.appendChild(textarea);
                     contMarquee.appendChild(grupo);
+                }
+            }
+
+            // ============================================
+            // 2b. TIPOGRAFÍA: font_family (selector de 10 tipografías)
+            // ============================================
+            const contTipografia = document.getElementById('grupo-tipografia');
+            if (contTipografia) {
+                const itemFont = datos.find(d => d.clave === 'font_family');
+                if (itemFont) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-font_family';
+                    label.textContent = 'Tipografía para el sitio';
+                    grupo.appendChild(label);
+
+                    // Lista de 10 tipografías (nombre para mostrar, valor para Google Fonts, familia CSS)
+                    const tipografias = [
+                        { label: 'Arial (clásica)', value: 'Arial', family: 'Arial, sans-serif', google: '' },
+                        { label: 'Georgia (elegante)', value: 'Georgia', family: 'Georgia, serif', google: '' },
+                        { label: 'Playfair Display (moderna)', value: 'Playfair Display', family: "'Playfair Display', serif", google: 'Playfair+Display:ital,wght@0,400;0,700;1,400' },
+                        { label: 'Poppins (limpia)', value: 'Poppins', family: "'Poppins', sans-serif", google: 'Poppins:wght@400;600;700' },
+                        { label: 'Montserrat (versátil)', value: 'Montserrat', family: "'Montserrat', sans-serif", google: 'Montserrat:wght@400;600;700' },
+                        { label: 'Lora (cálida)', value: 'Lora', family: "'Lora', serif", google: 'Lora:ital,wght@0,400;0,600;1,400' },
+                        { label: 'Oswald (impactante)', value: 'Oswald', family: "'Oswald', sans-serif", google: 'Oswald:wght@400;600' },
+                        { label: 'Merriweather (formal)', value: 'Merriweather', family: "'Merriweather', serif", google: 'Merriweather:wght@400;700' },
+                        { label: 'Raleway (elegante)', value: 'Raleway', family: "'Raleway', sans-serif", google: 'Raleway:wght@400;600;700' },
+                        { label: 'Dancing Script (manuscrita)', value: 'Dancing Script', family: "'Dancing Script', cursive", google: 'Dancing+Script:wght@400;600' },
+                    ];
+
+                    const select = document.createElement('select');
+                    select.id = 'input-font_family';
+                    select.style.cssText = 'width:100%;padding:10px 12px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;outline:none;transition:border-color 0.2s;background:white;cursor:pointer;';
+
+                    tipografias.forEach(t => {
+                        const option = document.createElement('option');
+                        option.value = t.value;
+                        option.textContent = t.label;
+                        if (t.value === itemFont.valor) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+
+                    // Vista previa en vivo
+                    const preview = document.createElement('div');
+                    preview.id = 'preview-font_family';
+                    preview.style.cssText = 'margin-top:12px;padding:16px 20px;border-radius:10px;background:#f9fafb;border:2px solid #e5e7eb;text-align:center;transition:all 0.3s;';
+
+                    const previewTitle = document.createElement('div');
+                    previewTitle.id = 'preview-font-title';
+                    previewTitle.textContent = 'Nombre de la Tienda';
+                    previewTitle.style.cssText = 'font-size:28px;font-weight:bold;margin-bottom:6px;';
+
+                    const previewSub = document.createElement('div');
+                    previewSub.id = 'preview-font-sub';
+                    previewSub.textContent = 'Título del Hero';
+                    previewSub.style.cssText = 'font-size:20px;opacity:0.8;';
+
+                    preview.appendChild(previewTitle);
+                    preview.appendChild(previewSub);
+
+                    function cargarGoogleFont(fontValue) {
+                        const t = tipografias.find(t => t.value === fontValue);
+                        if (t && t.google) {
+                            // Verificar si ya está cargada
+                            const fontId = 'gf-' + t.value.replace(/\s+/g, '-').toLowerCase();
+                            if (!document.getElementById(fontId)) {
+                                const link = document.createElement('link');
+                                link.id = fontId;
+                                link.rel = 'stylesheet';
+                                link.href = 'https://fonts.googleapis.com/css2?family=' + t.google + '&display=swap';
+                                document.head.appendChild(link);
+                            }
+                        }
+                    }
+
+                    function actualizarPreview(fontValue) {
+                        const t = tipografias.find(t => t.value === fontValue);
+                        if (t) {
+                            // Cargar la Google Font si es necesario
+                            cargarGoogleFont(fontValue);
+                            previewTitle.style.fontFamily = t.family;
+                            previewSub.style.fontFamily = t.family;
+                        }
+                    }
+
+                    // Inicializar preview con el valor actual (cargando la fuente)
+                    cargarGoogleFont(itemFont.valor);
+                    actualizarPreview(itemFont.valor);
+
+                    select.addEventListener('change', function() {
+                        actualizarPreview(this.value);
+                        guardarCambio('font_family', this.value);
+                    });
+
+                    grupo.appendChild(select);
+                    grupo.appendChild(preview);
+                    contTipografia.appendChild(grupo);
                 }
             }
 
@@ -761,7 +882,7 @@
             // ============================================
             // 6. RESTO DE SECCIONES (whatsapp, contacto)
             // ============================================
-            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp'];
+            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp'];
 
             datos.forEach(item => {
                 // Saltar items ya renderizados en secciones custom

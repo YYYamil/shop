@@ -50,6 +50,8 @@
 
     --color-stock: #ff9800;
 
+    --font-family: Arial, sans-serif;
+
 }
 
 
@@ -57,7 +59,7 @@
 
 body {
 
-    font-family: Arial;
+    font-family: var(--font-family);
 
     background: var(--color-fondo);
 

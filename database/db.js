@@ -216,9 +216,19 @@ try {
 // MIGRACIÓN: hero_titulo_color (simplificación colores)
 // ============================================
 try {
-    const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ?').get('hero_titulo_color');
-    if (!existente) {
-        db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo) VALUES (?, ?, ?, ?)').run('hero_titulo_color', '#ffffff', 'color', 'hero');
+    const tiendas = db.prepare('SELECT id FROM tiendas').all();
+    if (tiendas.length === 0) {
+        const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get('hero_titulo_color');
+        if (!existente) {
+            db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('hero_titulo_color', '#ffffff', 'color', 'hero', null);
+        }
+    } else {
+        tiendas.forEach(t => {
+            const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id = ?').get('hero_titulo_color', t.id);
+            if (!existente) {
+                db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('hero_titulo_color', '#ffffff', 'color', 'hero', t.id);
+            }
+        });
     }
 } catch (e) {
     // Ignorar error
@@ -226,9 +236,9 @@ try {
 
 // Actualizar hero_fondo a blanco si sigue siendo un gradiente
 try {
-    const row = db.prepare('SELECT valor FROM configuracion WHERE clave = ?').get('hero_fondo');
+    const row = db.prepare('SELECT valor FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get('hero_fondo');
     if (row && row.valor && row.valor.startsWith('linear-gradient')) {
-        db.prepare('UPDATE configuracion SET valor = ? WHERE clave = ?').run('#ffffff', 'hero_fondo');
+        db.prepare('UPDATE configuracion SET valor = ? WHERE clave = ? AND tienda_id IS NULL').run('#ffffff', 'hero_fondo');
     }
 } catch (e) {
     // Ignorar error
@@ -238,9 +248,43 @@ try {
 // MIGRACIÓN: marquee_textos (personalización del marquee)
 // ============================================
 try {
-    const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ?').get('marquee_textos');
-    if (!existente) {
-        db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo) VALUES (?, ?, ?, ?)').run('marquee_textos', '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA', 'texto', 'general');
+    const tiendas = db.prepare('SELECT id FROM tiendas').all();
+    if (tiendas.length === 0) {
+        const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get('marquee_textos');
+        if (!existente) {
+            db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('marquee_textos', '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA', 'texto', 'general', null);
+        }
+    } else {
+        tiendas.forEach(t => {
+            const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id = ?').get('marquee_textos', t.id);
+            if (!existente) {
+                db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('marquee_textos', '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA', 'texto', 'general', t.id);
+            }
+        });
+    }
+} catch (e) {
+    // Ignorar error
+}
+
+// ============================================
+// MIGRACIÓN: font_family (tipografía personalizable)
+// ============================================
+// Insertar font_family para cada tienda que no lo tenga
+try {
+    const tiendas = db.prepare('SELECT id FROM tiendas').all();
+    if (tiendas.length === 0) {
+        // Sin tiendas aún: insertar con tienda_id = NULL (config global)
+        const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get('font_family');
+        if (!existente) {
+            db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('font_family', 'Arial', 'texto', 'tipografia', null);
+        }
+    } else {
+        tiendas.forEach(t => {
+            const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id = ?').get('font_family', t.id);
+            if (!existente) {
+                db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('font_family', 'Arial', 'texto', 'tipografia', t.id);
+            }
+        });
     }
 } catch (e) {
     // Ignorar error

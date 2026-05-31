@@ -76,9 +76,19 @@ exports.updateConfig = (req, res) => {
 
     try {
         // Verificar que la clave existe para esta tienda
-        const existente = db.prepare('SELECT * FROM configuracion WHERE clave = ? AND tienda_id = ?').get(clave, tiendaId);
+        let existente = db.prepare('SELECT * FROM configuracion WHERE clave = ? AND tienda_id = ?').get(clave, tiendaId);
+        
+        // Si no existe, ver si existe la clave global (tienda_id IS NULL) para obtener tipo/grupo
         if (!existente) {
-            return res.status(404).json({ error: 'Clave de configuración no encontrada' });
+            const global = db.prepare('SELECT * FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get(clave);
+            if (global) {
+                // Crear el registro para esta tienda basado en el global
+                db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run(clave, String(valor), global.tipo, global.grupo, tiendaId);
+                return res.json({ ok: true, clave, valor: String(valor) });
+            }
+            // Si no existe global, crear con defaults
+            db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run(clave, String(valor), 'texto', 'general', tiendaId);
+            return res.json({ ok: true, clave, valor: String(valor) });
         }
 
         // Validar según el tipo

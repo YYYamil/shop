@@ -94,6 +94,9 @@ function aplicarConfiguracion(config) {
     // 11. Splash screen: asignar logo y ocultar
     aplicarSplash(config);
 
+    // 12. Tipografía personalizada
+    aplicarTipografia(config);
+
 }
 
 /* ===== SPLASH SCREEN ===== */
@@ -540,5 +543,64 @@ function aplicarFavicon(config) {
     }
 
     link.href = config.logo_imagen;
+
+}
+
+/* ===== TIPOGRAFÍA PERSONALIZADA ===== */
+
+function aplicarTipografia(config) {
+
+    if (!config.font_family) return;
+
+    // Mapa de valores guardados a familias CSS completas
+    const mapaFuentes = {
+        'Arial': { family: 'Arial, sans-serif', google: '' },
+        'Georgia': { family: 'Georgia, serif', google: '' },
+        'Playfair Display': { family: "'Playfair Display', serif", google: 'Playfair+Display:ital,wght@0,400;0,700;1,400' },
+        'Poppins': { family: "'Poppins', sans-serif", google: 'Poppins:wght@400;600;700' },
+        'Montserrat': { family: "'Montserrat', sans-serif", google: 'Montserrat:wght@400;600;700' },
+        'Lora': { family: "'Lora', serif", google: 'Lora:ital,wght@0,400;0,600;1,400' },
+        'Oswald': { family: "'Oswald', sans-serif", google: 'Oswald:wght@400;600' },
+        'Merriweather': { family: "'Merriweather', serif", google: 'Merriweather:wght@400;700' },
+        'Raleway': { family: "'Raleway', sans-serif", google: 'Raleway:wght@400;600;700' },
+        'Dancing Script': { family: "'Dancing Script', cursive", google: 'Dancing+Script:wght@400;600' },
+    };
+
+    const fuente = mapaFuentes[config.font_family];
+
+    if (!fuente) return;
+
+    // 1. Cargar Google Font si es necesario
+    if (fuente.google) {
+        const linkId = 'google-font-' + config.font_family.replace(/\s+/g, '-');
+        if (!document.getElementById(linkId)) {
+            const link = document.createElement('link');
+            link.id = linkId;
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=' + fuente.google + '&display=swap';
+            document.head.appendChild(link);
+        }
+    }
+
+    // 2. Aplicar la tipografía al body (afecta a toda la tienda)
+    document.body.style.fontFamily = fuente.family;
+
+    // 3. Aplicar específicamente al logo/nombre de la tienda
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.style.fontFamily = fuente.family;
+    }
+
+    // 4. Aplicar al título del Hero
+    const heroTitulo = document.querySelector('.hero-content h1');
+    if (heroTitulo) {
+        heroTitulo.style.fontFamily = fuente.family;
+    }
+
+    // 5. Aplicar al footer brand
+    const footerBrand = document.querySelector('.footer-brand h2');
+    if (footerBrand) {
+        footerBrand.style.fontFamily = fuente.family;
+    }
 
 }
