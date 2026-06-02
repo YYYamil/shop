@@ -391,20 +391,59 @@ function gestionResumenTienda() {
     const slug = t.slug;
     const adminUser = t.admin_usuario || '—';
     const adminPass = t.admin_password || '—';
-    const fechaCreada = t.created_at || '—';
 
-    const texto = `🏪 RESUMEN DE TIENDA
-━━━━━━━━━━━━━━━━━━━━━━━━
-📌 Nombre: ${t.nombre}
-🔗 Tienda: https://${dominio}/${slug}
-🔐 Admin:  https://${dominio}/${slug}/admin/login.html
-👤 Usuario: ${adminUser}
-🔑 Contraseña: ${adminPass}
-📅 Creada: ${fechaCreada}
-━━━━━━━━━━━━━━━━━━━━━━━━`;
+    const texto = `🛍️ Guía rápida para usar tu tienda online: ${t.nombre}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 Dos direcciones importantes
+
+| Para | Dirección |
+|------|-----------|
+| 🏪 Ver tu tienda (lo que ven tus clientes) | https://${dominio}/${slug} |
+| 🔐 Administrar tu tienda (solo para vos) | https://${dominio}/${slug}/admin/login.html |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 En 5 pasos tenés tu tienda lista
+
+1️⃣ Ingresá al panel de administración
+Entrá a https://${dominio}/${slug}/admin/login.html con tu usuario y contraseña.
+Usuario: ${adminUser}
+Contraseña: ${adminPass}
+
+2️⃣ Personalizá el diseño
+Andá a "Personalizar Tienda" y configurá:
+- Nombre y descripción de tu negocio
+- Colores de botones y fondo
+- Logo e imagen de portada
+- Tipografía que más te guste
+
+3️⃣ Agregá categorías
+En "Categorías" organizá tus productos en grupos (ej: Remeras, Pantalones, Accesorios).
+- Podés cambiarles el nombre cuando quieras
+- Podés ocultarlas temporalmente sin perder los productos
+
+4️⃣ Cargá tus productos
+En "Productos" agregá cada artículo con:
+- Nombre, precio y stock
+- Fotos (una o varias)
+- Categoría correspondiente
+
+5️⃣ Conectá WhatsApp
+En "Personalizar Tienda" → sección WhatsApp, ingresá tu código de área + número (sin el 15). Todos los pedidos te llegarán automáticamente ahí.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 Listo para vender
+
+Compartí el link de tu tienda (https://${dominio}/${slug}) con tus clientes. Ellos pueden:
+- 👀 Ver todos tus productos con fotos
+- 🛒 Armar su carrito
+- 💬 Enviarte el pedido directo por WhatsApp`;
 
     navigator.clipboard.writeText(texto).then(() => {
-        mostrarToast('✅ Resumen copiado al portapapeles', 'success');
+        mostrarToast('✅ Guía rápida copiada al portapapeles', 'success');
     }).catch(() => {
         // Fallback para navegadores sin permisos
         const textarea = document.createElement('textarea');
@@ -413,7 +452,7 @@ function gestionResumenTienda() {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        mostrarToast('✅ Resumen copiado al portapapeles', 'success');
+        mostrarToast('✅ Guía rápida copiada al portapapeles', 'success');
     });
 }
 

@@ -13,7 +13,7 @@
     <link href="/css/output.css" rel="stylesheet">
 
     <link rel="stylesheet"
-          href="/css/admin.css?v=13">
+          href="/css/admin.css?v=14">
 
 </head>
 
@@ -214,13 +214,17 @@
                 <textarea id="descripcion" placeholder="Descripción del producto..." rows="3"></textarea>
             </div>
 
-            <!-- Precio y Stock en fila -->
-            <div class="campo-row">
-                <div class="campo">
-                    <label for="precio">Precio ($)</label>
+            <!-- Precio, Costo y Stock en fila -->
+            <div class="campo-row" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                <div class="campo" style="margin-bottom:0;">
+                    <label for="precio">Precio venta ($)</label>
                     <input type="number" id="precio" placeholder="0" min="0" step="0.01">
                 </div>
-                <div class="campo">
+                <div class="campo" style="margin-bottom:0;">
+                    <label for="costo">Costo ($)</label>
+                    <input type="number" id="costo" placeholder="0" min="0" step="0.01">
+                </div>
+                <div class="campo" style="margin-bottom:0;">
                     <label for="stock">Stock</label>
                     <input type="number" id="stock" placeholder="0" min="0">
                 </div>
@@ -352,7 +356,7 @@
     </script>
 
     <script src="/js/sidebar-slug.js"></script>
-    <script src="/js/admin.js?v=13"></script>
+    <script src="/js/admin.js?v=14"></script>
 
     <!-- Script para el menú hamburguesa -->
     <script>

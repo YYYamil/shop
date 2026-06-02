@@ -73,28 +73,80 @@ async function cargarCategorias() {
     }
 }
 
-async function crearCategoria() {
-    const nombre = prompt('Nombre de la nueva categoría:');
-    if (!nombre || nombre.trim() === '') return;
+function crearCategoria() {
+    // Crear overlay del modal
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay-categoria';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;';
 
-    try {
-        const respuesta = await fetch('/categorias', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombre: nombre.trim() })
-        });
+    const modal = document.createElement('div');
+    modal.style.cssText = 'background:white;border-radius:16px;padding:28px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
 
-        if (!respuesta.ok) {
-            const err = await respuesta.json().catch(() => ({}));
-            mostrarToast(err.error || 'Error al crear categoría', 'error');
+    modal.innerHTML = `
+        <h3 style="font-size:18px;font-weight:700;color:#1e293b;margin:0 0 8px 0;">Nueva categoría</h3>
+        <p style="font-size:14px;color:#64748b;margin:0 0 20px 0;">Ingresá el nombre de la nueva categoría</p>
+        <input type="text" id="inputNuevaCategoria" placeholder="Ej: Remeras" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:20px;">
+        <div style="display:flex;gap:12px;justify-content:flex-end;">
+            <button id="btnCancelarCategoria" style="background:#e2e8f0;color:#475569;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;">Cancelar</button>
+            <button id="btnCrearCategoria" style="background:#3b82f6;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;">Crear</button>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    const input = document.getElementById('inputNuevaCategoria');
+    input.focus();
+
+    function cerrar() {
+        document.body.removeChild(overlay);
+    }
+
+    document.getElementById('btnCancelarCategoria').onclick = cerrar;
+    overlay.onclick = (e) => { if (e.target === overlay) cerrar(); };
+
+    document.getElementById('btnCrearCategoria').onclick = async function() {
+        const nombre = input.value.trim();
+        if (!nombre) {
+            input.style.borderColor = '#ef4444';
+            input.focus();
             return;
         }
 
-        mostrarToast('✓ Categoría creada', 'exito');
-        await cargarCategorias();
-    } catch (error) {
-        mostrarToast('Error de conexión', 'error');
-    }
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = '⏳ Creando...';
+
+        try {
+            const respuesta = await fetch('/categorias', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+
+            if (!respuesta.ok) {
+                const err = await respuesta.json().catch(() => ({}));
+                mostrarToast(err.error || 'Error al crear categoría', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Crear';
+                return;
+            }
+
+            mostrarToast('✓ Categoría creada', 'exito');
+            cerrar();
+            await cargarCategorias();
+        } catch (error) {
+            mostrarToast('Error de conexión', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Crear';
+        }
+    };
+
+    // Enter para crear
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('btnCrearCategoria').click();
+        if (e.key === 'Escape') cerrar();
+    });
 }
 
 /* ===== PANEL PRODUCTO (slide-in) ===== */
@@ -123,6 +175,7 @@ function abrirPanelProducto(id) {
     document.getElementById('idProducto').value = producto.id;
     document.getElementById('nombre').value = producto.nombre;
     document.getElementById('precio').value = producto.precio;
+    document.getElementById('costo').value = producto.costo || 0;
     document.getElementById('stock').value = producto.stock;
     document.getElementById('descripcion').value = producto.descripcion;
     document.getElementById('categoria_id').value = producto.categoria_id;
@@ -240,6 +293,7 @@ async function guardarProducto() {
     const formData = new FormData();
     formData.append('nombre', nombre);
     formData.append('precio', precio);
+    formData.append('costo', document.getElementById('costo').value || 0);
     formData.append('stock', document.getElementById('stock').value || 0);
     formData.append('descripcion', document.getElementById('descripcion').value.trim());
     formData.append('categoria_id', categoria_id);
@@ -327,6 +381,7 @@ function limpiarFormulario() {
     document.getElementById('idProducto').value = '';
     document.getElementById('nombre').value = '';
     document.getElementById('precio').value = '';
+    document.getElementById('costo').value = '';
     document.getElementById('stock').value = '';
     document.getElementById('descripcion').value = '';
     document.getElementById('categoria_id').value = '';
@@ -605,6 +660,7 @@ function renderizarProductos() {
     div.innerHTML = productosPagina.map(producto => {
         const stockClass = producto.stock <= 0 ? 'agotado' : producto.stock <= 5 ? 'bajo' : 'disponible';
         const stockText = producto.stock <= 0 ? 'Sin stock' : producto.stock <= 5 ? 'Stock bajo: ' + producto.stock : producto.stock + ' disponibles';
+        const ganancia = producto.costo > 0 ? ((producto.precio - producto.costo) / producto.costo * 100).toFixed(0) : null;
 
         return `
             <div class="producto-card">
@@ -616,6 +672,7 @@ function renderizarProductos() {
                         <div class="producto-card-nombre">${producto.nombre}</div>
                         <div class="producto-card-categoria">${producto.categoria || 'Sin categoría'}</div>
                         <div class="producto-card-precio">$${producto.precio}</div>
+                        ${producto.costo > 0 ? `<div class="producto-card-costo">Costo: $${producto.costo} <span class="ganancia-badge">Ganancia=${ganancia}%</span></div>` : ''}
                         <div class="producto-card-stock ${stockClass === 'disponible' ? 'stock-disponible' : stockClass === 'bajo' ? 'stock-bajo' : 'stock-agotado'}">
                             <span class="stock-dot ${stockClass}"></span>
                             ${stockText}

@@ -91,6 +91,10 @@ try {
 try {
     db.exec(`ALTER TABLE productos ADD COLUMN descuento INTEGER DEFAULT 0`);
 } catch(e) { /* ya existe */ }
+// Migración: agregar columna costo a productos si no existe
+try {
+    db.exec(`ALTER TABLE productos ADD COLUMN costo REAL DEFAULT 0`);
+} catch(e) { /* ya existe */ }
 
 // ============================================
 // TABLA DE PEDIDOS

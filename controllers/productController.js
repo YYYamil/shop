@@ -65,6 +65,7 @@ exports.getProductosPublic = (req, res) => {
 exports.crearProducto = (req, res) => {
     const nombre = req.body.nombre || req.query.nombre;
     const precio = req.body.precio || req.query.precio;
+    const costo = req.body.costo || req.query.costo;
     const descripcion = req.body.descripcion || req.query.descripcion;
     const stock = req.body.stock || req.query.stock;
     const categoria_id = req.body.categoria_id || req.query.categoria_id;
@@ -92,13 +93,14 @@ exports.crearProducto = (req, res) => {
 
     const esNuevo = (nuevo === 'true' || nuevo === true || nuevo === 1 || nuevo === '1') ? 1 : 0;
     const desc = Math.min(Math.max(parseInt(descuento) || 0, 0), 100);
+    const costoVal = parseFloat(costo) || 0;
 
     try {
         db.prepare(`
             INSERT INTO productos
-            (nombre, precio, descripcion, imagenes, stock, categoria_id, nuevo, descuento, tienda_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, tiendaId);
+            (nombre, precio, costo, descripcion, imagenes, stock, categoria_id, nuevo, descuento, tienda_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(nombre, precio, costoVal, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, tiendaId);
 
         res.json({ ok: true });
     } catch (err) {
@@ -114,6 +116,7 @@ exports.editarProducto = (req, res) => {
     // Fallback a req.query por si el frontend los envía como query params
     const nombre = req.body.nombre || req.query.nombre;
     const precio = req.body.precio || req.query.precio;
+    const costo = req.body.costo || req.query.costo;
     const descripcion = req.body.descripcion || req.query.descripcion;
     const stock = req.body.stock || req.query.stock;
     const categoria_id = req.body.categoria_id || req.query.categoria_id;
@@ -183,21 +186,22 @@ exports.editarProducto = (req, res) => {
         }
     }
 
-    console.log('[editarProducto] id=%s body=%j', id, { nombre, precio, descripcion, stock, categoria_id, nuevo, descuento });
+    console.log('[editarProducto] id=%s body=%j', id, { nombre, precio, costo, descripcion, stock, categoria_id, nuevo, descuento });
 
     const esNuevo = (nuevo === 'true' || nuevo === true || nuevo === 1 || nuevo === '1') ? 1 : 0;
     const desc = Math.min(Math.max(parseInt(descuento) || 0, 0), 100);
+    const costoVal = parseFloat(costo) || 0;
 
-    console.log('[editarProducto] esNuevo=%d desc=%d', esNuevo, desc);
+    console.log('[editarProducto] esNuevo=%d desc=%d costo=%d', esNuevo, desc, costoVal);
 
     try {
         const result = db.prepare(`
             UPDATE productos
-            SET nombre = ?, precio = ?, descripcion = ?,
+            SET nombre = ?, precio = ?, costo = ?, descripcion = ?,
                 imagenes = ?, stock = ?, categoria_id = ?,
                 nuevo = ?, descuento = ?
             WHERE id = ? AND tienda_id = ?
-        `).run(nombre, precio, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, id, tiendaId);
+        `).run(nombre, precio, costoVal, descripcion, JSON.stringify(imagenes), stock, categoria_id, esNuevo, desc, id, tiendaId);
 
         if (result.changes === 0) {
             return res.status(404).json({ error: 'Producto no encontrado' });
