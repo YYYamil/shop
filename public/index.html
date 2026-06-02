@@ -11,7 +11,7 @@
     <title>Mi Shop</title>
 
     <link rel="stylesheet"
-          href="/css/store.css?v=15">
+          href="/css/store.css?v=17">
 
     <link href="/css/output.css"
           rel="stylesheet">
@@ -60,10 +60,10 @@
             </button>
 
             <div class="carrito-wrapper">
-                <a href="/carrito.html" class="carrito-btn">
-                    🛒
+                <button class="carrito-btn" id="carritoBtn" onclick="togglePreviewCarrito(event)">
+                    <span class="carrito-icono">🛒</span>
                     <span id="contadorCarrito">0</span>
-                </a>
+                </button>
                 <div class="carrito-preview" id="carritoPreview"></div>
             </div>
 
@@ -149,22 +149,45 @@
         class="productos-grid"
     ></main>
 
-    <!-- MODAL -->
+    <!-- MODAL PRODUCTO -->
     <div class="modal-overlay"
          id="modalOverlay"
          onclick="cerrarModal()">
 
-        <span class="modal-cerrar"
-              onclick="cerrarModal()">
+        <div class="modal-contenido"
+             onclick="event.stopPropagation()">
 
-            &times;
+            <span class="modal-cerrar"
+                  onclick="cerrarModal()">
+                &times;
+            </span>
 
-        </span>
+            <!-- Carrusel de imágenes -->
+            <div class="modal-carrusel" id="modalCarrusel"></div>
 
-        <img class="modal-imagen"
-             id="modalImagen"
-             src=""
-             alt="Imagen ampliada">
+            <!-- Botón compartir (fuera del carrusel para que no lo borre innerHTML) -->
+            <button class="modal-share-btn" id="modalShareBtn" onclick="compartirProducto(event)" aria-label="Compartir producto">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+            </button>
+
+            <!-- Info del producto -->
+            <div class="modal-info">
+                <h2 class="modal-nombre" id="modalNombre"></h2>
+                <div class="modal-precio" id="modalPrecio"></div>
+                <div class="modal-stock" id="modalStock"></div>
+                <div class="modal-descripcion" id="modalDescripcion"></div>
+                <button class="modal-btn-carrito" id="modalBtnCarrito">
+                    Agregar al carrito
+                </button>
+            </div>
+
+        </div>
 
     </div>
 
@@ -205,7 +228,7 @@
     </footer>
 
     <script src="/js/config.js?v=6"></script>
-    <script src="/js/script.js?v=5"></script>
+    <script src="/js/script.js?v=6"></script>
 
 </body>
 

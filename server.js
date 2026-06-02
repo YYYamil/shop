@@ -116,6 +116,9 @@ app.get('/auth/verificar', authMiddleware, (req, res) => {
 
 // Ruta raíz: sirve index.html (tienda por defecto)
 app.get('/', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(
         path.join(__dirname, 'public', 'index.html')
     );
@@ -152,6 +155,9 @@ app.get('/:slug/', (req, res, next) => {
     if (!slug.match(/^[a-z0-9-]+$/)) {
         return next();
     }
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -162,6 +168,9 @@ app.get('/:slug', (req, res, next) => {
     if (!slug.match(/^[a-z0-9-]+$/)) {
         return next();
     }
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

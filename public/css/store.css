@@ -351,8 +351,6 @@ body {
 
     position: relative;
 
-    text-decoration: none;
-
     font-size: 28px;
 
 }
@@ -421,7 +419,8 @@ body {
 
 }
 
-.carrito-wrapper:hover .carrito-preview {
+.carrito-wrapper:hover .carrito-preview,
+.carrito-preview.visible {
 
     display: block;
 
@@ -483,6 +482,18 @@ body {
 
     padding: 10px 0;
 
+}
+
+.carrito-preview-total {
+    text-align: right;
+    padding: 8px 0 4px;
+    font-size: 14px;
+    border-top: 1px solid #eee;
+    margin-top: 4px;
+}
+
+.carrito-preview-total strong {
+    font-size: 15px;
 }
 
 .carrito-preview-ver {
@@ -971,6 +982,10 @@ body {
 
     cursor: pointer;
 
+    overflow-y: auto;
+
+    padding: 20px 0;
+
 }
 
 .modal-overlay.active {
@@ -1024,6 +1039,180 @@ body {
 }
 
 
+
+/* ===== MODAL PRODUCTO (expandido) ===== */
+
+.modal-contenido {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 28px;
+    max-width: 95vw;
+    max-height: 92vh;
+    width: 520px;
+    overflow: hidden;
+    cursor: default;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    animation: modalEntrada 0.25s ease;
+}
+
+@keyframes modalEntrada {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-carrusel {
+    flex-shrink: 0;
+    position: relative;
+}
+
+.modal-share-btn {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: background 0.2s, transform 0.2s;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    pointer-events: auto;
+}
+
+.modal-share-btn:hover {
+    background: rgba(0,0,0,0.75);
+    transform: scale(1.08);
+}
+
+.modal-share-btn:active {
+    transform: scale(0.95);
+}
+
+.modal-carrusel .carrusel {
+    height: 340px;
+    border-radius: 28px 28px 0 0;
+}
+
+.modal-info {
+    padding: 22px 24px 24px;
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-nombre {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 8px;
+    line-height: 1.3;
+}
+
+.modal-precio {
+    font-size: 28px;
+    font-weight: 900;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.modal-precio .precio-original {
+    font-size: 18px;
+}
+
+.modal-precio .precio-descuento {
+    font-size: 28px;
+}
+
+.modal-stock {
+    font-size: 14px;
+    font-weight: 600;
+    color: #16a34a;
+    margin-bottom: 14px;
+}
+
+.modal-descripcion {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #4b5563;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+}
+
+.modal-btn-carrito {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    border: none;
+    background: var(--color-boton);
+    color: var(--color-boton-texto);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .25s, transform .2s;
+}
+
+.modal-btn-carrito:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.modal-btn-carrito:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Mobile: modal ocupa casi toda la pantalla */
+@media(max-width:600px) {
+    .modal-contenido {
+        max-width: 100vw;
+        max-height: 100vh;
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+    }
+
+    .modal-carrusel .carrusel {
+        height: 300px;
+        border-radius: 0;
+    }
+
+    .modal-info {
+        padding: 18px 18px 20px;
+    }
+
+    .modal-nombre {
+        font-size: 20px;
+    }
+
+    .modal-precio {
+        font-size: 24px;
+    }
+
+    .modal-cerrar {
+        top: 12px;
+        right: 18px;
+        font-size: 34px;
+        z-index: 10;
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+}
 
 /* ===== TOAST ===== */
 
@@ -1304,9 +1493,13 @@ body {
 
     .carrito-preview {
 
-        right: auto;
+        right: 0;
 
-        left: 0;
+        left: auto;
+
+        min-width: 200px;
+
+        max-width: calc(100vw - 24px);
 
     }
 
@@ -2161,17 +2354,23 @@ body {
 /* CARRITO */
 
 .carrito-btn {
-    width: 56px;
-    height: 56px;
-    border-radius: 18px;
-    background: #ffffff;
-    display: flex;
+    position: relative;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow:
-        0 8px 25px rgba(0,0,0,.08);
-    transition: .3s;
-    font-size: 24px;
+    font-size: 30px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    color: inherit;
+    line-height: 1;
+    transition: transform .3s;
+}
+
+.carrito-icono {
+    display: inline-block;
+    transform: scaleX(-1);
 }
 
 .carrito-btn:hover {
@@ -2372,6 +2571,10 @@ body {
     transition:
         transform .35s,
         box-shadow .35s;
+
+    /* Unificar altura entre tarjetas */
+    display: flex;
+    flex-direction: column;
 }
 
 .producto:hover {
@@ -2441,6 +2644,11 @@ body {
 
 .producto-info {
     padding: 22px;
+
+    /* Ocupa todo el espacio restante y alinea contenido abajo */
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .producto-info h3 {
@@ -2452,6 +2660,14 @@ body {
 .producto-info p {
     color: #6b7280;
     line-height: 1.6;
+
+    /* Limitar descripción a 2 líneas con ellipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.6em * 2);
 }
 
 .precio {
@@ -2460,6 +2676,9 @@ body {
     color: #111827;
     margin: 18px 0 10px;
     letter-spacing: -1px;
+
+    /* Empuja el precio y botón hacia abajo */
+    margin-top: auto;
 }
 
 /* Precio con descuento: original tachado + nuevo en rojo */
@@ -2494,11 +2713,18 @@ body {
     transition: .3s;
     border: none;
     cursor: pointer;
+    width: 100%;
 }
 
 .producto button:hover {
     transform: translateY(-2px);
     opacity: 0.85;
+}
+
+.producto button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* PREVIEW */
@@ -2618,8 +2844,7 @@ body {
     }
 
     .carrito-btn {
-        width: 50px;
-        height: 50px;
+        font-size: 24px;
     }
 }
 

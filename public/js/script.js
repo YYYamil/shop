@@ -1,4 +1,5 @@
 let productosGlobal = [];
+let productoActual = null;
 
 /* ===== MENÚ HAMBURGUESA CATEGORÍAS (mobile) ===== */
 
@@ -14,9 +15,14 @@ function toggleMenuCategorias() {
     document.body.style.overflow = abrir ? 'hidden' : '';
 }
 
-// Cerrar menú con tecla Escape
+// Cerrar menú o modal con tecla Escape
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        const overlay = document.getElementById('modalOverlay');
+        if (overlay && overlay.classList.contains('active')) {
+            cerrarModal();
+            return;
+        }
         const sidebar = document.getElementById('sidebarCategorias');
         if (sidebar && sidebar.classList.contains('abierto')) {
             toggleMenuCategorias();
@@ -154,29 +160,102 @@ function mostrarToast(mensaje) {
 
 
 
-/* ===== MODAL ===== */
+/* ===== MODAL PRODUCTO ===== */
 
-function abrirModal(src) {
-
+function abrirModalProducto(producto) {
+    productoActual = producto;
     const overlay = document.getElementById('modalOverlay');
+    if (!overlay) return;
 
-    const img = document.getElementById('modalImagen');
+    // Nombre
+    document.getElementById('modalNombre').textContent = producto.nombre;
 
-    img.src = src;
+    // Precio
+    const precioDiv = document.getElementById('modalPrecio');
+    if (producto.descuento) {
+        precioDiv.innerHTML = `
+            <span class="precio-original">$ ${producto.precio}</span>
+            <span class="precio-descuento">$ ${(producto.precio * (1 - producto.descuento / 100)).toFixed(2)}</span>
+        `;
+    } else {
+        precioDiv.innerHTML = `<span>$ ${producto.precio}</span>`;
+    }
+
+    // Stock
+    const stockDiv = document.getElementById('modalStock');
+    stockDiv.textContent = 'Stock: ' + producto.stock;
+    stockDiv.style.color = producto.stock > 0 ? '#16a34a' : '#dc2626';
+
+    // Descripción
+    document.getElementById('modalDescripcion').textContent = producto.descripcion || 'Sin descripción';
+
+    // Botón carrito
+    const btn = document.getElementById('modalBtnCarrito');
+    if (producto.stock > 0) {
+        btn.disabled = false;
+        btn.textContent = 'Agregar al carrito';
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            agregarCarrito(producto.id);
+            cerrarModal();
+        };
+    } else {
+        btn.disabled = true;
+        btn.textContent = 'Sin stock';
+        btn.onclick = null;
+    }
+
+    // Carrusel de imágenes
+    const carruselContainer = document.getElementById('modalCarrusel');
+    carruselContainer.innerHTML = renderizarCarrusel(producto.imagenes);
 
     overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
 
+    // Iniciar touch slider en el carrusel del modal
+    const carrusel = carruselContainer.querySelector('.carrusel');
+    if (carrusel) {
+        actualizarCarrusel(carrusel, 0);
+        iniciarAutoPlay(carrusel);
+        initTouchSlider(carrusel);
+
+    }
 }
 
 function cerrarModal() {
-
     const overlay = document.getElementById('modalOverlay');
-
+    if (!overlay) return;
     overlay.classList.remove('active');
+    document.body.style.overflow = '';
 
+    // Detener autoplay del carrusel del modal
+    const carrusel = document.querySelector('#modalCarrusel .carrusel');
+    if (carrusel) detenerAutoPlay(carrusel);
 }
 
+function compartirProducto(e) {
+    e.stopPropagation();
+    if (!productoActual) return;
 
+    const slug = obtenerSlug();
+    const url = window.location.origin + '/' + (slug ? slug + '/' : '') + '?producto=' + productoActual.id;
+    const texto = 'Mirá este producto: ' + productoActual.nombre;
+
+    if (navigator.share) {
+        navigator.share({
+            title: productoActual.nombre,
+            text: texto,
+            url: url
+        }).catch(() => {});
+    } else {
+        // Fallback: copiar al portapapeles
+        navigator.clipboard.writeText(url).then(() => {
+            mostrarToast('✓ Link copiado al portapapeles');
+        }).catch(() => {
+            mostrarToast('✗ No se pudo copiar el link');
+        });
+    }
+}
 
 function toggleSearch() {
 
@@ -260,7 +339,7 @@ async function cargarProductos() {
 
 
     productosGlobal = productos;
-
+    abrirProductoDesdeURL();
 
 
     renderizarProductos(productos);
@@ -422,116 +501,52 @@ function renderizarProductos(productos) {
         let badges = '';
 
         if (producto.nuevo) {
-
             badges += '<span class="badge-nuevo">NUEVO</span>';
-
         }
 
         if (producto.descuento) {
-
             badges += `<span class="badge-descuento">-${producto.descuento}%</span>`;
-
         }
 
-        contenedor.innerHTML += `
-
-            <div class="producto">
-
-                ${badges}
-
-                ${renderizarCarrusel(producto.imagenes)}
-
-                <div class="producto-info">
-
-                    <h3>
-
-                        ${producto.nombre}
-
-                    </h3>
-
-                    <p>
-
-                        ${producto.descripcion}
-
-                    </p>
-
-                    <div class="precio">
-                        ${producto.descuento
-                            ? `<span class="precio-original">$ ${producto.precio}</span><span class="precio-descuento">$ ${(producto.precio * (1 - producto.descuento / 100)).toFixed(2)}</span>`
-                            : `$ ${producto.precio}`
-                        }
-                    </div>
-
-                    <div class="stock">
-
-                        Stock:
-
-                        ${producto.stock}
-
-                    </div>
-
-                   
-
-                    ${
-
-                        producto.stock > 0
-
-                      
-
-                        ?
-
-                      
-
-                        `
-
-                      
-
-                        <button onclick="agregarCarrito(${producto.id})">
-
-                      
-
-                            Agregar al carrito
-
-                      
-
-                        </button>
-
-                      
-
-                        `
-
-                      
-
-                        :
-
-                      
-
-                        `
-
-                      
-
-                        <button disabled>
-
-                      
-
-                            Sin stock
-
-                      
-
-                        </button>
-
-                      
-
-                        `
-
+        const div = document.createElement('div');
+        div.className = 'producto';
+        div.innerHTML = `
+            ${badges}
+            ${renderizarCarrusel(producto.imagenes)}
+            <div class="producto-info">
+                <h3>${producto.nombre}</h3>
+                <p>${producto.descripcion}</p>
+                <div class="precio">
+                    ${producto.descuento
+                        ? `<span class="precio-original">$ ${producto.precio}</span><span class="precio-descuento">$ ${(producto.precio * (1 - producto.descuento / 100)).toFixed(2)}</span>`
+                        : `$ ${producto.precio}`
                     }
-
                 </div>
-
+                <div class="stock">Stock: ${producto.stock}</div>
+                ${producto.stock > 0
+                    ? `<button class="btn-agregar-carrito" data-id="${producto.id}">Agregar al carrito</button>`
+                    : `<button disabled>Sin stock</button>`
+                }
             </div>
-
         `;
 
+        // Click en la card (excepto botón) -> abrir modal
+        div.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-agregar-carrito') || e.target.closest('.carrusel-dot')) return;
+            e.stopPropagation();
+            abrirModalProducto(producto);
+        });
+
+        // Click en botón "Agregar al carrito"
+        const btn = div.querySelector('.btn-agregar-carrito');
+        if (btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                agregarCarrito(producto.id);
+            });
+        }
+
+        contenedor.appendChild(div);
     });
 
     // Iniciar auto-play y touch slider en todos los carruseles
@@ -746,6 +761,25 @@ function limpiarBusqueda() {
 
 /* ===== PREVIEW CARRITO ===== */
 
+function togglePreviewCarrito(e) {
+    e.stopPropagation();
+    const preview = document.getElementById('carritoPreview');
+    if (!preview) return;
+    const visible = preview.classList.contains('visible');
+    // Cerrar cualquier otro preview abierto
+    document.querySelectorAll('.carrito-preview.visible').forEach(p => p.classList.remove('visible'));
+    if (!visible) {
+        preview.classList.add('visible');
+    }
+}
+
+// Cerrar preview al hacer clic fuera
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.carrito-wrapper')) {
+        document.querySelectorAll('.carrito-preview.visible').forEach(p => p.classList.remove('visible'));
+    }
+});
+
 function actualizarPreviewCarrito() {
 
     const preview = document.getElementById('carritoPreview');
@@ -761,8 +795,11 @@ function actualizarPreviewCarrito() {
     }
 
     let html = '';
+    let total = 0;
 
     carrito.forEach(item => {
+        const subtotal = (item.precioConDescuento || item.precio) * item.cantidad;
+        total += subtotal;
 
         html += `
 
@@ -775,10 +812,14 @@ function actualizarPreviewCarrito() {
             </div>
 
         `;
-
     });
 
-    html += '<a href="/carrito.html" class="carrito-preview-ver">Ver carrito</a>';
+    html += `
+        <div class="carrito-preview-total">
+            Total: <strong>$${total.toFixed(2)}</strong>
+        </div>
+        <a href="/carrito.html" class="carrito-preview-ver">Ver carrito</a>
+    `;
 
     preview.innerHTML = html;
 
@@ -869,7 +910,7 @@ function initTouchSlider(carrusel) {
         track.style.transform = `translateX(${offset}%)`;
     }
 
-    function onTouchEnd() {
+    function onTouchEnd(e) {
         if (!isDragging) return;
         isDragging = false;
         track.style.transition = '';
@@ -888,11 +929,8 @@ function initTouchSlider(carrusel) {
                 newIndex = currentIndex - 1;
             }
         } else {
-            // Fue un tap (toque sin deslizar) -> abrir modal
-            const img = carrusel.querySelector('.carrusel-slide.active img');
-            if (img) {
-                abrirModal(img.src);
-            }
+            // Fue un tap (toque sin deslizar) -> no hacer nada,
+            // el modal lo maneja el click de la card
             iniciarAutoPlay(carrusel);
             return;
         }
@@ -902,9 +940,9 @@ function initTouchSlider(carrusel) {
     }
 
     // Eventos touch
-    carrusel.addEventListener('touchstart', onTouchStart, { passive: true });
+    carrusel.addEventListener('touchstart', onTouchStart, { passive: false });
     carrusel.addEventListener('touchmove', onTouchMove, { passive: false });
-    carrusel.addEventListener('touchend', onTouchEnd, { passive: true });
+    carrusel.addEventListener('touchend', onTouchEnd, { passive: false });
 
     // Eventos mouse (para escritorio también)
     let mouseDown = false;
@@ -952,11 +990,8 @@ function initTouchSlider(carrusel) {
                 newIndex = currentIndex - 1;
             }
         } else {
-            // Click sin arrastre -> abrir modal
-            const img = carrusel.querySelector('.carrusel-slide.active img');
-            if (img) {
-                abrirModal(img.src);
-            }
+            // Click sin arrastre -> no hacer nada,
+            // el modal lo maneja el click de la card
             iniciarAutoPlay(carrusel);
             return;
         }
@@ -970,5 +1005,16 @@ function initTouchSlider(carrusel) {
     document.addEventListener('mouseup', onMouseUp);
 }
 
+
+// Auto-abrir modal si hay ?producto=ID en la URL
+function abrirProductoDesdeURL() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('producto');
+    if (!id || !productosGlobal.length) return;
+    const producto = productosGlobal.find(p => p.id == id);
+    if (producto) {
+        setTimeout(() => abrirModalProducto(producto), 300);
+    }
+}
 
 cargarProductos();
