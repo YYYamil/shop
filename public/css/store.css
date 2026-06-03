@@ -149,6 +149,34 @@ body {
 
 }
 
+/* Logo con bordes redondeados (rectangular) */
+
+.logo-img-rounded {
+
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 10px;
+
+    object-fit: cover;
+
+    flex-shrink: 0;
+
+    border: 2px solid var(--color-navbar-fondo);
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+
+    transition: transform 0.3s ease;
+
+}
+
+.logo-img-rounded:hover {
+
+    transform: scale(1.05);
+
+}
+
 
 
 /* Link que envuelve logo + nombre */
@@ -367,7 +395,7 @@ body {
 
     background: red;
 
-    color: var(--color-boton-texto);
+    color: #ffffff;
 
     border-radius: 50%;
 
@@ -506,7 +534,7 @@ body {
 
     margin-top: 8px;
 
-    background: black;
+    background: var(--color-boton);
 
     color: var(--color-boton-texto);
 
@@ -676,7 +704,7 @@ body {
 
     border: none;
 
-    background: black;
+    background: var(--color-boton);
 
     color: var(--color-boton-texto);
 
@@ -684,19 +712,19 @@ body {
 
     font-size: 16px;
 
-    transition: background 0.2s;
+    transition: opacity 0.2s;
 
 }
 
 .producto button:hover {
 
-    background: #333;
+    opacity: 0.85;
 
 }
 
 .producto button:disabled {
 
-    background: #ccc;
+    opacity: 0.5;
 
     cursor: not-allowed;
 
@@ -1104,8 +1132,22 @@ body {
 }
 
 .modal-carrusel .carrusel {
-    height: 340px;
+    width: 100%;
+    max-height: 70vh;
+    height: auto;
+    min-height: 280px;
     border-radius: 28px 28px 0 0;
+    background: #f5f5f5;
+}
+
+.modal-carrusel .carrusel .carrusel-slide {
+    overflow: visible;
+    cursor: default;
+}
+
+.modal-carrusel .carrusel .carrusel-slide img {
+    object-fit: contain;
+    object-position: center;
 }
 
 .modal-info {
@@ -1188,7 +1230,9 @@ body {
     }
 
     .modal-carrusel .carrusel {
-        height: 300px;
+        max-height: 55vh;
+        min-height: 220px;
+        height: auto;
         border-radius: 0;
     }
 
@@ -1721,7 +1765,7 @@ body > main {
 
     padding: 14px 30px;
 
-    background: black;
+    background: var(--color-boton);
 
     color: var(--color-boton-texto);
 
@@ -1737,7 +1781,9 @@ body > main {
 
 .btn-ir-tienda:hover {
 
-    background: #333;
+    opacity: 0.85;
+
+    background: var(--color-boton);
 
 }
 
@@ -1899,7 +1945,7 @@ body > main {
 
     border: none;
 
-    background: #f8f8f8;
+    background: var(--color-boton);
 
     cursor: pointer;
 
@@ -1907,9 +1953,9 @@ body > main {
 
     font-weight: bold;
 
-    color: var(--color-navbar-texto);
+    color: var(--color-boton-texto);
 
-    transition: background 0.15s;
+    transition: opacity 0.15s;
 
     display: flex;
 
@@ -1921,7 +1967,7 @@ body > main {
 
 .btn-cant:hover {
 
-    background: #e0e0e0;
+    opacity: 0.85;
 
 }
 
@@ -1987,9 +2033,9 @@ body > main {
 
     border: none;
 
-    background: #fee2e2;
+    background: var(--color-boton);
 
-    color: #dc2626;
+    color: var(--color-boton-texto);
 
     border-radius: 50%;
 
@@ -2003,7 +2049,7 @@ body > main {
 
     justify-content: center;
 
-    transition: background 0.2s;
+    transition: opacity 0.2s;
 
     opacity: 0;
 
@@ -2017,7 +2063,7 @@ body > main {
 
 .btn-eliminar:hover {
 
-    background: #fecaca;
+    opacity: 0.85;
 
 }
 
@@ -2141,7 +2187,7 @@ body > main {
 
     border: none;
 
-    background: var(--color-whatsapp);
+    background: var(--color-boton);
 
     color: var(--color-boton-texto);
 
@@ -2153,7 +2199,7 @@ body > main {
 
     cursor: pointer;
 
-    transition: background 0.2s;
+    transition: opacity 0.2s;
 
     margin-top: 16px;
 
@@ -2161,7 +2207,7 @@ body > main {
 
 .btn-finalizar:hover {
 
-    background: #1da851;
+    opacity: 0.85;
 
 }
 
@@ -3269,6 +3315,16 @@ body {
     max-height: 140px;
     margin-bottom: 28px;
     animation: splashPulse 2s ease-in-out infinite;
+
+}
+
+.splash-logo-rounded {
+
+    max-width: 200px;
+    max-height: 140px;
+    margin-bottom: 28px;
+    animation: splashPulse 2s ease-in-out infinite;
+    border-radius: 16px;
 
 }
 

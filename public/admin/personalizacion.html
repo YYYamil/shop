@@ -289,6 +289,19 @@
                             <button onclick="document.getElementById('input-logo').click()" class="secondary-btn" style="width:100%;margin-top:8px;">
                                 Subir logo
                             </button>
+                            <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">
+                                <label style="font-size:13px;font-weight:600;color:#374151;">Forma del logo</label>
+                                <div style="display:flex;gap:8px;">
+                                    <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;font-size:13px;transition:all 0.2s;" id="label-logo-circular">
+                                        <input type="radio" name="logo_forma" value="circular" onchange="guardarLogoForma('circular')" style="accent-color:#3b82f6;">
+                                        <span>◉ Circular</span>
+                                    </label>
+                                    <label style="flex:1;display:flex;align-items:center;gap:6px;padding:8px 12px;border:2px solid #d1d5db;border-radius:8px;cursor:pointer;font-size:13px;transition:all 0.2s;" id="label-logo-redondeado">
+                                        <input type="radio" name="logo_forma" value="redondeado" onchange="guardarLogoForma('redondeado')" style="accent-color:#3b82f6;">
+                                        <span>▢ Redondeado</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Hero imagen -->
@@ -1130,7 +1143,7 @@
             // ============================================
             // 6. RESTO DE SECCIONES (whatsapp, contacto)
             // ============================================
-            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp'];
+            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp', 'logo_forma'];
 
             datos.forEach(item => {
                 // Saltar items ya renderizados en secciones custom
@@ -1389,6 +1402,33 @@
             }
         }
 
+        async function guardarLogoForma(valor) {
+            try {
+                const respuesta = await fetch('/api/config/logo_forma', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ valor }),
+                });
+                if (!respuesta.ok) throw new Error('Error al guardar');
+                configOriginal.logo_forma = valor;
+                // Resaltar la opción seleccionada
+                document.querySelectorAll('[id^="label-logo-"]').forEach(el => {
+                    el.style.borderColor = '#d1d5db';
+                    el.style.background = 'transparent';
+                });
+                const labelId = valor === 'circular' ? 'label-logo-circular' : 'label-logo-redondeado';
+                const label = document.getElementById(labelId);
+                if (label) {
+                    label.style.borderColor = '#3b82f6';
+                    label.style.background = '#eff6ff';
+                }
+                mostrarToast('✓ Forma del logo actualizada', 'success');
+            } catch (err) {
+                console.error(err);
+                mostrarToast('Error al guardar forma del logo', 'error');
+            }
+        }
+
         async function subirHero(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1418,6 +1458,16 @@
             // Logo preview
             if (configOriginal.logo_imagen) {
                 document.getElementById('preview-logo').innerHTML = '<img src="' + configOriginal.logo_imagen + '" alt="Logo" style="max-width:100%;max-height:100%;object-fit:contain;">';
+            }
+            // Logo forma - marcar radio button
+            const forma = configOriginal.logo_forma || 'circular';
+            const radio = document.querySelector('input[name="logo_forma"][value="' + forma + '"]');
+            if (radio) radio.checked = true;
+            const labelId = forma === 'circular' ? 'label-logo-circular' : 'label-logo-redondeado';
+            const label = document.getElementById(labelId);
+            if (label) {
+                label.style.borderColor = '#3b82f6';
+                label.style.background = '#eff6ff';
             }
             // Hero preview
             if (configOriginal.hero_imagen) {

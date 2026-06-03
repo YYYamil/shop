@@ -115,6 +115,12 @@ function aplicarSplash(config) {
 
     if (splashLogo && config.logo_imagen) {
         splashLogo.src = config.logo_imagen;
+        // Aplicar la forma del logo (circular o redondeado)
+        if (config.logo_forma === 'redondeado') {
+            splashLogo.className = 'splash-logo-rounded';
+        } else {
+            splashLogo.className = 'splash-logo';
+        }
     }
 
     // Colores aleatorios para los dots del splash
@@ -246,10 +252,12 @@ function aplicarLogo(config) {
 
     if (config.logo_imagen) {
 
-        // Logo centrado: imagen circular + nombre siempre visible
+        // Determinar la clase de forma del logo: circular (default) o redondeado
+        const formaClase = config.logo_forma === 'redondeado' ? 'logo-img-rounded' : 'logo-img';
+
         logo.innerHTML = `
             <a href="/" class="logo-link">
-                <img src="${config.logo_imagen}" alt="${nombre}" class="logo-img">
+                <img src="${config.logo_imagen}" alt="${nombre}" class="${formaClase}">
                 <span class="logo-nombre">${nombre}</span>
             </a>
         `;

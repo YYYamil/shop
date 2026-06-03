@@ -295,6 +295,28 @@ try {
 }
 
 // ============================================
+// MIGRACIÓN: logo_forma (forma del logo: circular o redondeado)
+// ============================================
+try {
+    const tiendas = db.prepare('SELECT id FROM tiendas').all();
+    if (tiendas.length === 0) {
+        const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get('logo_forma');
+        if (!existente) {
+            db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('logo_forma', 'circular', 'texto', 'apariencia', null);
+        }
+    } else {
+        tiendas.forEach(t => {
+            const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id = ?').get('logo_forma', t.id);
+            if (!existente) {
+                db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('logo_forma', 'circular', 'texto', 'apariencia', t.id);
+            }
+        });
+    }
+} catch (e) {
+    // Ignorar error
+}
+
+// ============================================
 // MIGRACIÓN MULTI-TENANT: Asignar tienda_id a datos existentes
 // ============================================
 // Estas migraciones solo se ejecutan si las columnas se agregaron a tablas existentes
