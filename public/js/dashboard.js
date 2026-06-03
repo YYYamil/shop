@@ -12,9 +12,12 @@ async function cargarDashboard() {
     const pedidos =
         await pedidosReq.json();
 
+    // Solo pedidos ENTREGADOS para métricas de ventas
+    const pedidosEntregados = pedidos.filter(p => p.estado === 'Entregado');
+
     let ventas = 0;
 
-    pedidos.forEach(pedido => {
+    pedidosEntregados.forEach(pedido => {
 
         ventas += pedido.total;
     });
@@ -32,7 +35,7 @@ async function cargarDashboard() {
     document.getElementById(
         'pedidos'
     ).textContent =
-        pedidos.length;
+        pedidosEntregados.length;
 
     document.getElementById(
         'productos'
@@ -53,14 +56,14 @@ async function cargarDashboard() {
     document.getElementById(
         'pedidosResumen'
     ).textContent =
-        pedidos.length;
+        pedidosEntregados.length;
 
     document.getElementById(
         'stockResumen'
     ).textContent =
         sinStock.length;
 
-    // ACTIVIDAD
+    // ACTIVIDAD (muestra todos los pedidos, útil para seguimiento)
     const actividad =
         document.getElementById(
             'actividadReciente'
@@ -94,7 +97,7 @@ async function cargarDashboard() {
             `;
         });
 
-    // CHART: Ventas de la última semana
+    // CHART: Ventas de la última semana (solo entregados)
     const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
     // Generar los últimos 7 días (hoy + 6 anteriores)
@@ -106,9 +109,9 @@ async function cargarDashboard() {
         ultimos7Dias.push(fecha);
     }
 
-    // Agrupar pedidos por día (normalizar a YYYY-MM-DD)
+    // Agrupar pedidos ENTREGADOS por día (normalizar a YYYY-MM-DD)
     const ventasPorDia = {};
-    pedidos.forEach(p => {
+    pedidosEntregados.forEach(p => {
         if (!p.fecha) return;
         // La fecha viene en formato locale: "DD/MM/YYYY, HH:mm:ss" ej: "28/5/2026, 01:05:41"
         // Extraer solo la parte de la fecha (antes de la coma)
@@ -254,19 +257,22 @@ async function cargarDetalleVentas() {
         const respuesta = await fetch('/pedidos');
         const pedidos = await respuesta.json();
 
+        // Solo pedidos ENTREGADOS para métricas de ventas
+        const entregados = pedidos.filter(p => p.estado === 'Entregado');
+
         // Calcular totales
         let totalVentas = 0;
-        pedidos.forEach(p => { totalVentas += p.total; });
+        entregados.forEach(p => { totalVentas += p.total; });
 
         document.getElementById('modalVentasTotal').textContent = '$ ' + totalVentas;
-        document.getElementById('modalVentasPedidos').textContent = pedidos.length;
+        document.getElementById('modalVentasPedidos').textContent = entregados.length;
 
-        const promedio = pedidos.length > 0 ? (totalVentas / pedidos.length) : 0;
+        const promedio = entregados.length > 0 ? (totalVentas / entregados.length) : 0;
         document.getElementById('modalVentasPromedio').textContent = '$ ' + promedio.toFixed(2);
 
-        // Agrupar por día
+        // Agrupar por día (solo entregados)
         const ventasPorDia = {};
-        pedidos.forEach(p => {
+        entregados.forEach(p => {
             if (!p.fecha) return;
             // Normalizar fecha (primeros 10 chars: YYYY-MM-DD)
             const dia = p.fecha.substring(0, 10);

@@ -191,27 +191,23 @@ function renderizarPedidos() {
 
                 </div>
 
+                ${pedido.estado !== 'Entregado' && pedido.estado !== 'Cancelado' ? `
                 <div class="pedido-acciones">
-
-                    <button
-                        onclick="cambiarEstado(${pedido.id}, 'Pendiente')"
-                        class="primary-btn" style="background: #eab308;">
-                        Pendiente
-                    </button>
 
                     <button
                         onclick="cambiarEstado(${pedido.id}, 'Entregado')"
                         class="primary-btn" style="background: #16a34a;">
-                        Entregado
+                        ✓ Entregado
                     </button>
 
                     <button
-                        onclick="eliminarPedido(${pedido.id})"
+                        onclick="cambiarEstado(${pedido.id}, 'Cancelado')"
                         class="primary-btn" style="background: #dc2626;">
-                        Eliminar
+                        ✕ Cancelar
                     </button>
 
                 </div>
+                ` : ''}
 
             </div>
 
@@ -233,30 +229,44 @@ function renderizarPedidos() {
 
 async function cambiarEstado(id, estado) {
 
-    try {
+    const mensajes = {
+        'Entregado': '¿Marcar este pedido como ENTREGADO? Se descontará el stock.',
+        'Cancelado': '¿CANCELAR este pedido?'
+    };
 
-        await fetch(`/pedidos/${id}`, {
+    mostrarConfirm(mensajes[estado] || '¿Cambiar estado?', async () => {
 
-            method: 'PUT',
+        try {
 
-            credentials: 'same-origin',
+            const respuesta = await fetch(`/pedidos/${id}`, {
 
-            headers: {
-                'Content-Type': 'application/json'
-            },
+                method: 'PUT',
 
-            body: JSON.stringify({ estado })
-        });
+                credentials: 'same-origin',
 
-        mostrarToast('Estado actualizado', 'exito');
-        cargarPedidos();
+                headers: {
+                    'Content-Type': 'application/json'
+                },
 
-    } catch (error) {
+                body: JSON.stringify({ estado })
+            });
 
-        console.error('Error al cambiar estado:', error);
+            if (!respuesta.ok) {
+                const data = await respuesta.json();
+                mostrarToast(data.error || 'Error al actualizar', 'error');
+                return;
+            }
 
-        mostrarToast('Error al actualizar el estado', 'error');
-    }
+            mostrarToast('Estado actualizado', 'exito');
+            cargarPedidos();
+
+        } catch (error) {
+
+            console.error('Error al cambiar estado:', error);
+
+            mostrarToast('Error al actualizar el estado', 'error');
+        }
+    });
 }
 
 function eliminarPedido(id) {

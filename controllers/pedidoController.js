@@ -12,41 +12,18 @@ exports.crearPedido = (req, res) => {
     const codigo = uuidv4().split('-')[0].toUpperCase();
 
     try {
-        // Usar una transacción para asegurar atomicidad
-        const crearPedido = db.transaction((cliente, telefono, total, productos) => {
-            const result = db.prepare(`
-                INSERT INTO pedidos (cliente, telefono, total, estado, fecha, tienda_id)
+        const result = db.prepare(`
+            INSERT INTO pedidos (cliente, telefono, total, estado, fecha, tienda_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(cliente, telefono, total, 'Pendiente', new Date().toLocaleString(), tiendaId);
+
+        const pedidoId = result.lastInsertRowid;
+
+        for (const producto of productos) {
+            db.prepare(`
+                INSERT INTO pedido_items (pedido_id, producto_id, nombre, cantidad, precio, tienda_id)
                 VALUES (?, ?, ?, ?, ?, ?)
-            `).run(cliente, telefono, total, 'Pendiente', new Date().toLocaleString(), tiendaId);
-
-            const pedidoId = result.lastInsertRowid;
-
-            let errorStock = false;
-
-            for (const producto of productos) {
-                const productoDB = db.prepare('SELECT * FROM productos WHERE id = ? AND tienda_id = ?').get(producto.id, tiendaId);
-
-                if (!productoDB || productoDB.stock < producto.cantidad) {
-                    errorStock = true;
-                    break;
-                }
-
-                db.prepare('UPDATE productos SET stock = stock - ? WHERE id = ? AND tienda_id = ?')
-                    .run(producto.cantidad, producto.id, tiendaId);
-
-                db.prepare(`
-                    INSERT INTO pedido_items (pedido_id, producto_id, nombre, cantidad, precio, tienda_id)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `).run(pedidoId, producto.id, producto.nombre, producto.cantidad, producto.precio, tiendaId);
-            }
-
-            return { pedidoId, errorStock };
-        });
-
-        const { pedidoId, errorStock } = crearPedido(cliente, telefono, total, productos);
-
-        if (errorStock) {
-            return res.status(400).json({ error: 'Sin stock' });
+            `).run(pedidoId, producto.id, producto.nombre, producto.cantidad, producto.precio, tiendaId);
         }
 
         res.json({ ok: true, pedidoId, codigo });
@@ -73,6 +50,34 @@ exports.cambiarEstado = (req, res) => {
     const tiendaId = req.tiendaId || 1;
 
     try {
+        const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ? AND tienda_id = ?').get(id, tiendaId);
+        if (!pedido) {
+            return res.status(404).json({ error: 'Pedido no encontrado' });
+        }
+
+        // Si ya está en un estado final, no permitir cambios
+        if (pedido.estado === 'Entregado' || pedido.estado === 'Cancelado') {
+            return res.status(400).json({ error: 'No se puede cambiar un pedido en estado final' });
+        }
+
+        // Obtener items del pedido para manejar stock
+        const items = db.prepare('SELECT * FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').all(id, tiendaId);
+
+        if (estado === 'Entregado') {
+            // Solo Entregado descuenta stock
+            for (const item of items) {
+                const producto = db.prepare('SELECT * FROM productos WHERE id = ? AND tienda_id = ?').get(item.producto_id, tiendaId);
+                if (producto) {
+                    if (producto.stock < item.cantidad) {
+                        return res.status(400).json({ error: 'Stock insuficiente para producto: ' + item.nombre });
+                    }
+                    db.prepare('UPDATE productos SET stock = stock - ? WHERE id = ? AND tienda_id = ?')
+                        .run(item.cantidad, item.producto_id, tiendaId);
+                }
+            }
+        }
+        // Cancelado solo cambia el estado, NO modifica el stock
+
         db.prepare('UPDATE pedidos SET estado = ? WHERE id = ? AND tienda_id = ?').run(estado, id, tiendaId);
         res.json({ ok: true });
     } catch (err) {
