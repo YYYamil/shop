@@ -242,11 +242,21 @@ function compartirProducto(e) {
     const texto = 'Mirá este producto: ' + productoActual.nombre;
 
     if (navigator.share) {
+        // Guardar título original y forzar el nombre de la tienda
+        // para que el navegador muestre el nombre correcto al compartir
+        const tituloOriginal = document.title;
+        const nombreTienda = tituloOriginal || 'Mi Shop';
+        document.title = nombreTienda;
+
         navigator.share({
-            title: productoActual.nombre,
+            title: nombreTienda,
             text: texto,
             url: url
-        }).catch(() => {});
+        }).then(() => {
+            document.title = tituloOriginal;
+        }).catch(() => {
+            document.title = tituloOriginal;
+        });
     } else {
         // Fallback: copiar al portapapeles
         navigator.clipboard.writeText(url).then(() => {
