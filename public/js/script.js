@@ -239,27 +239,18 @@ function compartirProducto(e) {
 
     const slug = obtenerSlug();
     const url = window.location.origin + '/' + (slug ? slug + '/' : '') + '?producto=' + productoActual.id;
-    const texto = 'Mirá este producto: ' + productoActual.nombre;
+    const nombreTienda = document.title || 'Mi Shop';
+    const texto = '🛍️ ' + nombreTienda + '\n👀 Mirá este producto: ' + productoActual.nombre + '\n🔗 ' + url;
 
     if (navigator.share) {
-        // Guardar título original y forzar el nombre de la tienda
-        // para que el navegador muestre el nombre correcto al compartir
-        const tituloOriginal = document.title;
-        const nombreTienda = tituloOriginal || 'Mi Shop';
-        document.title = nombreTienda;
-
         navigator.share({
             title: nombreTienda,
             text: texto,
             url: url
-        }).then(() => {
-            document.title = tituloOriginal;
-        }).catch(() => {
-            document.title = tituloOriginal;
-        });
+        }).catch(() => {});
     } else {
         // Fallback: copiar al portapapeles
-        navigator.clipboard.writeText(url).then(() => {
+        navigator.clipboard.writeText(texto).then(() => {
             mostrarToast('✓ Link copiado al portapapeles');
         }).catch(() => {
             mostrarToast('✗ No se pudo copiar el link');
