@@ -244,9 +244,7 @@ function compartirProducto(e) {
 
     if (navigator.share) {
         navigator.share({
-            title: nombreTienda,
-            text: texto,
-            url: url
+            text: texto
         }).catch(() => {});
     } else {
         // Fallback: copiar al portapapeles
