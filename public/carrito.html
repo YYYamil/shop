@@ -93,12 +93,32 @@
                         placeholder="Nombre completo"
                         class="resumen-input"
                     >
-                    <input
-                        type="text"
-                        id="telefono"
-                        placeholder="Teléfono"
-                        class="resumen-input"
-                    >
+                    <div class="telefono-row">
+                        <div class="telefono-field">
+                            <label class="telefono-label" for="tel-codigo">Código</label>
+                            <input
+                                type="text"
+                                id="tel-codigo"
+                                placeholder="Ej: 381"
+                                class="resumen-input tel-codigo"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                maxlength="4"
+                            >
+                        </div>
+                        <div class="telefono-field">
+                            <label class="telefono-label" for="tel-numero">Número</label>
+                            <input
+                                type="text"
+                                id="tel-numero"
+                                placeholder="Ej: 384536000"
+                                class="resumen-input tel-numero"
+                                inputmode="numeric"
+                                pattern="[0-9]*"
+                                maxlength="9"
+                            >
+                        </div>
+                    </div>
                 </div>
 
 

@@ -117,6 +117,11 @@ try {
     db.exec(`ALTER TABLE pedidos ADD COLUMN tienda_id INTEGER DEFAULT NULL`);
 } catch(e) { /* ya existe */ }
 
+// Migracion: agregar columna notas a pedidos si no existe
+try {
+    db.exec(`ALTER TABLE pedidos ADD COLUMN notas TEXT DEFAULT ''`);
+} catch(e) { /* ya existe */ }
+
 // ============================================
 // TABLA DE PEDIDO ITEMS
 // ============================================
@@ -405,3 +410,5 @@ try {
 } catch(e) { /* ya existe */ }
 
 module.exports = db;
+
+

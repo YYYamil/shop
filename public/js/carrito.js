@@ -269,17 +269,35 @@ function cargarCarrito() {
 
 
 
+/* ===== Control de campos de teléfono (solo dígitos) ===== */
+document.addEventListener('input', function(e) {
+    if (e.target.id === 'tel-codigo' || e.target.id === 'tel-numero') {
+        e.target.value = e.target.value.replace(/\D/g, '');
+        if (e.target.id === 'tel-codigo' && e.target.value.length > 4) {
+            e.target.value = e.target.value.substring(0, 4);
+        }
+        if (e.target.id === 'tel-numero' && e.target.value.length > 9) {
+            e.target.value = e.target.value.substring(0, 9);
+        }
+    }
+});
+
 async function finalizarCompra() {
 
     const cliente =
 
         document.getElementById('cliente').value;
 
+    const codigo =
 
+        document.getElementById('tel-codigo').value.replace(/\D/g, '');
 
-    const telefono =
+    const numero =
 
-        document.getElementById('telefono').value;
+        document.getElementById('tel-numero').value.replace(/\D/g, '');
+
+    // Prefijo 549 (Argentina) + codigo de area + numero
+    const telefono = '549' + codigo + numero;
 
 
 
@@ -287,11 +305,13 @@ async function finalizarCompra() {
 
         cliente.trim() === '' ||
 
-        telefono.trim() === ''
+        telefono.trim() === '' ||
+        codigo.length < 3 ||
+        numero.length < 5
 
     ) {
 
-        mostrarToast('Completá tu nombre y teléfono para finalizar');
+        mostrarToast('Completá tu nombre y un teléfono válido (código + número)');
 
         return;
 

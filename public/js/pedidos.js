@@ -4,6 +4,7 @@ let pedidosGlobal = [];
 let paginaActual = 1;
 const pedidosPorPagina = 6;
 let confirmCallback = null;
+let filtroActivo = 'todos';
 
 /* ===== Toast ===== */
 function mostrarToast(mensaje, tipo) {
@@ -120,6 +121,12 @@ function renderizarPedidos() {
 
     const pedidosFiltrados = pedidosGlobal.filter(pedido => {
 
+        // Filtro por estado
+        if (filtroActivo !== 'todos' && pedido.estado !== filtroActivo) {
+            return false;
+        }
+
+        // Filtro por texto de busqueda
         return (
             (pedido.cliente || '').toLowerCase().includes(textoBusqueda) ||
             (pedido.telefono || '').toLowerCase().includes(textoBusqueda) ||
@@ -150,6 +157,24 @@ function renderizarPedidos() {
     div.innerHTML = '';
 
     pedidosPagina.forEach(pedido => {
+
+        const items = pedido.items || [];
+        const notas = pedido.notas || '';
+        const estaFinal = pedido.estado === 'Entregado' || pedido.estado === 'Cancelado';
+
+        // Generar HTML de productos
+        let productosHtml = '';
+        if (items.length > 0) {
+            productosHtml = items.map(item =>
+                `<div class="pedido-producto-item-expandido">
+                    <span class="prod-nombre">${item.nombre}</span>
+                    <span class="prod-cantidad">x${item.cantidad}</span>
+                    <span class="prod-precio">$${item.precio}</span>
+                </div>`
+            ).join('');
+        } else {
+            productosHtml = `<p style="color: #9ca3af; font-size: 14px;">Sin productos registrados</p>`;
+        }
 
         div.innerHTML += `
         
@@ -182,7 +207,7 @@ function renderizarPedidos() {
                     </div>
 
                     <div class="pedido-detalle">
-                        <strong>Teléfono:</strong> ${pedido.telefono || 'Sin teléfono'}
+                        <strong>Telefono:</strong> ${pedido.telefono || 'Sin telefono'}
                     </div>
 
                     <div class="pedido-detalle">
@@ -191,7 +216,46 @@ function renderizarPedidos() {
 
                 </div>
 
-                ${pedido.estado !== 'Entregado' && pedido.estado !== 'Cancelado' ? `
+                <!-- BOTON TOGGLE DETALLE -->
+                <button class="pedido-toggle" data-pedido-id="${pedido.id}" onclick="toggleDetalle(this)">
+                    <span>Ver detalle del pedido</span>
+                    <span class="toggle-icon">&#9660;</span>
+                </button>
+
+                <!-- SECCION EXPANDIBLE -->
+                <div class="pedido-expandible" data-pedido-id="${pedido.id}">
+                    <div class="pedido-expandible-inner">
+
+                        <h4>🛍️ Productos</h4>
+                        <div class="pedido-productos-lista">
+                            ${productosHtml}
+                        </div>
+
+                        <h4>📝 Notas</h4>
+                        <div class="pedido-notas">
+                            <textarea
+                                id="notas-${pedido.id}"
+                                ${estaFinal ? 'disabled' : ''}
+                                placeholder="Agregar notas sobre el pedido..."
+                            >${notas}</textarea>
+                            ${!estaFinal ? `
+                            <div class="pedido-notas-acciones">
+                                <button class="btn-notas primary" onclick="guardarNotas(${pedido.id})">
+                                    Guardar notas
+                                </button>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- BOTON WHATSAPP -->
+                        <button class="btn-whatsapp" onclick="abrirWhatsApp(${pedido.id})">
+                            📱 Responder por WhatsApp
+                        </button>
+
+                    </div>
+                </div>
+
+                ${!estaFinal ? `
                 <div class="pedido-acciones">
 
                     <button
@@ -218,7 +282,7 @@ function renderizarPedidos() {
         Math.ceil(pedidosFiltrados.length / pedidosPorPagina);
 
     document.getElementById('paginaActual').innerText =
-        `Página ${paginaActual} de ${totalPaginas}`;
+        `Pagina ${paginaActual} de ${totalPaginas}`;
 
     document.getElementById('btnAnterior').disabled =
         paginaActual === 1;
@@ -227,14 +291,123 @@ function renderizarPedidos() {
         paginaActual === totalPaginas;
 }
 
+function aplicarFiltro(estado) {
+
+    filtroActivo = estado;
+    paginaActual = 1;
+
+    // Actualizar clase active en botones
+    document.querySelectorAll('.filtro-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filtro === estado);
+    });
+
+    renderizarPedidos();
+}
+
+/* ===== Toggle detalle del pedido (acordeon) ===== */
+function toggleDetalle(btn) {
+    const pedidoId = btn.dataset.pedidoId;
+    const expandible = document.querySelector(`.pedido-expandible[data-pedido-id="${pedidoId}"]`);
+
+    if (!expandible) return;
+
+    const isOpen = expandible.classList.contains('open');
+
+    // Cerrar todos los demas
+    document.querySelectorAll('.pedido-expandible.open').forEach(el => {
+        if (el.dataset.pedidoId !== pedidoId) {
+            el.classList.remove('open');
+            const toggleBtn = document.querySelector(`.pedido-toggle[data-pedido-id="${el.dataset.pedidoId}"]`);
+            if (toggleBtn) toggleBtn.classList.remove('open');
+        }
+    });
+
+    // Toggle este
+    expandible.classList.toggle('open');
+    btn.classList.toggle('open');
+
+    // Actualizar texto del boton
+    const spanTexto = btn.querySelector('span:first-child');
+    if (spanTexto) {
+        spanTexto.textContent = isOpen ? 'Ver detalle del pedido' : 'Ocultar detalle';
+    }
+}
+
+/* ===== Abrir WhatsApp con datos del pedido ===== */
+function abrirWhatsApp(pedidoId) {
+    const pedido = pedidosGlobal.find(p => p.id === pedidoId);
+    if (!pedido) return;
+
+    const telefono = (pedido.telefono || '').trim();
+    if (!telefono) {
+        mostrarToast('El pedido no tiene numero de telefono', 'error');
+        return;
+    }
+
+    const cliente = pedido.cliente || 'Cliente';
+    const numPedido = pedido.id;
+
+    // Leer la nota directamente del textarea (toma el valor actual, incluso sin guardar)
+    const textarea = document.getElementById(`notas-${pedidoId}`);
+    const notas = textarea ? textarea.value.trim() : (pedido.notas || '');
+
+    // Armar mensaje: saludo + nota
+    let mensaje = `Hola ${cliente}, gracias por tu pedido #${numPedido}.`;
+
+    if (notas) {
+        mensaje += `\n\n${notas}`;
+    }
+
+    // Abrir WhatsApp Web (o app en mobile)
+    const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+}
+
+/* ===== Guardar notas ===== */
+async function guardarNotas(pedidoId) {
+    const textarea = document.getElementById(`notas-${pedidoId}`);
+    if (!textarea) return;
+
+    const notas = textarea.value;
+
+    try {
+        const respuesta = await fetch(`/pedidos/${pedidoId}/notas`, {
+            method: 'PUT',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notas })
+        });
+
+        if (!respuesta.ok) {
+            const data = await respuesta.json();
+            mostrarToast(data.error || 'Error al guardar notas', 'error');
+            return;
+        }
+
+        mostrarToast('Notas guardadas', 'exito');
+
+        // Actualizar en memoria
+        const pedido = pedidosGlobal.find(p => p.id === pedidoId);
+        if (pedido) {
+            pedido.notas = notas;
+        }
+
+    } catch (error) {
+        console.error('Error al guardar notas:', error);
+        mostrarToast('Error al guardar notas', 'error');
+    }
+}
+
 async function cambiarEstado(id, estado) {
 
     const mensajes = {
-        'Entregado': '¿Marcar este pedido como ENTREGADO? Se descontará el stock.',
-        'Cancelado': '¿CANCELAR este pedido?'
+        'Entregado': 'Marcar este pedido como ENTREGADO? Se descontara el stock.',
+        'Cancelado': 'CANCELAR este pedido?'
     };
 
-    mostrarConfirm(mensajes[estado] || '¿Cambiar estado?', async () => {
+    mostrarConfirm(mensajes[estado] || 'Cambiar estado?', async () => {
 
         try {
 
@@ -271,7 +444,7 @@ async function cambiarEstado(id, estado) {
 
 function eliminarPedido(id) {
 
-    mostrarConfirm('¿Eliminar este pedido definitivamente?', async () => {
+    mostrarConfirm('Eliminar este pedido definitivamente?', async () => {
 
         try {
 
@@ -300,6 +473,16 @@ document.addEventListener('input', (e) => {
         paginaActual = 1;
 
         renderizarPedidos();
+    }
+});
+
+// FILTROS RAPIDOS
+document.addEventListener('click', (e) => {
+
+    const btn = e.target.closest('.filtro-btn');
+
+    if (btn) {
+        aplicarFiltro(btn.dataset.filtro);
     }
 });
 

@@ -1789,6 +1789,223 @@ canvas {
     flex-wrap: wrap;
 }
 
+/* ============================================
+   EXPANSION INLINE (detalle de productos y notas)
+   ============================================ */
+
+.pedido-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pedido-toggle:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #111827;
+}
+
+.pedido-toggle .toggle-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 12px;
+}
+
+.pedido-toggle.open .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.pedido-expandible {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+    opacity: 0;
+    margin-top: 0;
+}
+
+.pedido-expandible.open {
+    max-height: 600px;
+    opacity: 1;
+    margin-top: 14px;
+}
+
+.pedido-expandible-inner {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 16px;
+}
+
+.pedido-expandible h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pedido-productos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.pedido-producto-item-expandido {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.pedido-producto-item-expandido .prod-nombre {
+    font-weight: 500;
+    color: #111827;
+    flex: 1;
+}
+
+.pedido-producto-item-expandido .prod-cantidad {
+    color: #6b7280;
+    margin: 0 12px;
+    white-space: nowrap;
+}
+
+.pedido-producto-item-expandido .prod-precio {
+    font-weight: 600;
+    color: #2563eb;
+    white-space: nowrap;
+}
+
+.pedido-notas {
+    margin-bottom: 12px;
+}
+
+.pedido-notas textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #374151;
+    background: #f9fafb;
+    resize: vertical;
+    transition: border-color 0.2s, background 0.2s;
+    box-sizing: border-box;
+}
+
+.pedido-notas textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.pedido-notas textarea:disabled {
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.pedido-notas-acciones {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end;
+}
+
+.btn-notas {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #4b5563;
+    transition: all 0.2s;
+}
+
+.btn-notas:hover {
+    background: #f3f4f6;
+}
+
+.btn-notas.primary {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+.btn-notas.primary:hover {
+    background: #1d4ed8;
+}
+
+/* Responsive: expandible en mobile */
+@media (max-width: 480px) {
+    .pedido-expandible.open {
+        max-height: 800px;
+    }
+
+    .pedido-producto-item-expandido {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .pedido-producto-item-expandido .prod-nombre {
+        width: 100%;
+    }
+}
+
+/* ============================================
+   BOTON WHATSAPP
+   ============================================ */
+
+.btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 16px;
+    background: #25D366;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-whatsapp:hover {
+    background: #1ebe5d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:active {
+    transform: translateY(0);
+}
+
 .estado-badge {
     display: inline-block;
     padding: 6px 14px;
@@ -2757,5 +2974,74 @@ canvas {
     .categoria-campo-toggle {
         flex-direction: column;
         align-items: flex-start;
+    }
+}
+
+/* ============================================
+   FILTROS RAPIDOS (pedidos)
+   ============================================ */
+
+.filtros-rapidos {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.filtro-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    background: white;
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 120px;
+}
+
+.filtro-btn:active {
+    transform: scale(0.96);
+}
+
+.filtro-btn.active {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #2563eb;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.filtro-btn[data-filtro="Pendiente"].active {
+    border-color: #d97706;
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.filtro-btn[data-filtro="Entregado"].active {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.filtro-btn[data-filtro="Cancelado"].active {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+@media (max-width: 480px) {
+    .filtros-rapidos {
+        flex-direction: column;
+    }
+
+    .filtro-btn {
+        min-width: unset;
+        width: 100%;
     }
 }

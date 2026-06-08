@@ -62,4 +62,16 @@ router.get(
 
 
 
+router.put(
+
+    '/:id/notas',
+
+    authMiddleware,
+
+    pedidoController.actualizarNotas
+
+);
+
+
+
 module.exports = router;

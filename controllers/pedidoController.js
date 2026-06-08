@@ -37,6 +37,13 @@ exports.getPedidos = (req, res) => {
     try {
         const tiendaId = req.tiendaId || 1;
         const pedidos = db.prepare('SELECT * FROM pedidos WHERE tienda_id = ? ORDER BY id DESC').all(tiendaId);
+
+        // Incluir items y notas en cada pedido
+        const stmtItems = db.prepare('SELECT * FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?');
+        for (const pedido of pedidos) {
+            pedido.items = stmtItems.all(pedido.id, tiendaId);
+        }
+
         res.json(pedidos);
     } catch (err) {
         console.error('Error al obtener pedidos:', err.message);
@@ -111,5 +118,24 @@ exports.getItemsPedido = (req, res) => {
     } catch (err) {
         console.error('Error al obtener items del pedido:', err.message);
         res.status(500).json({ error: 'Error al obtener items del pedido' });
+    }
+};
+
+exports.actualizarNotas = (req, res) => {
+    const id = req.params.id;
+    const { notas } = req.body;
+    const tiendaId = req.tiendaId || 1;
+
+    try {
+        const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ? AND tienda_id = ?').get(id, tiendaId);
+        if (!pedido) {
+            return res.status(404).json({ error: 'Pedido no encontrado' });
+        }
+
+        db.prepare('UPDATE pedidos SET notas = ? WHERE id = ? AND tienda_id = ?').run(notas || '', id, tiendaId);
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('Error al actualizar notas:', err.message);
+        res.status(500).json({ error: 'Error al actualizar notas' });
     }
 };
