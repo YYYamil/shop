@@ -3361,8 +3361,10 @@ body {
 
 .splash-logo {
 
-    max-width: 200px;
-    max-height: 140px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
     margin-bottom: 28px;
     animation: splashPulse 2s ease-in-out infinite;
 
@@ -3372,6 +3374,7 @@ body {
 
     max-width: 200px;
     max-height: 140px;
+    object-fit: cover;
     margin-bottom: 28px;
     animation: splashPulse 2s ease-in-out infinite;
     border-radius: 16px;
