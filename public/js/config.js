@@ -1,17 +1,6 @@
 /* ===== CONFIGURACIÓN DINÁMICA DE LA TIENDA ===== */
 
 /**
- * Obtiene el slug de la tienda desde la URL (para multi-tenant)
- * Ejemplo: /tienda1/... → 'tienda1'
- */
-function obtenerSlug() {
-    // Captura el slug desde la URL, con o sin slash final
-    // Ej: /glitter/ → 'glitter', /glitter → 'glitter', /vibra/admin/... → 'vibra'
-    const match = window.location.pathname.match(/^\/([a-z0-9-]+)(?:\/|$)/);
-    return match ? match[1] : null;
-}
-
-/**
  * Carga toda la configuración desde /api/config y aplica:
  * - Colores CSS (variables)
  * - Nombre de la tienda
@@ -256,7 +245,7 @@ function aplicarLogo(config) {
         const formaClase = config.logo_forma === 'redondeado' ? 'logo-img-rounded' : 'logo-img';
 
         logo.innerHTML = `
-            <a href="/" class="logo-link">
+            <a href="${obtenerBaseUrl()}" class="logo-link">
                 <img src="${config.logo_imagen}" alt="${nombre}" class="${formaClase}">
                 <span class="logo-nombre">${nombre}</span>
             </a>
@@ -266,7 +255,7 @@ function aplicarLogo(config) {
 
         // Sin logo, solo el nombre como link
         logo.innerHTML = `
-            <a href="/" class="logo-link-solo">${nombre}</a>
+            <a href="${obtenerBaseUrl()}" class="logo-link-solo">${nombre}</a>
         `;
 
     }
@@ -348,8 +337,7 @@ async function renderizarCategorias() {
 
     try {
 
-        // Incluir slug como query param para multi-tenant
-        const slug = window.obtenerSlug ? obtenerSlug() : null;
+        const slug = obtenerSlug();
         const cacheBuster = '&_=' + Date.now();
         const url = slug ? '/categorias/public?slug=' + slug + cacheBuster : '/categorias/public?_=' + Date.now();
 

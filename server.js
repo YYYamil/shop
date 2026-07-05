@@ -148,6 +148,32 @@ app.get('/:slug/admin/:file', (req, res, next) => {
     }
 });
 
+// /:slug/:file - Sirve páginas HTML públicas de una tienda específica
+// Ej: /tienda1/carrito.html, /tienda1/index.html
+app.get('/:slug/:file', (req, res, next) => {
+    const { slug, file } = req.params;
+    if (!slug.match(/^[a-z0-9-]+$/)) {
+        return next();
+    }
+    // Solo servir archivos HTML públicos (no admin, no rutas conocidas)
+    const rutasConocidas = ['admin', 'api', 'auth', 'superadmin', 'uploads'];
+    if (rutasConocidas.includes(file)) {
+        return next();
+    }
+    if (!file.endsWith('.html')) {
+        return next();
+    }
+    const filePath = path.join(__dirname, 'public', file);
+    if (fs.existsSync(filePath)) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.sendFile(filePath);
+    } else {
+        next();
+    }
+});
+
 // /:slug/ - Sirve la tienda pública para ese slug
 // Ej: /tienda1/ → public/index.html con slug=tienda1
 app.get('/:slug/', (req, res, next) => {

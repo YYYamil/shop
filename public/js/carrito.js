@@ -26,24 +26,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-let carrito = JSON.parse(
-
-    localStorage.getItem('carrito')
-
-) || [];
+let carrito = obtenerCarrito();
 
 
 
-function guardarCarrito() {
-
-    localStorage.setItem(
-
-        'carrito',
-
-        JSON.stringify(carrito)
-
-    );
-
+function guardarCarritoLocal() {
+    guardarCarrito(carrito);
 }
 
 
@@ -102,7 +90,7 @@ function cambiarCantidad(id, cambio) {
 
 
 
-    guardarCarrito();
+    guardarCarritoLocal();
 
     cargarCarrito();
 
@@ -364,7 +352,7 @@ async function finalizarCompra() {
 
     // Enviar pedido al servidor (no crítico para el mensaje)
     try {
-        const slug = window.obtenerSlug ? obtenerSlug() : null;
+        const slug = obtenerSlug();
         const url = slug ? '/pedidos?slug=' + slug : '/pedidos';
         await fetch(url, {
             method: 'POST',
@@ -396,9 +384,9 @@ async function finalizarCompra() {
         mostrarToast('No hay número de WhatsApp configurado para recibir pedidos');
     }
 
-    localStorage.removeItem('carrito');
+    eliminarCarrito();
 
-    window.location = '/';
+    window.location = obtenerBaseUrl();
 
 
 

@@ -32,11 +32,7 @@ document.addEventListener('keydown', (e) => {
 
 
 
-let carrito = JSON.parse(
-
-    localStorage.getItem('carrito')
-
-) || [];
+let carrito = obtenerCarrito();
 
 
 
@@ -320,8 +316,7 @@ async function cargarProductos() {
 
     mostrarSkeleton();
 
-    // Detectar slug desde la URL (para multi-tenant)
-    const slug = window.obtenerSlug ? obtenerSlug() : null;
+    const slug = obtenerSlug();
     const cacheBuster = '&_=' + Date.now();
     const url = slug ? '/productos/public?slug=' + slug + cacheBuster : '/productos/public?_=' + Date.now();
 
@@ -634,13 +629,7 @@ function agregarCarrito(id) {
 
     }
 
-    localStorage.setItem(
-
-        'carrito',
-
-        JSON.stringify(carrito)
-
-    );
+    guardarCarrito(carrito);
 
     actualizarContador();
 
@@ -817,7 +806,7 @@ function actualizarPreviewCarrito() {
         <div class="carrito-preview-total">
             Total: <strong>$${total.toFixed(2)}</strong>
         </div>
-        <a href="/carrito.html" class="carrito-preview-ver">Ver carrito</a>
+        <a href="${obtenerRutaCarrito()}" class="carrito-preview-ver">Ver carrito</a>
     `;
 
     preview.innerHTML = html;

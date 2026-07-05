@@ -171,8 +171,20 @@
 
     </footer>
 
+    <script src="/js/storeContext.js"></script>
     <script src="/js/config.js?v=2"></script>
     <script src="/js/carrito.js?v=2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reescribir enlaces estáticos con rutas dinámicas basadas en slug
+            document.querySelectorAll('a[href="/"]').forEach(function(a) {
+                a.href = obtenerBaseUrl();
+            });
+            document.querySelectorAll('a[href="/carrito.html"]').forEach(function(a) {
+                a.href = obtenerRutaCarrito();
+            });
+        });
+    </script>
 
 </body>
 
