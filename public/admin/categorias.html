@@ -106,6 +106,7 @@
     <!-- TOAST -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <script src="/js/storeContext.js"></script>
     <script src="/js/auth.js"></script>
 
     <script>
@@ -113,7 +114,9 @@
     </script>
 
     <script src="/js/admin-categorias.js?v=1"></script>
-    <script src="/js/sidebar-slug.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', prefijarSidebar);
+    </script>
 
     <!-- Script para el menú hamburguesa -->
     <script>

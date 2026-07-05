@@ -60,7 +60,7 @@ async function cargarPedidos() {
         });
 
         if (respuesta.status === 401) {
-            window.location.href = '/admin/login.html';
+            window.location.href = obtenerRutaLogin();
             return;
         }
 

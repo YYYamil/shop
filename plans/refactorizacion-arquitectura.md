@@ -469,17 +469,14 @@ El backend actual funciona correctamente con la migración frontend. Los pasos 1
 | [`public/js/script.js`](../public/js/script.js) | `localStorage` → `obtenerCarrito()`/`guardarCarrito()` + preview link → `obtenerRutaCarrito()` |
 | [`public/js/carrito.js`](../public/js/carrito.js) | `localStorage` → funciones storeContext + redirect → `obtenerBaseUrl()` |
 
-### Archivos que NO se modifican
+### Archivos que NO se modifican (en Fases 1-6)
 | Archivo | Motivo |
 |---------|--------|
 | `middleware/tiendaMiddleware.js` | Backend, revisión póstuma |
 | Todos los controladores | Backend, no tocar |
 | Todas las rutas | Backend, no tocar |
-| `public/js/auth.js` | Autenticación, no tocar |
 | `public/js/admin.js` | Admin, no necesita cambios |
-| `public/js/pedidos.js` | No relacionado |
 | `public/js/dashboard.js` | No relacionado |
-| `public/admin/*.html` | Admin, ya usan slug |
 
 ### Cambio adicional en backend (solo routing público)
 
@@ -514,3 +511,83 @@ app.get('/:slug/:file', (req, res, next) => {
 ```
 
 Esta ruta se registra ANTES de `/:slug/` y `/:slug` para que Express la matchee primero. Solo sirve archivos `.html` públicos y excluye rutas conocidas como `admin`, `api`, `auth`, etc.
+
+---
+
+## FASE 9: Limpieza Arquitectónica Final (2026-07-04)
+
+### Objetivo
+
+Hacer de [`storeContext.js`](../public/js/storeContext.js) el **ÚNICO** módulo responsable del contexto de tienda en el frontend. Ningún otro archivo debe conocer cómo obtener el slug, construir URLs, construir rutas, o acceder al carrito.
+
+### Principios
+
+1. **URL como única fuente de verdad** para el slug
+2. **storeContext.js como único punto de acceso** para todo lo relacionado con la tienda
+3. **Cero lógica duplicada** de extracción/construcción de rutas
+4. **No modificar backend, APIs, controladores, autenticación del servidor, Mercado Pago, WhatsApp**
+
+### Nuevas funciones agregadas a storeContext.js
+
+| Función | Descripción |
+|---------|-------------|
+| `obtenerRutaAdmin(pagina)` | Ruta a página del panel admin (ej: `/vibra/admin/dashboard.html`) |
+| `obtenerRutaLogin()` | Ruta al login de la tienda actual (ej: `/vibra/admin/login.html`) |
+| `obtenerRutaDashboard()` | Ruta al dashboard de la tienda actual |
+| `obtenerRutaPublica(pagina)` | Ruta a una página pública |
+| `esSuperadmin()` | Determina si la URL actual es del superadmin |
+| `esAdminTienda()` | Determina si la URL actual es del admin de una tienda |
+| `prefijarSidebar()` | Prefija los links del sidebar con el slug actual |
+| `obtenerRutaConSlug(slug, ruta)` | Construye ruta con slug explícito (para login response) |
+
+### Archivos migrados
+
+#### [`public/js/sidebar-slug.js`](../public/js/sidebar-slug.js) → ELIMINADO
+- Lógica migrada a `storeContext.prefijarSidebar()`
+- Reemplazado por `<script>document.addEventListener('DOMContentLoaded', prefijarSidebar);</script>` inline en cada HTML
+
+#### [`public/js/auth.js`](../public/js/auth.js) - MODIFICADO
+- Reemplazada lógica manual de `pathname.split('/').filter(Boolean)` por `esSuperadmin()` y `obtenerRutaLogin()`
+- En `logout()` y `verificarAuth()`: `pathname.startsWith('/superadmin')` → `esSuperadmin()`
+- En `verificarAuth()`: construcción manual de URL de login → `obtenerRutaLogin()`
+
+#### [`public/js/pedidos.js`](../public/js/pedidos.js) - MODIFICADO
+- `window.location.href = '/admin/login.html'` → `window.location.href = obtenerRutaLogin()`
+
+#### [`public/js/admin-categorias.js`](../public/js/admin-categorias.js) - MODIFICADO
+- `window.location.href = '/admin/login.html'` → `window.location.href = obtenerRutaLogin()`
+
+#### [`public/admin/login.html`](../public/admin/login.html) - MODIFICADO
+- Eliminada función `obtenerSlugDesdeURL()` con `pathname.split('/').filter(Boolean)`
+- Reemplazada por `obtenerSlug()` de storeContext.js
+- Redirección post-login: `'/' + data.tiendaSlug + '/admin/dashboard.html'` → `obtenerRutaConSlug(data.tiendaSlug, 'admin/dashboard.html')`
+- Agregado `<script src="/js/storeContext.js">`
+
+### Archivos HTML del admin modificados
+
+Se agregó `<script src="/js/storeContext.js">` ANTES de `auth.js` y se reemplazó `<script src="/js/sidebar-slug.js">` por inline `prefijarSidebar()` en:
+
+| Archivo | Cambio |
+|---------|--------|
+| [`public/admin/admin.html`](../public/admin/admin.html) | +storeContext.js, sidebar-slug.js → inline prefijarSidebar |
+| [`public/admin/dashboard.html`](../public/admin/dashboard.html) | +storeContext.js, sidebar-slug.js → inline prefijarSidebar |
+| [`public/admin/categorias.html`](../public/admin/categorias.html) | +storeContext.js, sidebar-slug.js → inline prefijarSidebar |
+| [`public/admin/pedidos.html`](../public/admin/pedidos.html) | +storeContext.js, sidebar-slug.js → inline prefijarSidebar |
+| [`public/admin/personalizacion.html`](../public/admin/personalizacion.html) | +storeContext.js, prefijarSidebar() dentro del DOMContentLoaded existente |
+| [`public/admin/superadmin.html`](../public/admin/superadmin.html) | +storeContext.js (no tenía sidebar-slug.js) |
+
+### Resultado de la auditoría final
+
+| Búsqueda | Resultado |
+|----------|-----------|
+| Referencias a `sidebar-slug.js` en HTML | ✅ 0 |
+| `pathname.split` / `pathname.match` para slug fuera de storeContext.js | ✅ 0 |
+| `window.obtenerSlug` | ✅ 0 |
+| `localStorage.getItem/setItem/removeItem('carrito'` fuera de storeContext.js | ✅ 0 |
+| `'/admin/login.html'` hardcodeado fuera de storeContext.js | ✅ 0 |
+| `startsWith('/superadmin'` fuera de storeContext.js | ✅ 0 |
+| `localStorage` en archivos HTML | ✅ 0 |
+
+### Conclusión
+
+Se cumple el objetivo: **storeContext.js es el ÚNICO módulo responsable del contexto de tienda**. Ningún archivo del frontend obtiene el slug por su cuenta, construye rutas manualmente, o accede directamente a localStorage para el carrito. Toda la navegación depende exclusivamente de las funciones exportadas por storeContext.js.

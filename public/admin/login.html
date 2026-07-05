@@ -436,19 +436,11 @@
 
     </div>
 
+    <script src="/js/storeContext.js"></script>
     <script>
-        // Obtener slug de la URL actual: /:slug/admin/login.html
-        function obtenerSlugDesdeURL() {
-            const parts = window.location.pathname.split('/').filter(Boolean);
-            if (parts.length >= 2 && parts[1] === 'admin') {
-                return parts[0];
-            }
-            return null;
-        }
-
         // Mostrar/ocultar campo de slug manual según si se detecta desde la URL
         function actualizarCampoSlug() {
-            const slug = obtenerSlugDesdeURL();
+            const slug = obtenerSlug();
             const campoSlug = document.getElementById('campoSlugManual');
             if (campoSlug) {
                 campoSlug.style.display = slug ? 'none' : 'block';
@@ -458,7 +450,7 @@
         async function login() {
             const usuario = document.getElementById('usuario').value;
             const password = document.getElementById('password').value;
-            let slug = obtenerSlugDesdeURL();
+            let slug = obtenerSlug();
 
             // Si no hay slug en la URL, usar el ingresado manualmente
             if (!slug) {
@@ -494,10 +486,11 @@
             }
 
             // Redirigir al dashboard de la tienda
+            // Si el servidor devuelve un slug (login sin slug en URL), usarlo explícitamente
             if (data.tiendaSlug) {
-                window.location = '/' + data.tiendaSlug + '/admin/dashboard.html';
+                window.location = obtenerRutaConSlug(data.tiendaSlug, 'admin/dashboard.html');
             } else {
-                window.location = '/admin/dashboard.html';
+                window.location = obtenerRutaAdmin('dashboard.html');
             }
         }
 

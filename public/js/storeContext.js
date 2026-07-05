@@ -97,3 +97,94 @@ function guardarCarrito(carrito) {
 function eliminarCarrito() {
     localStorage.removeItem(obtenerClaveCarrito());
 }
+
+// ============================================
+// RUTAS DEL PANEL DE ADMINISTRACIÓN
+// ============================================
+
+/**
+ * Obtiene la ruta a una página del panel de administración.
+ * @param {string} pagina - Nombre del archivo HTML (ej: 'dashboard.html', 'admin.html')
+ * @returns {string} Ej: '/vibra/admin/dashboard.html'
+ */
+function obtenerRutaAdmin(pagina) {
+    return obtenerRuta('admin/' + pagina);
+}
+
+/**
+ * Obtiene la ruta al login de la tienda actual.
+ * @returns {string} Ej: '/vibra/admin/login.html'
+ */
+function obtenerRutaLogin() {
+    return obtenerRutaAdmin('login.html');
+}
+
+/**
+ * Obtiene la ruta al dashboard de la tienda actual.
+ * @returns {string} Ej: '/vibra/admin/dashboard.html'
+ */
+function obtenerRutaDashboard() {
+    return obtenerRutaAdmin('dashboard.html');
+}
+
+/**
+ * Obtiene la ruta a una página pública.
+ * @param {string} pagina - Nombre del archivo HTML (ej: 'index.html')
+ * @returns {string} Ej: '/vibra/index.html'
+ */
+function obtenerRutaPublica(pagina) {
+    return obtenerRuta(pagina);
+}
+
+/**
+ * Construye una ruta usando un slug explícito (no de la URL).
+ * Útil cuando el slug proviene del servidor (ej: login response).
+ * @param {string} slug - Slug explícito (ej: 'vibra')
+ * @param {string} ruta - Ruta relativa (ej: 'admin/dashboard.html')
+ * @returns {string} Ej: '/vibra/admin/dashboard.html'
+ */
+function obtenerRutaConSlug(slug, ruta) {
+    if (!slug) return '/' + (ruta || '');
+    ruta = (ruta || '').replace(/^\//, '');
+    return ruta ? '/' + slug + '/' + ruta : '/' + slug + '/';
+}
+
+// ============================================
+// DETECCIÓN DE CONTEXTO
+// ============================================
+
+/**
+ * Determina si la URL actual pertenece al superadmin.
+ * @returns {boolean}
+ */
+function esSuperadmin() {
+    return window.location.pathname.startsWith('/superadmin');
+}
+
+/**
+ * Determina si la URL actual pertenece al admin de una tienda.
+ * @returns {boolean}
+ */
+function esAdminTienda() {
+    return /^\/([a-z0-9-]+)\/admin\//.test(window.location.pathname);
+}
+
+// ============================================
+// SIDEBAR (prefijar links con slug)
+// ============================================
+
+/**
+ * Prefija los links de navegación del sidebar con el slug actual.
+ * Debe llamarse después de que el DOM esté listo (DOMContentLoaded).
+ * Los links deben tener la clase 'nav-link' y href comenzando con '/admin/'.
+ */
+function prefijarSidebar() {
+    const slug = obtenerSlug();
+    if (!slug) return;
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('/admin/')) {
+            link.href = '/' + slug + href;
+        }
+    });
+}

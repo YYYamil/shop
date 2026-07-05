@@ -24,7 +24,7 @@ async function cargarCategoriasAdmin() {
         const respuesta = await fetch('/categorias');
         if (!respuesta.ok) {
             if (respuesta.status === 401) {
-                window.location.href = '/admin/login.html';
+                window.location.href = obtenerRutaLogin();
                 return;
             }
             throw new Error('Error ' + respuesta.status);

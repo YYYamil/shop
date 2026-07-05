@@ -349,13 +349,16 @@
         </div>
     </div>
 
+    <script src="/js/storeContext.js"></script>
     <script src="/js/auth.js"></script>
 
     <script>
         verificarAuth();
     </script>
 
-    <script src="/js/sidebar-slug.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', prefijarSidebar);
+    </script>
     <script src="/js/admin.js?v=14"></script>
 
     <!-- Script para el menú hamburguesa -->

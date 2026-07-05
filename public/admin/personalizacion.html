@@ -427,6 +427,7 @@
 
     </div>
 
+    <script src="/js/storeContext.js"></script>
     <script src="/js/auth.js"></script>
     <script>
 
@@ -1633,7 +1634,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             verificarAuth();
             cargarConfigAdmin();
-            // sidebar-slug.js se carga como script externo
+            prefijarSidebar();
 
             const toggle = document.getElementById('menuToggle');
             const sidebar = document.getElementById('sidebar');
@@ -1652,8 +1653,6 @@
         });
 
     </script>
-
-    <script src="/js/sidebar-slug.js"></script>
 
     <!-- Modal de confirmación -->
     <div class="confirm-overlay" id="confirmOverlay" style="display:none;">
