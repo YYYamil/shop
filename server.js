@@ -34,6 +34,10 @@ const superAdminRoutes = require('./routes/superAdminRoutes');
 
 const app = express();
 
+// Confiar en proxy inverso (Nginx) para headers X-Forwarded-Proto y X-Forwarded-For
+// Necesario para que req.protocol y req.secure funcionen correctamente detrás de HTTPS
+app.set('trust proxy', 1);
+
 
 
 if (!fs.existsSync('uploads')) {
