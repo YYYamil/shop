@@ -18,8 +18,9 @@
     }
 
     function irAPagarMP() {
+        const pendiente = mpPendienteDeRedirigir;
         cerrarModalMP();
-        if (mpPendienteDeRedirigir) {
+        if (pendiente) {
             const data = leerConfirmacionPendiente();
             if (data && data.initPoint) {
                 window.location = data.initPoint;
