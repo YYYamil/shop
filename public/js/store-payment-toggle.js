@@ -45,28 +45,39 @@
         const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : '';
         const tiendaSlug = slug ? slug.toUpperCase() : (window.__tiendaNombre || 'MI SHOP');
 
-        let itemsStr = '';
-        carrito.forEach(producto => {
-            const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
-            const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
-            itemsStr += `   ${producto.nombre} x${producto.cantidad} ................ $${subtotal}\n`;
+        // Emojis como variables para evitar problemas de codificacion
+        var EMOJI_RECEIPT = String.fromCodePoint(0x1F9FE);
+        var EMOJI_CHECK = String.fromCodePoint(0x2705);
+        var EMOJI_STORE = String.fromCodePoint(0x1F3EA);
+        var EMOJI_USER = String.fromCodePoint(0x1F464);
+        var EMOJI_PACKAGE = String.fromCodePoint(0x1F4E6);
+        var EMOJI_MONEY = String.fromCodePoint(0x1F4B2);
+        var EMOJI_CARD = String.fromCodePoint(0x1F4B3);
+        var LINE = '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
+        var DASH = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
+
+        var itemsStr = '';
+        carrito.forEach(function(producto) {
+            var precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
+            var subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
+            itemsStr += '   ' + producto.nombre + ' x' + producto.cantidad + ' ................ $' + subtotal + '\n';
         });
 
-        const mensaje = [
-            `🧾 *FACTURA #${pedidoId || '---'}* ✅`,
-            `━━━━━━━━━━━━━━━━━━━━━━`,
-            ``,
-            `🏪 *${tiendaSlug}*`,
-            `👤 ${cliente}`,
-            ``,
-            `📦 *PRODUCTOS*`,
-            `${itemsStr}`,
-            `────────────────────────`,
-            `💲 *TOTAL* ................. *$${total}*`,
-            ``,
-            `💳 Mercado Pago`,
-            `━━━━━━━━━━━━━━━━━━━━━━`,
-        ].join('\n');
+        var NL = '\n';
+        var mensaje =
+            EMOJI_RECEIPT + ' *FACTURA #' + (pedidoId || '---') + '* ' + EMOJI_CHECK + NL +
+            LINE + NL +
+            NL +
+            EMOJI_STORE + ' *' + tiendaSlug + '*' + NL +
+            EMOJI_USER + ' ' + cliente + NL +
+            NL +
+            EMOJI_PACKAGE + ' *PRODUCTOS*' + NL +
+            itemsStr +
+            DASH + NL +
+            EMOJI_MONEY + ' *TOTAL* ................. *$' + total + '*' + NL +
+            NL +
+            EMOJI_CARD + ' Mercado Pago' + NL +
+            LINE;
 
         return mensaje;
     }
