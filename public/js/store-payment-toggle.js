@@ -45,16 +45,9 @@
         const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : '';
         const tiendaSlug = slug ? slug.toUpperCase() : (window.__tiendaNombre || 'MI SHOP');
 
-        // Emojis como variables para evitar problemas de codificacion
-        var EMOJI_RECEIPT = String.fromCodePoint(0x1F9FE);
-        var EMOJI_CHECK = String.fromCodePoint(0x2705);
-        var EMOJI_STORE = String.fromCodePoint(0x1F3EA);
-        var EMOJI_USER = String.fromCodePoint(0x1F464);
-        var EMOJI_PACKAGE = String.fromCodePoint(0x1F4E6);
-        var EMOJI_MONEY = String.fromCodePoint(0x1F4B2);
-        var EMOJI_CARD = String.fromCodePoint(0x1F4B3);
-        var LINE = '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
-        var DASH = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
+        var ahora = new Date();
+        var fecha = ahora.toLocaleDateString('es-AR');
+        var hora = ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
         var itemsStr = '';
         carrito.forEach(function(producto) {
@@ -63,20 +56,24 @@
             itemsStr += '   ' + producto.nombre + ' x' + producto.cantidad + ' ................ $' + subtotal + '\n';
         });
 
-        var NL = '\n';
+        var SEP = '----------------------------------------';
+        var LINE = '========================================';
+
         var mensaje =
-            EMOJI_RECEIPT + ' *FACTURA #' + (pedidoId || '---') + '* ' + EMOJI_CHECK + NL +
-            LINE + NL +
-            NL +
-            EMOJI_STORE + ' *' + tiendaSlug + '*' + NL +
-            EMOJI_USER + ' ' + cliente + NL +
-            NL +
-            EMOJI_PACKAGE + ' *PRODUCTOS*' + NL +
+            '  FACTURA #' + (pedidoId || '---') + '  -  PAGADO' + '\n' +
+            LINE + '\n' +
+            '\n' +
+            '  Tienda: ' + tiendaSlug + '\n' +
+            '  Cliente: ' + cliente + '\n' +
+            '  Fecha: ' + fecha + '  ' + hora + '\n' +
+            '\n' +
+            '  PRODUCTOS' + '\n' +
             itemsStr +
-            DASH + NL +
-            EMOJI_MONEY + ' *TOTAL* ................. *$' + total + '*' + NL +
-            NL +
-            EMOJI_CARD + ' Mercado Pago' + NL +
+            SEP + '\n' +
+            '  TOTAL .......................... $' + total + '\n' +
+            '\n' +
+            '  Pago: Mercado Pago' + '\n' +
+            '  Estado: PAGADO' + '\n' +
             LINE;
 
         return mensaje;

@@ -477,49 +477,52 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
     try {
         const items = db.prepare('SELECT nombre, cantidad, precio FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').all(pedido.id, pedido.tienda_id);
         items.forEach(item => {
-            itemsStr += `   ${item.nombre} x${item.cantidad} ................ $${(item.precio * item.cantidad).toFixed(2)}\n`;
+            itemsStr += '   ' + item.nombre + ' x' + item.cantidad + ' ................ $' + (item.precio * item.cantidad).toFixed(2) + '\n';
         });
     } catch (e) {
-        itemsStr = `   (ver detalle en el panel)\n`;
+        itemsStr = '   (ver detalle en el panel)\n';
     }
 
-    const NL = '\n';
-    const LINE = '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
-    const DASH = '\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500';
+    const SEP = '----------------------------------------';
+    const LINE = '========================================';
 
     const mensajeCliente =
-        '\u{1F9FE} *FACTURA #' + pedido.id + '* \u2705' + NL +
-        LINE + NL +
-        NL +
-        '\u{1F3EA} *' + (tiendaNombre || 'MI SHOP') + '*' + NL +
-        '\u{1F464} ' + pedido.cliente + NL +
-        NL +
-        '\u{1F4E6} *PRODUCTOS*' + NL +
+        '  FACTURA #' + pedido.id + '  -  PAGADO\n' +
+        LINE + '\n' +
+        '\n' +
+        '  Tienda: ' + (tiendaNombre || 'MI SHOP') + '\n' +
+        '  Cliente: ' + pedido.cliente + '\n' +
+        '  Fecha: ' + fechaPago + '\n' +
+        '\n' +
+        '  PRODUCTOS\n' +
         itemsStr +
-        DASH + NL +
-        '\u{1F4B2} *TOTAL* ................. *$' + Number(totalPagado).toFixed(2) + '*' + NL +
-        NL +
-        '\u{1F4B3} ' + metodoPago + ' ' + tarjeta + NL +
-        '\u{1F522} Transaccio\u0301n: ' + payment.id + NL +
-        '\u{1F4C6} ' + cuotas + '  |  ' + fechaPago + NL +
+        SEP + '\n' +
+        '  TOTAL .......................... $' + Number(totalPagado).toFixed(2) + '\n' +
+        '\n' +
+        '  Pago: ' + metodoPago + ' ' + tarjeta + '\n' +
+        '  Transaccion: ' + payment.id + '\n' +
+        '  ' + cuotas + '\n' +
+        '  Estado: PAGADO\n' +
         LINE;
 
     const mensajeDueno =
-        '\u{1F9FE} *FACTURA #' + pedido.id + '* \u2705' + NL +
-        LINE + NL +
-        NL +
-        '\u{1F3EA} *' + (tiendaNombre || 'MI SHOP') + '*' + NL +
-        '\u{1F464} ' + pedido.cliente + NL +
-        '\u{1F4DE} ' + pedido.telefono + NL +
-        NL +
-        '\u{1F4E6} *PRODUCTOS*' + NL +
+        '  FACTURA #' + pedido.id + '  -  PAGADO\n' +
+        LINE + '\n' +
+        '\n' +
+        '  Tienda: ' + (tiendaNombre || 'MI SHOP') + '\n' +
+        '  Cliente: ' + pedido.cliente + '\n' +
+        '  Telefono: ' + pedido.telefono + '\n' +
+        '  Fecha: ' + fechaPago + '\n' +
+        '\n' +
+        '  PRODUCTOS\n' +
         itemsStr +
-        DASH + NL +
-        '\u{1F4B2} *TOTAL* ................. *$' + Number(totalPagado).toFixed(2) + '*' + NL +
-        NL +
-        '\u{1F4B3} ' + metodoPago + ' ' + tarjeta + NL +
-        '\u{1F522} Transaccio\u0301n: ' + payment.id + NL +
-        '\u{1F4C6} ' + cuotas + '  |  ' + fechaPago + NL +
+        SEP + '\n' +
+        '  TOTAL .......................... $' + Number(totalPagado).toFixed(2) + '\n' +
+        '\n' +
+        '  Pago: ' + metodoPago + ' ' + tarjeta + '\n' +
+        '  Transaccion: ' + payment.id + '\n' +
+        '  ' + cuotas + '\n' +
+        '  Estado: PAGADO\n' +
         LINE;
 
     return { mensajeCliente, mensajeDueno };
