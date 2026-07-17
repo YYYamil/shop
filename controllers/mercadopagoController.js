@@ -477,10 +477,10 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
     try {
         const items = db.prepare('SELECT nombre, cantidad, precio FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').all(pedido.id, pedido.tienda_id);
         items.forEach(item => {
-            itemsStr += `${item.nombre} x${item.cantidad} ................ $${(item.precio * item.cantidad).toFixed(2)}%0A`;
+            itemsStr += `${item.nombre} x${item.cantidad} ................ $${(item.precio * item.cantidad).toFixed(2)}\n`;
         });
     } catch (e) {
-        itemsStr = `(ver detalle en el panel)%0A`;
+        itemsStr = `(ver detalle en el panel)\n`;
     }
 
     const mensajeCliente = [
@@ -501,7 +501,7 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
         `Cuotas: ${cuotas}`,
         `Fecha: ${fechaPago}`,
         `================================`,
-    ].join('%0A');
+    ].join('\n');
 
     const mensajeDueno = [
         `FACTURA #${pedido.id} - PAGADO`,
@@ -521,7 +521,7 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
         `Cuotas: ${cuotas}`,
         `Fecha: ${fechaPago}`,
         `================================`,
-    ].join('%0A');
+    ].join('\n');
 
     return { mensajeCliente, mensajeDueno };
 }

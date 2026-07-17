@@ -46,7 +46,7 @@
         carrito.forEach(producto => {
             const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
             const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
-            itemsStr += `${producto.nombre} x${producto.cantidad} ................ $${subtotal}%0A`;
+            itemsStr += `${producto.nombre} x${producto.cantidad} ................ $${subtotal}\n`;
         });
 
         const mensaje = [
@@ -64,7 +64,7 @@
             ``,
             `Pago: Mercado Pago`,
             `================================`,
-        ].join('%0A');
+        ].join('\n');
 
         return mensaje;
     }
