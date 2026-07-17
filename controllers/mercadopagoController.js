@@ -431,36 +431,36 @@ async function resolvePaymentAcrossTenants(paymentId) {
 function formatPaymentMethod(payment) {
     const method = payment.payment_method_id || '';
     const methodNames = {
-        'visa': '💳 Visa',
-        'master': '💳 Mastercard',
-        'amex': '💳 American Express',
-        'naranja': '💳 Naranja',
-        'cabal': '💳 Cabal',
-        'maestro': '💳 Maestro',
-        'debcabal': '💳 Cabal Débito',
-        'debvisa': '💳 Visa Débito',
-        'debmaster': '💳 Mastercard Débito',
-        'pagofacil': '🏪 Pago Fácil',
-        'rapipago': '🏪 Rapipago',
-        'efectivo': '💵 Efectivo',
-        'mercadopago': '💲 Mercado Pago',
-        'account_money': '💰 Dinero en cuenta',
+        'visa': 'Visa',
+        'master': 'Mastercard',
+        'amex': 'Amex',
+        'naranja': 'Naranja',
+        'cabal': 'Cabal',
+        'maestro': 'Maestro',
+        'debcabal': 'Cabal Debito',
+        'debvisa': 'Visa Debito',
+        'debmaster': 'Mastercard Debito',
+        'pagofacil': 'Pago Facil',
+        'rapipago': 'Rapipago',
+        'efectivo': 'Efectivo',
+        'mercadopago': 'Mercado Pago',
+        'account_money': 'MP - Dinero en cuenta',
     };
-    return methodNames[method] || `💳 ${method}`;
+    return methodNames[method] || method;
 }
 
 function formatCardInfo(payment) {
     if (payment.card && payment.card.last_four_digits) {
-        return `•••• ${payment.card.last_four_digits}`;
+        return `****${payment.card.last_four_digits}`;
     }
     return '';
 }
 
 function formatInstallments(payment) {
     if (payment.installments && payment.installments > 1) {
-        return `en ${payment.installments} cuotas`;
+        return `${payment.installments} cuotas`;
     }
-    return 'al contado';
+    return '1 pago';
 }
 
 function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
@@ -477,74 +477,50 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
     try {
         const items = db.prepare('SELECT nombre, cantidad, precio FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').all(pedido.id, pedido.tienda_id);
         items.forEach(item => {
-            itemsStr += `▫️ ${item.nombre} ×${item.cantidad}  —  $${(item.precio * item.cantidad).toFixed(2)}%0A`;
+            itemsStr += `${item.nombre} x${item.cantidad} ................ $${(item.precio * item.cantidad).toFixed(2)}%0A`;
         });
     } catch (e) {
-        itemsStr = `▫️ Ver detalle en el panel%0A`;
+        itemsStr = `(ver detalle en el panel)%0A`;
     }
 
     const mensajeCliente = [
-        `✅ *¡PAGO CONFIRMADO!* ✅`,
+        `FACTURA #${pedido.id} - PAGADO`,
+        `Tienda: ${tiendaNombre || 'Mi Shop'}`,
+        `================================`,
         ``,
-        `Hola *${pedido.cliente}* 🙌`,
-        `Tu pedido ya fue *PAGADO* con éxito.`,
+        `Cliente: ${pedido.cliente}`,
+        `Telefono: ${pedido.telefono}`,
         ``,
-        `━━━━━━━━━━━━━━━━`,
-        `📋 *RESUMEN DE COMPRA*`,
-        `━━━━━━━━━━━━━━━━`,
-        ``,
-        `🆔 Pedido: *#${pedido.id}*`,
-        `💰 Total pagado: *$${Number(totalPagado).toFixed(2)}*`,
-        `${cuotas ? `📆 ${cuotas}` : ''}`,
-        ``,
-        `💳 *Medio de pago:*`,
-        `   ${metodoPago} ${tarjeta}`,
-        ``,
-        `📎 *Código de pago:*`,
-        `   \`${payment.id}\``,
-        ``,
-        `📅 *Fecha:* ${fechaPago}`,
-        ``,
-        `━━━━━━━━━━━━━━━━`,
-        `🛍️ *PRODUCTOS*`,
-        `━━━━━━━━━━━━━━━━`,
+        `--- PRODUCTOS ---`,
         `${itemsStr}`,
+        `--------------------------------`,
+        `TOTAL .......................... $${Number(totalPagado).toFixed(2)}`,
         ``,
-        `━━━━━━━━━━━━━━━━`,
-        `📍 *Tienda:* ${tiendaNombre || 'Mi Shop'}`,
-        `━━━━━━━━━━━━━━━━`,
-        ``,
-        `🙏 *¡Gracias por tu compra!*`,
-        `Te enviaremos notificaciones cuando tu pedido sea procesado.`,
-        ``,
-        `📱 *¿Consultas?* Respondé este mensaje.`,
+        `Pago: ${metodoPago} ${tarjeta}`,
+        `Codigo: ${payment.id}`,
+        `Cuotas: ${cuotas}`,
+        `Fecha: ${fechaPago}`,
+        `================================`,
     ].join('%0A');
 
     const mensajeDueno = [
-        `🟢 *NUEVO PAGO RECIBIDO* 🟢`,
+        `FACTURA #${pedido.id} - PAGADO`,
+        `Tienda: ${tiendaNombre || 'Mi Shop'}`,
+        `================================`,
         ``,
-        `━━━━━━━━━━━━━━━━`,
-        `📋 *DATOS DEL PEDIDO*`,
-        `━━━━━━━━━━━━━━━━`,
+        `Cliente: ${pedido.cliente}`,
+        `Telefono: ${pedido.telefono}`,
         ``,
-        `🆔 Pedido: *#${pedido.id}*`,
-        `👤 Cliente: *${pedido.cliente}*`,
-        `📞 Teléfono: ${pedido.telefono}`,
-        `💰 Total: *$${Number(totalPagado).toFixed(2)}*`,
-        `${cuotas ? `📆 ${cuotas}` : ''}`,
-        ``,
-        `💳 *Pago:* ${metodoPago} ${tarjeta}`,
-        `🔢 *Código MP:* \`${payment.id}\``,
-        `📅 *Pagado:* ${fechaPago}`,
-        ``,
-        `━━━━━━━━━━━━━━━━`,
-        `🛍️ *PRODUCTOS*`,
-        `━━━━━━━━━━━━━━━━`,
+        `--- PRODUCTOS ---`,
         `${itemsStr}`,
+        `--------------------------------`,
+        `TOTAL .......................... $${Number(totalPagado).toFixed(2)}`,
         ``,
-        `━━━━━━━━━━━━━━━━`,
-        `✅ *ESTADO: PAGADO* ✅`,
-        `━━━━━━━━━━━━━━━━`,
+        `Pago: ${metodoPago} ${tarjeta}`,
+        `Codigo MP: ${payment.id}`,
+        `Cuotas: ${cuotas}`,
+        `Fecha: ${fechaPago}`,
+        `================================`,
     ].join('%0A');
 
     return { mensajeCliente, mensajeDueno };

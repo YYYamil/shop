@@ -46,30 +46,24 @@
         carrito.forEach(producto => {
             const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
             const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
-            itemsStr += `▫️ ${producto.nombre} ×${producto.cantidad}  —  $${subtotal}%0A`;
+            itemsStr += `${producto.nombre} x${producto.cantidad} ................ $${subtotal}%0A`;
         });
 
         const mensaje = [
-            `🟢 *NUEVO PEDIDO PAGADO* 🟢`,
+            `FACTURA #${pedidoId || '---'} - PAGADO`,
+            `Tienda: ${window.__tiendaNombre || 'Mi Shop'}`,
+            `================================`,
             ``,
-            `━━━━━━━━━━━━━━━━`,
-            `📋 *DATOS DEL PEDIDO*`,
-            `━━━━━━━━━━━━━━━━`,
+            `Cliente: ${cliente}`,
+            `Telefono: ${telefono}`,
             ``,
-            `🆔 Pedido: *#${pedidoId || '---'}*`,
-            `👤 Cliente: *${cliente}*`,
-            `📞 Teléfono: ${telefono}`,
-            `💲 Total pagado: *$${total}*`,
-            `💳 Pagado con: *Mercado Pago* ✅`,
-            ``,
-            `━━━━━━━━━━━━━━━━`,
-            `🛍️ *PRODUCTOS*`,
-            `━━━━━━━━━━━━━━━━`,
+            `--- PRODUCTOS ---`,
             `${itemsStr}`,
+            `--------------------------------`,
+            `TOTAL .......................... $${total}`,
             ``,
-            `━━━━━━━━━━━━━━━━`,
-            `✅ *ESTADO: PAGADO* ✅`,
-            `━━━━━━━━━━━━━━━━`,
+            `Pago: Mercado Pago`,
+            `================================`,
         ].join('%0A');
 
         return mensaje;
