@@ -42,18 +42,35 @@
     }
 
     function buildMensajePagoExitoso({ pedidoId, cliente, telefono, total, carrito }) {
-        let mensaje = 'Hola, te confirmo que el pedido fue PAGADO con Mercado Pago.%0A%0A';
-        if (pedidoId) {
-            mensaje += 'Pedido: #' + pedidoId + '%0A';
-        }
-        mensaje += 'Cliente: ' + cliente + '%0A';
-        mensaje += 'Telefono: ' + telefono + '%0A';
-        mensaje += 'Total: $' + total + '%0A%0A';
-        mensaje += 'Productos:%0A';
-
+        let itemsStr = '';
         carrito.forEach(producto => {
-            mensaje += '- ' + producto.nombre + ' x' + producto.cantidad + '%0A';
+            const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
+            const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
+            itemsStr += `▫️ ${producto.nombre} ×${producto.cantidad}  —  $${subtotal}%0A`;
         });
+
+        const mensaje = [
+            `🟢 *NUEVO PEDIDO PAGADO* 🟢`,
+            ``,
+            `━━━━━━━━━━━━━━━━`,
+            `📋 *DATOS DEL PEDIDO*`,
+            `━━━━━━━━━━━━━━━━`,
+            ``,
+            `🆔 Pedido: *#${pedidoId || '---'}*`,
+            `👤 Cliente: *${cliente}*`,
+            `📞 Teléfono: ${telefono}`,
+            `💲 Total pagado: *$${total}*`,
+            `💳 Pagado con: *Mercado Pago* ✅`,
+            ``,
+            `━━━━━━━━━━━━━━━━`,
+            `🛍️ *PRODUCTOS*`,
+            `━━━━━━━━━━━━━━━━`,
+            `${itemsStr}`,
+            ``,
+            `━━━━━━━━━━━━━━━━`,
+            `✅ *ESTADO: PAGADO* ✅`,
+            `━━━━━━━━━━━━━━━━`,
+        ].join('%0A');
 
         return mensaje;
     }

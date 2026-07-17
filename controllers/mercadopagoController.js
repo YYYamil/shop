@@ -428,20 +428,145 @@ async function resolvePaymentAcrossTenants(paymentId) {
     return null;
 }
 
+function formatPaymentMethod(payment) {
+    const method = payment.payment_method_id || '';
+    const methodNames = {
+        'visa': '💳 Visa',
+        'master': '💳 Mastercard',
+        'amex': '💳 American Express',
+        'naranja': '💳 Naranja',
+        'cabal': '💳 Cabal',
+        'maestro': '💳 Maestro',
+        'debcabal': '💳 Cabal Débito',
+        'debvisa': '💳 Visa Débito',
+        'debmaster': '💳 Mastercard Débito',
+        'pagofacil': '🏪 Pago Fácil',
+        'rapipago': '🏪 Rapipago',
+        'efectivo': '💵 Efectivo',
+        'mercadopago': '💲 Mercado Pago',
+        'account_money': '💰 Dinero en cuenta',
+    };
+    return methodNames[method] || `💳 ${method}`;
+}
+
+function formatCardInfo(payment) {
+    if (payment.card && payment.card.last_four_digits) {
+        return `•••• ${payment.card.last_four_digits}`;
+    }
+    return '';
+}
+
+function formatInstallments(payment) {
+    if (payment.installments && payment.installments > 1) {
+        return `en ${payment.installments} cuotas`;
+    }
+    return 'al contado';
+}
+
+function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
+    const metodoPago = formatPaymentMethod(payment);
+    const tarjeta = formatCardInfo(payment);
+    const cuotas = formatInstallments(payment);
+    const totalPagado = payment.transaction_details?.total_paid_amount || pedido.total;
+    const fechaPago = payment.date_approved
+        ? new Date(payment.date_approved).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
+        : new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+
+    // Obtener items del pedido
+    let itemsStr = '';
+    try {
+        const items = db.prepare('SELECT nombre, cantidad, precio FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').all(pedido.id, pedido.tienda_id);
+        items.forEach(item => {
+            itemsStr += `▫️ ${item.nombre} ×${item.cantidad}  —  $${(item.precio * item.cantidad).toFixed(2)}%0A`;
+        });
+    } catch (e) {
+        itemsStr = `▫️ Ver detalle en el panel%0A`;
+    }
+
+    const mensajeCliente = [
+        `✅ *¡PAGO CONFIRMADO!* ✅`,
+        ``,
+        `Hola *${pedido.cliente}* 🙌`,
+        `Tu pedido ya fue *PAGADO* con éxito.`,
+        ``,
+        `━━━━━━━━━━━━━━━━`,
+        `📋 *RESUMEN DE COMPRA*`,
+        `━━━━━━━━━━━━━━━━`,
+        ``,
+        `🆔 Pedido: *#${pedido.id}*`,
+        `💰 Total pagado: *$${Number(totalPagado).toFixed(2)}*`,
+        `${cuotas ? `📆 ${cuotas}` : ''}`,
+        ``,
+        `💳 *Medio de pago:*`,
+        `   ${metodoPago} ${tarjeta}`,
+        ``,
+        `📎 *Código de pago:*`,
+        `   \`${payment.id}\``,
+        ``,
+        `📅 *Fecha:* ${fechaPago}`,
+        ``,
+        `━━━━━━━━━━━━━━━━`,
+        `🛍️ *PRODUCTOS*`,
+        `━━━━━━━━━━━━━━━━`,
+        `${itemsStr}`,
+        ``,
+        `━━━━━━━━━━━━━━━━`,
+        `📍 *Tienda:* ${tiendaNombre || 'Mi Shop'}`,
+        `━━━━━━━━━━━━━━━━`,
+        ``,
+        `🙏 *¡Gracias por tu compra!*`,
+        `Te enviaremos notificaciones cuando tu pedido sea procesado.`,
+        ``,
+        `📱 *¿Consultas?* Respondé este mensaje.`,
+    ].join('%0A');
+
+    const mensajeDueno = [
+        `🟢 *NUEVO PAGO RECIBIDO* 🟢`,
+        ``,
+        `━━━━━━━━━━━━━━━━`,
+        `📋 *DATOS DEL PEDIDO*`,
+        `━━━━━━━━━━━━━━━━`,
+        ``,
+        `🆔 Pedido: *#${pedido.id}*`,
+        `👤 Cliente: *${pedido.cliente}*`,
+        `📞 Teléfono: ${pedido.telefono}`,
+        `💰 Total: *$${Number(totalPagado).toFixed(2)}*`,
+        `${cuotas ? `📆 ${cuotas}` : ''}`,
+        ``,
+        `💳 *Pago:* ${metodoPago} ${tarjeta}`,
+        `🔢 *Código MP:* \`${payment.id}\``,
+        `📅 *Pagado:* ${fechaPago}`,
+        ``,
+        `━━━━━━━━━━━━━━━━`,
+        `🛍️ *PRODUCTOS*`,
+        `━━━━━━━━━━━━━━━━`,
+        `${itemsStr}`,
+        ``,
+        `━━━━━━━━━━━━━━━━`,
+        `✅ *ESTADO: PAGADO* ✅`,
+        `━━━━━━━━━━━━━━━━`,
+    ].join('%0A');
+
+    return { mensajeCliente, mensajeDueno };
+}
+
 function enviarWhatsAppConfirmacion({ tiendaId, telefono, pedido, payment }) {
     const config = getTiendaConfigMap(tiendaId);
     const webhookUrl = config.whatsapp_webhook_url || config.whatsapp_api_url;
-    const mensaje = `Hola ${pedido.cliente}, tu pago del pedido #${pedido.id} fue aprobado. Total: $${pedido.total}.`;
+    const tiendaNombre = config.nombre_tienda || 'Mi Shop';
+
+    const { mensajeCliente, mensajeDueno } = buildWhatsAppMessage({ pedido, payment, tiendaNombre });
 
     if (!webhookUrl) {
         console.warn('[MP] No hay integracion de envio de WhatsApp configurada para la tienda', tiendaId, {
             telefono,
-            mensaje,
+            mensajeCliente,
             paymentId: payment.id,
         });
         return false;
     }
 
+    // Enviar mensaje al cliente
     fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -450,14 +575,36 @@ function enviarWhatsAppConfirmacion({ tiendaId, telefono, pedido, payment }) {
         body: JSON.stringify({
             tienda_id: tiendaId,
             telefono,
-            mensaje,
+            mensaje: mensajeCliente,
             pedido_id: pedido.id,
             payment_id: payment.id,
             external_reference: payment.external_reference,
         }),
     }).catch(err => {
-        console.error('[MP] Error al enviar WhatsApp de confirmacion:', err.message);
+        console.error('[MP] Error al enviar WhatsApp de confirmacion al cliente:', err.message);
     });
+
+    // Enviar mensaje al dueño si hay un número configurado
+    const telefonoDueno = config.whatsapp_numero_del_dueno || config.whatsapp_numero;
+    if (telefonoDueno) {
+        fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tienda_id: tiendaId,
+                telefono: telefonoDueno,
+                mensaje: mensajeDueno,
+                pedido_id: pedido.id,
+                payment_id: payment.id,
+                external_reference: payment.external_reference,
+                tipo: 'notificacion_dueno',
+            }),
+        }).catch(err => {
+            console.error('[MP] Error al enviar WhatsApp de notificacion al dueño:', err.message);
+        });
+    }
 
     return true;
 }
