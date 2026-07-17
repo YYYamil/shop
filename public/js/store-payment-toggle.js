@@ -114,6 +114,12 @@
         const mensaje = buildMensajePagoExitoso(data);
         const url = `https://wa.me/${wpNumero}?text=${encodeURIComponent(mensaje)}`;
         limpiarConfirmacionPendiente();
+
+        // Solo eliminar carrito cuando el pago fue exitoso
+        if (typeof eliminarCarrito === 'function') {
+            eliminarCarrito();
+        }
+
         window.location.href = url;
         return true;
     }
@@ -238,10 +244,6 @@
             if (!data.initPoint) {
                 mostrarToastLocal('Mercado Pago no devolvió la URL de pago');
                 return;
-            }
-
-            if (typeof eliminarCarrito === 'function') {
-                eliminarCarrito();
             }
 
             guardarConfirmacionPendiente({
