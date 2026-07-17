@@ -1,4 +1,6 @@
 (function () {
+    const MP_CONFIRMATION_KEY = 'mp_confirmacion_pago';
+
     function getCarritoActual() {
         try {
             return typeof obtenerCarrito === 'function' ? obtenerCarrito() : [];
@@ -37,6 +39,76 @@
         mensaje += '*TOTAL: $ ' + total + '*';
 
         return { carrito, total, mensaje, datos };
+    }
+
+    function buildMensajePagoExitoso({ pedidoId, cliente, telefono, total, carrito }) {
+        let mensaje = 'Hola, te confirmo que el pedido fue PAGADO con Mercado Pago.%0A%0A';
+        if (pedidoId) {
+            mensaje += 'Pedido: #' + pedidoId + '%0A';
+        }
+        mensaje += 'Cliente: ' + cliente + '%0A';
+        mensaje += 'Telefono: ' + telefono + '%0A';
+        mensaje += 'Total: $' + total + '%0A%0A';
+        mensaje += 'Productos:%0A';
+
+        carrito.forEach(producto => {
+            mensaje += '- ' + producto.nombre + ' x' + producto.cantidad + '%0A';
+        });
+
+        return mensaje;
+    }
+
+    function guardarConfirmacionPendiente(data) {
+        try {
+            sessionStorage.setItem(MP_CONFIRMATION_KEY, JSON.stringify(data));
+        } catch (err) {
+            console.warn('[MP] No se pudo guardar la confirmacion pendiente:', err);
+        }
+    }
+
+    function leerConfirmacionPendiente() {
+        try {
+            const raw = sessionStorage.getItem(MP_CONFIRMATION_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (err) {
+            return null;
+        }
+    }
+
+    function limpiarConfirmacionPendiente() {
+        try {
+            sessionStorage.removeItem(MP_CONFIRMATION_KEY);
+        } catch (err) {
+            // ignore
+        }
+    }
+
+    function abrirWhatsAppConfirmacion(data) {
+        const wpNumero = window.__whatsappNumero;
+        if (!wpNumero) {
+            mostrarToastLocal('No hay número de WhatsApp configurado para la tienda');
+            return false;
+        }
+
+        const mensaje = buildMensajePagoExitoso(data);
+        const url = `https://wa.me/${wpNumero}?text=${encodeURIComponent(mensaje)}`;
+        limpiarConfirmacionPendiente();
+        window.location.href = url;
+        return true;
+    }
+
+    function procesarRetornoMercadoPago() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('mp_result') !== 'success') {
+            return;
+        }
+
+        const data = leerConfirmacionPendiente();
+        if (!data) {
+            return;
+        }
+
+        abrirWhatsAppConfirmacion(data);
     }
 
     function mostrarToastLocal(mensaje) {
@@ -151,6 +223,13 @@
                 eliminarCarrito();
             }
 
+            guardarConfirmacionPendiente({
+                pedidoId: data.pedidoId,
+                cliente: datos.cliente,
+                telefono: datos.telefono,
+                total,
+                carrito,
+            });
             window.location = data.initPoint;
         } catch (err) {
             console.error('Error al iniciar Mercado Pago:', err);
@@ -174,9 +253,13 @@
             const result = originalAplicarConfiguracion(config);
             window.__mercadopagoActivo = Boolean(config && (config.mp_conectado || config.mp_activo));
             actualizarBotonCheckout();
+            procesarRetornoMercadoPago();
             return result;
         };
     }
 
-    document.addEventListener('DOMContentLoaded', actualizarBotonCheckout);
+    document.addEventListener('DOMContentLoaded', function () {
+        actualizarBotonCheckout();
+        procesarRetornoMercadoPago();
+    });
 })();
