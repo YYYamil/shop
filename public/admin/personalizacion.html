@@ -156,6 +156,10 @@
                     🎨 Personalizar
                 </a>
 
+                <a href="/admin/mercadopago.html" class="nav-link" data-page="mercadopago">
+                    💳 Activar método de pago
+                </a>
+
                 <a href="/superadmin/" id="linkSuperAdmin" style="display:none;border-top:1px solid #334155;margin-top:8px;padding-top:12px;" class="nav-link" data-page="superadmin">
                     ⚙️ Super Admin
                 </a>
@@ -511,6 +515,47 @@
             redes_tiktok: 'https://tiktok.com/',
             redes_whatsapp: 'https://www.pagina.com/',
         };
+
+        function limpiarDigitos(valor) {
+            return String(valor || '').replace(/\D/g, '');
+        }
+
+        function descomponerWhatsapp(valorCompleto, codigoGuardado, numeroGuardado) {
+            const codigo = limpiarDigitos(codigoGuardado);
+            const numero = limpiarDigitos(numeroGuardado);
+            if (codigo && numero) {
+                return { codigo, numero };
+            }
+
+            let raw = limpiarDigitos(valorCompleto);
+            if (raw.startsWith('549')) raw = raw.slice(3);
+            else if (raw.startsWith('54')) raw = raw.slice(2);
+
+            for (const longitudCodigo of [3, 4]) {
+                const longitudNumero = raw.length - longitudCodigo;
+                if (longitudNumero >= 5 && longitudNumero <= 9) {
+                    return {
+                        codigo: raw.slice(0, longitudCodigo),
+                        numero: raw.slice(longitudCodigo),
+                    };
+                }
+            }
+
+            if (raw.length >= 8) {
+                return {
+                    codigo: raw.slice(0, 3),
+                    numero: raw.slice(3),
+                };
+            }
+
+            return { codigo: '', numero: '' };
+        }
+
+        function construirWhatsappCompleto(codigo, numero) {
+            const c = limpiarDigitos(codigo);
+            const n = limpiarDigitos(numero);
+            return c && n ? '549' + c + n : '';
+        }
 
         // Iconos SVG para redes sociales (mismos que en config.js)
         function getIconoSocial(tipo) {
@@ -1145,7 +1190,7 @@
             // ============================================
             // 6. RESTO DE SECCIONES (whatsapp, contacto)
             // ============================================
-            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp', 'logo_forma'];
+            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp', 'logo_forma', 'whatsapp_codigo_area', 'whatsapp_numero_local'];
 
             datos.forEach(item => {
                 // Saltar items ya renderizados en secciones custom
@@ -1182,7 +1227,18 @@
                     const val = item.valor || '';
                     if (val.startsWith('549') && val.length >= 6) {
                         const resto = val.substring(3); // sacar '549'
-                        if (resto.length >= 3) {
+                        const candidato3 = resto.substring(0, 3);
+                        const numero3 = resto.substring(3);
+                        const candidato4 = resto.substring(0, 4);
+                        const numero4 = resto.substring(4);
+
+                        if (numero3.length >= 5 && numero3.length <= 9) {
+                            codigo = candidato3;
+                            numero = numero3;
+                        } else if (numero4.length >= 5 && numero4.length <= 9) {
+                            codigo = candidato4;
+                            numero = numero4;
+                        } else if (resto.length >= 3) {
                             codigo = resto.substring(0, Math.min(4, resto.length));
                             numero = resto.substring(codigo.length);
                         }
