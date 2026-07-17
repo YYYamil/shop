@@ -40,9 +40,9 @@
                     <h1>Activar método de pago</h1>
                     <p>Conexión independiente de Mercado Pago para esta tienda</p>
                 </div>
-                <div class="stats-card">
+                <div class="stats-card" style="min-width:180px;">
                     <span>Estado</span>
-                    <strong id="mpEstadoTexto">Cargando...</strong>
+                    <strong id="mpEstadoTexto" style="font-size:14px;">Cargando...</strong>
                 </div>
             </div>
 
@@ -63,19 +63,11 @@
                     </div>
 
                     <div id="mpBloqueConectado" style="display:none;flex-direction:column;gap:12px;">
-                        <div style="padding:14px 16px;border-radius:12px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;">
-                            Conectado exitosamente
-                        </div>
                         <button id="btnDesconectarMp" class="secondary-btn" style="padding:12px 20px;background:#dc2626;color:#fff;border-color:#dc2626;">
                             Desconectar
                         </button>
                     </div>
 
-                    <div style="padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;line-height:1.6;">
-                        Callback OAuth:
-                        <br>
-                        <code>/auth/mercadopago/callback</code>
-                    </div>
                 </div>
             </div>
         </main>

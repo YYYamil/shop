@@ -8,6 +8,7 @@ const SECRET_CONFIG_KEYS = new Set([
     'mp_refresh_token',
     'mp_user_id',
     'mp_seller_id',
+    'mp_token_expires_at',
 ]);
 
 function buildConfigMap(rows, tiendaId) {

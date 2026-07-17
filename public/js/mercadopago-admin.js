@@ -3,19 +3,45 @@
         return typeof obtenerSlug === 'function' ? obtenerSlug() : null;
     }
 
-    function setEstado(estadoConectado) {
+    function setEstado(estadoTexto) {
         const texto = document.getElementById('mpEstadoTexto');
         const conectar = document.getElementById('mpBloqueConectar');
         const bloqueConectado = document.getElementById('mpBloqueConectado');
 
-        if (texto) {
-            texto.textContent = estadoConectado ? 'Conectado' : 'No conectado';
-        }
-        if (conectar) {
-            conectar.style.display = estadoConectado ? 'none' : 'block';
-        }
-        if (bloqueConectado) {
-            bloqueConectado.style.display = estadoConectado ? 'flex' : 'none';
+        if (!texto) return;
+
+        // Limpiar clases de estado previas
+        texto.className = '';
+
+        switch (estadoTexto) {
+            case 'conectado':
+                texto.textContent = 'Conectado';
+                texto.style.color = '#065f46';
+                if (conectar) conectar.style.display = 'none';
+                if (bloqueConectado) bloqueConectado.style.display = 'flex';
+                break;
+
+            case 'expirado':
+                texto.textContent = 'Token expirado — reconectar';
+                texto.style.color = '#dc2626';
+                if (conectar) conectar.style.display = 'block';
+                if (bloqueConectado) bloqueConectado.style.display = 'none';
+                break;
+
+            case 'proximo_a_vencer':
+                texto.textContent = 'Conectado (próximo a vencer)';
+                texto.style.color = '#d97706';
+                if (conectar) conectar.style.display = 'none';
+                if (bloqueConectado) bloqueConectado.style.display = 'flex';
+                break;
+
+            case 'no_conectado':
+            default:
+                texto.textContent = 'No conectado';
+                texto.style.color = '#dc2626';
+                if (conectar) conectar.style.display = 'block';
+                if (bloqueConectado) bloqueConectado.style.display = 'none';
+                break;
         }
     }
 
@@ -28,14 +54,14 @@
             const data = await respuesta.json().catch(() => ({}));
 
             if (!respuesta.ok) {
-                setEstado(false);
+                setEstado('no_conectado');
                 return;
             }
 
-            setEstado(Boolean(data.conectado));
+            setEstado(data.estadoTexto || (data.conectado ? 'conectado' : 'no_conectado'));
         } catch (err) {
             console.error('Error al cargar estado de Mercado Pago:', err);
-            setEstado(false);
+            setEstado('no_conectado');
         }
     }
 

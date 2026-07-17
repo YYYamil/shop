@@ -91,7 +91,84 @@ function getMercadoPagoCredentials(tiendaId) {
         publicKey: config.mp_public_key || '',
         refreshToken: config.mp_refresh_token || '',
         userId: config.mp_user_id || '',
+        tokenExpiresAt: config.mp_token_expires_at ? Number(config.mp_token_expires_at) : 0,
     };
+}
+
+/**
+ * Verifica si el token de MP está expirado o próximo a vencer.
+ * Retorna: 'expirado' | 'proximo_a_vencer' | 'valido'
+ */
+function getTokenStatus(tiendaId) {
+    const creds = getMercadoPagoCredentials(tiendaId);
+    if (!creds.accessToken) {
+        return 'no_conectado';
+    }
+    if (!creds.tokenExpiresAt) {
+        // Token sin fecha de expiración guardada (migración)
+        return 'sin_fecha';
+    }
+    const ahora = Date.now();
+    const sieteDias = 7 * 24 * 60 * 60 * 1000;
+    if (ahora >= creds.tokenExpiresAt) {
+        return 'expirado';
+    }
+    if (creds.tokenExpiresAt - ahora <= sieteDias) {
+        return 'proximo_a_vencer';
+    }
+    return 'valido';
+}
+
+/**
+ * Refresca el access_token de Mercado Pago usando el refresh_token.
+ * Retorna true si se refrescó correctamente, false si no.
+ */
+async function refreshMercadoPagoToken(tiendaId) {
+    const creds = getMercadoPagoCredentials(tiendaId);
+    if (!creds.refreshToken) {
+        console.warn('[MP] No hay refresh_token para la tienda', tiendaId);
+        return false;
+    }
+
+    try {
+        const body = new URLSearchParams();
+        body.set('grant_type', 'refresh_token');
+        body.set('client_id', getAppId());
+        body.set('client_secret', getClientSecret());
+        body.set('refresh_token', creds.refreshToken);
+
+        const response = await fetch(MP_TOKEN_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('[MP] Error al refrescar token:', data);
+            return false;
+        }
+
+        // Guardar nuevos tokens
+        upsertConfig(tiendaId, 'mp_access_token', data.access_token || '', 'texto', 'pagos');
+        upsertConfig(tiendaId, 'mp_public_key', data.public_key || '', 'texto', 'pagos');
+        if (data.refresh_token) {
+            upsertConfig(tiendaId, 'mp_refresh_token', data.refresh_token, 'texto', 'pagos');
+        }
+
+        // Calcular nueva fecha de expiración (180 días desde ahora)
+        const expiresAt = Date.now() + 180 * 24 * 60 * 60 * 1000;
+        upsertConfig(tiendaId, 'mp_token_expires_at', String(expiresAt), 'numero', 'pagos');
+
+        console.log('[MP] Token refrescado exitosamente para tienda', tiendaId);
+        return true;
+    } catch (err) {
+        console.error('[MP] Error en refreshMercadoPagoToken:', err.message);
+        return false;
+    }
 }
 
 function getTiendaBySlug(slug) {
@@ -116,9 +193,27 @@ exports.getStatus = (req, res) => {
         }
 
         const creds = getMercadoPagoCredentials(tienda.id);
+        const tieneToken = Boolean(creds.accessToken && creds.publicKey);
+        const tokenStatus = getTokenStatus(tienda.id);
+
+        let conectado = false;
+        let estadoTexto = 'no_conectado';
+
+        if (tieneToken) {
+            if (tokenStatus === 'expirado') {
+                estadoTexto = 'expirado';
+            } else if (tokenStatus === 'proximo_a_vencer') {
+                estadoTexto = 'proximo_a_vencer';
+            } else {
+                conectado = true;
+                estadoTexto = 'conectado';
+            }
+        }
+
         res.json({
             ok: true,
-            conectado: Boolean(creds.accessToken && creds.publicKey),
+            conectado,
+            estadoTexto,
             tienda_id: tienda.id,
             slug: tienda.slug,
         });
@@ -215,6 +310,9 @@ exports.callback = async (req, res) => {
         if (data.user_id) {
             upsertConfig(tienda.id, 'mp_user_id', String(data.user_id), 'numero', 'pagos');
         }
+        // Guardar fecha de expiración del token (180 días desde ahora)
+        const expiresAt = Date.now() + 180 * 24 * 60 * 60 * 1000;
+        upsertConfig(tienda.id, 'mp_token_expires_at', String(expiresAt), 'numero', 'pagos');
 
         const backUrl = `/${tienda.slug}/admin/mercadopago.html?connected=1`;
         res.redirect(backUrl);
@@ -232,7 +330,7 @@ exports.disconnect = (req, res) => {
         }
 
         db.prepare(
-            "DELETE FROM configuracion WHERE tienda_id = ? AND clave IN ('mp_access_token', 'mp_public_key', 'mp_refresh_token', 'mp_user_id')"
+            "DELETE FROM configuracion WHERE tienda_id = ? AND clave IN ('mp_access_token', 'mp_public_key', 'mp_refresh_token', 'mp_user_id', 'mp_token_expires_at')"
         ).run(tienda.id);
 
         res.json({ ok: true });
@@ -324,9 +422,27 @@ exports.crearPreferenciaDesdePedido = async (req, res) => {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
-    const creds = getMercadoPagoCredentials(tienda.id);
+    let creds = getMercadoPagoCredentials(tienda.id);
     if (!creds.accessToken) {
         return res.status(400).json({ error: 'Mercado Pago no esta conectado para esta tienda' });
+    }
+
+    // Si el token está expirado, intentar refresh automático
+    const tokenStatus = getTokenStatus(tienda.id);
+    if (tokenStatus === 'expirado') {
+        console.log('[MP] Token expirado para tienda', tienda.id, '- intentando refresh automatico');
+        const refrescado = await refreshMercadoPagoToken(tienda.id);
+        if (refrescado) {
+            // Volver a obtener credenciales actualizadas
+            creds = getMercadoPagoCredentials(tienda.id);
+        } else {
+            return res.status(400).json({
+                error: 'El token de Mercado Pago expiró y no se pudo renovar automáticamente. Reconectá la cuenta desde el panel de administración.',
+            });
+        }
+    } else if (tokenStatus === 'proximo_a_vencer') {
+        // Refresh preventivo en segundo plano (no bloqueante)
+        refreshMercadoPagoToken(tienda.id).catch(() => {});
     }
 
     const insertPedido = db.transaction((pedidoData, items) => {
