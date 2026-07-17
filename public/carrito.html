@@ -135,6 +135,44 @@
 
     </main>
 
+    <!-- MODAL INSTRUCCIONES MERCADO PAGO -->
+    <div class="mp-modal-overlay" id="mpModalInstrucciones">
+        <div class="mp-modal">
+            <div class="mp-modal-header">
+                <h2>Pago con Mercado Pago</h2>
+                <p>Completá estos pasos para finalizar tu compra</p>
+            </div>
+
+            <div class="mp-steps">
+                <div class="mp-step active">
+                    <div class="mp-step-number">1</div>
+                    <div class="mp-step-label">Pagá en<br>Mercado Pago</div>
+                </div>
+                <div class="mp-step-arrow">&#9654;</div>
+                <div class="mp-step">
+                    <div class="mp-step-number">2</div>
+                    <div class="mp-step-label">Volvé a<br>la tienda</div>
+                </div>
+                <div class="mp-step-arrow">&#9654;</div>
+                <div class="mp-step">
+                    <div class="mp-step-number">3</div>
+                    <div class="mp-step-label">Enviá el<br>comprobante</div>
+                </div>
+            </div>
+
+            <div class="mp-modal-info">
+                <strong>Importante:</strong> Después de pagar, volvé a la tienda y se abrirá
+                automáticamente WhatsApp con el comprobante. Solo tenés que enviarlo
+                al dueño de la tienda para confirmar tu pedido.
+            </div>
+
+            <div class="mp-modal-actions">
+                <button class="btn-modal-secondary" onclick="cerrarModalMP()">Cancelar</button>
+                <button class="btn-modal-primary" onclick="irAPagarMP()">Ir a pagar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- FOOTER -->
 
     <footer class="footer">

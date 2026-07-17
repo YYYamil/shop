@@ -1,5 +1,34 @@
 (function () {
     const MP_CONFIRMATION_KEY = 'mp_confirmacion_pago';
+    let mpPendienteDeRedirigir = false;
+
+    function abrirModalMP() {
+        const overlay = document.getElementById('mpModalInstrucciones');
+        if (overlay) {
+            overlay.classList.add('active');
+        }
+    }
+
+    function cerrarModalMP() {
+        const overlay = document.getElementById('mpModalInstrucciones');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        mpPendienteDeRedirigir = false;
+    }
+
+    function irAPagarMP() {
+        cerrarModalMP();
+        if (mpPendienteDeRedirigir) {
+            const data = leerConfirmacionPendiente();
+            if (data && data.initPoint) {
+                window.location = data.initPoint;
+            }
+        }
+    }
+
+    window.cerrarModalMP = cerrarModalMP;
+    window.irAPagarMP = irAPagarMP;
 
     function getCarritoActual() {
         try {
@@ -252,8 +281,10 @@
                 telefono: datos.telefono,
                 total,
                 carrito,
+                initPoint: data.initPoint,
             });
-            window.location = data.initPoint;
+            mpPendienteDeRedirigir = true;
+            abrirModalMP();
         } catch (err) {
             console.error('Error al iniciar Mercado Pago:', err);
             mostrarToastLocal('Error de conexión al iniciar Mercado Pago');
