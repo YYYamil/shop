@@ -1,16 +1,16 @@
 (function () {
-    const MP_CONFIRMATION_KEY = 'mp_confirmacion_pago';
-    let mpPendienteDeRedirigir = false;
+    var MP_CONFIRMATION_KEY = 'mp_confirmacion_pago';
+    var mpPendienteDeRedirigir = false;
 
     function abrirModalMP() {
-        const overlay = document.getElementById('mpModalInstrucciones');
+        var overlay = document.getElementById('mpModalInstrucciones');
         if (overlay) {
             overlay.classList.add('active');
         }
     }
 
     function cerrarModalMP() {
-        const overlay = document.getElementById('mpModalInstrucciones');
+        var overlay = document.getElementById('mpModalInstrucciones');
         if (overlay) {
             overlay.classList.remove('active');
         }
@@ -18,10 +18,10 @@
     }
 
     function irAPagarMP() {
-        const pendiente = mpPendienteDeRedirigir;
+        var pendiente = mpPendienteDeRedirigir;
         cerrarModalMP();
         if (pendiente) {
-            const data = leerConfirmacionPendiente();
+            var data = leerConfirmacionPendiente();
             if (data && data.initPoint) {
                 window.location = data.initPoint;
             }
@@ -40,27 +40,27 @@
     }
 
     function getDatosCliente() {
-        const cliente = document.getElementById('cliente')?.value?.trim() || '';
-        const codigo = document.getElementById('tel-codigo')?.value?.replace(/\D/g, '') || '';
-        const numero = document.getElementById('tel-numero')?.value?.replace(/\D/g, '') || '';
-        const telefono = '549' + codigo + numero;
+        var cliente = document.getElementById('cliente')?.value?.trim() || '';
+        var codigo = document.getElementById('tel-codigo')?.value?.replace(/\D/g, '') || '';
+        var numero = document.getElementById('tel-numero')?.value?.replace(/\D/g, '') || '';
+        var telefono = '549' + codigo + numero;
 
-        return { cliente, codigo, numero, telefono };
+        return { cliente: cliente, codigo: codigo, numero: numero, telefono: telefono };
     }
 
     function calcularTotalYMensaje() {
-        const carrito = getCarritoActual();
-        let total = 0;
-        let mensaje = '¡Hola! Quiero hacer un pedido:%0A%0A';
+        var carrito = getCarritoActual();
+        var total = 0;
+        var mensaje = '¡Hola! Quiero hacer un pedido:%0A%0A';
 
-        const datos = getDatosCliente();
+        var datos = getDatosCliente();
         mensaje += '👤 Cliente: ' + datos.cliente + '%0A';
         mensaje += '📞 Teléfono: ' + datos.telefono + '%0A%0A';
         mensaje += '━━━ *PRODUCTOS* ━━━%0A';
 
-        carrito.forEach(producto => {
-            const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
-            const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
+        carrito.forEach(function(producto) {
+            var precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
+            var subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
             total += subtotal;
             mensaje += '• ' + producto.nombre + ' x' + producto.cantidad + ' = $' + subtotal + '%0A';
         });
@@ -68,12 +68,18 @@
         mensaje += '%0A━━━━━━━━━━━━━━━%0A';
         mensaje += '*TOTAL: $ ' + total + '*';
 
-        return { carrito, total, mensaje, datos };
+        return { carrito: carrito, total: total, mensaje: mensaje, datos: datos };
     }
 
-    function buildMensajePagoExitoso({ pedidoId, cliente, telefono, total, carrito }) {
-        const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : '';
-        const tiendaSlug = slug ? slug.toUpperCase() : (window.__tiendaNombre || 'MI SHOP');
+    function buildMensajePagoExitoso(_ref) {
+        var pedidoId = _ref.pedidoId;
+        var cliente = _ref.cliente;
+        var telefono = _ref.telefono;
+        var total = _ref.total;
+        var carrito = _ref.carrito;
+
+        var slug = typeof obtenerSlug === 'function' ? obtenerSlug() : '';
+        var tiendaSlug = slug ? slug.toUpperCase() : (window.__tiendaNombre || 'MI SHOP');
 
         var ahora = new Date();
         var fecha = ahora.toLocaleDateString('es-AR');
@@ -109,9 +115,12 @@
         return mensaje;
     }
 
+    // Usamos localStorage en lugar de sessionStorage para que los datos
+    // persistan incluso cuando la app de Mercado Pago abre un nuevo contexto
+    // de navegación al volver (problema común en mobile).
     function guardarConfirmacionPendiente(data) {
         try {
-            sessionStorage.setItem(MP_CONFIRMATION_KEY, JSON.stringify(data));
+            localStorage.setItem(MP_CONFIRMATION_KEY, JSON.stringify(data));
         } catch (err) {
             console.warn('[MP] No se pudo guardar la confirmacion pendiente:', err);
         }
@@ -119,7 +128,7 @@
 
     function leerConfirmacionPendiente() {
         try {
-            const raw = sessionStorage.getItem(MP_CONFIRMATION_KEY);
+            var raw = localStorage.getItem(MP_CONFIRMATION_KEY);
             return raw ? JSON.parse(raw) : null;
         } catch (err) {
             return null;
@@ -128,21 +137,67 @@
 
     function limpiarConfirmacionPendiente() {
         try {
-            sessionStorage.removeItem(MP_CONFIRMATION_KEY);
+            localStorage.removeItem(MP_CONFIRMATION_KEY);
         } catch (err) {
             // ignore
         }
     }
 
+    /**
+     * Intenta recuperar los datos del pedido consultando al backend.
+     * Se usa como respaldo cuando localStorage no tiene los datos
+     * (ej: mobile donde la app de MP abre un contexto de navegación diferente).
+     * El endpoint ya devuelve los items del pedido incluidos en la respuesta.
+     */
+    function recuperarPedidoPorAPI(pedidoId) {
+        return new Promise(function(resolve) {
+            if (!pedidoId) {
+                resolve(null);
+                return;
+            }
+            var slug = typeof obtenerSlug === 'function' ? obtenerSlug() : '';
+            var url = slug
+                ? '/pedidos/mercadopago/pedido/' + pedidoId + '/status?slug=' + slug
+                : '/pedidos/mercadopago/pedido/' + pedidoId + '/status';
+
+            fetch(url)
+                .then(function(res) { return res.json().catch(function() { return null; }); })
+                .then(function(data) {
+                    if (data && data.ok && data.pagado && data.pedido) {
+                        var items = data.pedido.items || [];
+                        resolve({
+                            pedidoId: data.pedido.id,
+                            cliente: data.pedido.cliente,
+                            telefono: data.pedido.telefono,
+                            total: data.pedido.total,
+                            carrito: items.map(function(item) {
+                                return {
+                                    id: item.producto_id,
+                                    nombre: item.nombre,
+                                    cantidad: item.cantidad,
+                                    precio: item.precio,
+                                };
+                            }),
+                        });
+                    } else {
+                        resolve(null);
+                    }
+                })
+                .catch(function() {
+                    resolve(null);
+                });
+        });
+    }
+
     function abrirWhatsAppConfirmacion(data) {
-        const wpNumero = window.__whatsappNumero;
+        var wpNumero = window.__whatsappNumero;
         if (!wpNumero) {
             mostrarToastLocal('No hay número de WhatsApp configurado para la tienda');
             return false;
         }
 
-        const mensaje = buildMensajePagoExitoso(data);
-        const url = `https://wa.me/${wpNumero}?text=${encodeURIComponent(mensaje)}`;
+        var mensaje = buildMensajePagoExitoso(data);
+        var url = 'https://wa.me/' + wpNumero + '?text=' + encodeURIComponent(mensaje);
         limpiarConfirmacionPendiente();
 
         // Solo eliminar carrito cuando el pago fue exitoso
@@ -155,17 +210,30 @@
     }
 
     function procesarRetornoMercadoPago() {
-        const params = new URLSearchParams(window.location.search);
+        var params = new URLSearchParams(window.location.search);
         if (params.get('mp_result') !== 'success') {
             return;
         }
 
-        const data = leerConfirmacionPendiente();
-        if (!data) {
-            return;
-        }
+        var pedidoId = params.get('pedido');
+        var data = leerConfirmacionPendiente();
 
-        abrirWhatsAppConfirmacion(data);
+        if (data) {
+            // Caso ideal: tenemos los datos en localStorage
+            abrirWhatsAppConfirmacion(data);
+        } else if (pedidoId) {
+            // Respaldo mobile: no hay datos en localStorage, consultamos al backend
+            mostrarToastLocal('Procesando tu pago...');
+            recuperarPedidoPorAPI(pedidoId).then(function(dataRecuperado) {
+                if (dataRecuperado) {
+                    abrirWhatsAppConfirmacion(dataRecuperado);
+                } else {
+                    mostrarToastLocal('El pago fue exitoso, pero no se pudo recuperar el detalle del pedido. Revisá el panel de administración.');
+                }
+            });
+        } else {
+            mostrarToastLocal('Pago exitoso. Abrí WhatsApp para enviar el comprobante.');
+        }
     }
 
     function mostrarToastLocal(mensaje) {
@@ -177,16 +245,20 @@
     }
 
     function actualizarBotonCheckout() {
-        const btn = document.getElementById('btnFinalizar');
+        var btn = document.getElementById('btnFinalizar');
         if (!btn) return;
 
-        const mpActivo = Boolean(window.__mercadopagoActivo);
+        var mpActivo = Boolean(window.__mercadopagoActivo);
         btn.dataset.metodoPago = mpActivo ? 'mercadopago' : 'whatsapp';
         btn.textContent = mpActivo ? 'Pagar con Mercado Pago' : 'Enviar pedido por WhatsApp';
     }
 
     async function finalizarCompraWhatsapp() {
-        const { carrito, total, mensaje, datos } = calcularTotalYMensaje();
+        var _calcularTotalYMensaje = calcularTotalYMensaje();
+        var carrito = _calcularTotalYMensaje.carrito;
+        var total = _calcularTotalYMensaje.total;
+        var mensaje = _calcularTotalYMensaje.mensaje;
+        var datos = _calcularTotalYMensaje.datos;
 
         if (
             datos.cliente.trim() === '' ||
@@ -199,8 +271,8 @@
         }
 
         try {
-            const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : null;
-            const url = slug ? '/pedidos?slug=' + slug : '/pedidos';
+            var slug = typeof obtenerSlug === 'function' ? obtenerSlug() : null;
+            var url = slug ? '/pedidos?slug=' + slug : '/pedidos';
             await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -208,16 +280,16 @@
                     cliente: datos.cliente,
                     telefono: datos.telefono,
                     productos: carrito,
-                    total,
+                    total: total,
                 }),
             });
         } catch (e) {
             console.error('Error al enviar pedido al servidor:', e);
         }
 
-        const wpNumero = window.__whatsappNumero;
+        var wpNumero = window.__whatsappNumero;
         if (wpNumero) {
-            window.open(`https://wa.me/${wpNumero}?text=${mensaje}`, '_blank');
+            window.open('https://wa.me/' + wpNumero + '?text=' + mensaje, '_blank');
         } else {
             mostrarToastLocal('No hay número de WhatsApp configurado para recibir pedidos');
         }
@@ -237,7 +309,10 @@
     }
 
     async function finalizarCompraMercadoPago() {
-        const { carrito, total, datos } = calcularTotalYMensaje();
+        var _calcularTotalYMensaje2 = calcularTotalYMensaje();
+        var carrito = _calcularTotalYMensaje2.carrito;
+        var total = _calcularTotalYMensaje2.total;
+        var datos = _calcularTotalYMensaje2.datos;
 
         if (
             datos.cliente.trim() === '' ||
@@ -249,23 +324,23 @@
             return;
         }
 
-        const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : null;
-        const url = slug ? '/pedidos/mercadopago?slug=' + slug : '/pedidos/mercadopago';
+        var slug = typeof obtenerSlug === 'function' ? obtenerSlug() : null;
+        var url = slug ? '/pedidos/mercadopago?slug=' + slug : '/pedidos/mercadopago';
 
         try {
-            const response = await fetch(url, {
+            var response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     cliente: datos.cliente,
                     telefono: datos.telefono,
                     productos: carrito,
-                    total,
-                    slug,
+                    total: total,
+                    slug: slug,
                 }),
             });
 
-            const data = await response.json().catch(() => ({}));
+            var data = await response.json().catch(function() { return {}; });
             if (!response.ok) {
                 mostrarToastLocal(data.error || 'No se pudo iniciar el pago con Mercado Pago');
                 return;
@@ -280,8 +355,8 @@
                 pedidoId: data.pedidoId,
                 cliente: datos.cliente,
                 telefono: datos.telefono,
-                total,
-                carrito,
+                total: total,
+                carrito: carrito,
                 initPoint: data.initPoint,
             });
             mpPendienteDeRedirigir = true;
@@ -302,10 +377,10 @@
         return finalizarCompraWhatsapp();
     };
 
-    const originalAplicarConfiguracion = window.aplicarConfiguracion;
+    var originalAplicarConfiguracion = window.aplicarConfiguracion;
     if (typeof originalAplicarConfiguracion === 'function') {
         window.aplicarConfiguracion = function (config) {
-            const result = originalAplicarConfiguracion(config);
+            var result = originalAplicarConfiguracion(config);
             window.__mercadopagoActivo = Boolean(config && (config.mp_conectado || config.mp_activo));
             actualizarBotonCheckout();
             procesarRetornoMercadoPago();

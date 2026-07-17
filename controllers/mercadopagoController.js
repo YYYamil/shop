@@ -185,6 +185,61 @@ function getTiendaFromRequest(req) {
     return getTiendaBySlug(slug);
 }
 
+/**
+ * Endpoint público para que el frontend consulte si un pedido fue pagado.
+ * Sirve como respaldo cuando el usuario vuelve de la app de Mercado Pago en mobile
+ * y los datos en localStorage se perdieron.
+ */
+exports.getPedidoStatus = (req, res) => {
+    try {
+        const tienda = getTiendaFromRequest(req);
+        if (!tienda) {
+            return res.status(404).json({ error: 'Tienda no encontrada' });
+        }
+
+        const pedidoId = req.params.id;
+        if (!pedidoId) {
+            return res.status(400).json({ error: 'Falta el ID del pedido' });
+        }
+
+        const pedido = db.prepare(
+            'SELECT id, cliente, telefono, total, estado, mp_payment_status FROM pedidos WHERE id = ? AND tienda_id = ?'
+        ).get(pedidoId, tienda.id);
+
+        if (!pedido) {
+            return res.status(404).json({ error: 'Pedido no encontrado' });
+        }
+
+        const pagado = pedido.estado === 'Pagado' || pedido.mp_payment_status === 'approved';
+
+        let items = [];
+        if (pagado) {
+            try {
+                items = db.prepare(
+                    'SELECT producto_id, nombre, cantidad, precio FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?'
+                ).all(pedidoId, tienda.id);
+            } catch (e) {
+                items = [];
+            }
+        }
+
+        res.json({
+            ok: true,
+            pagado,
+            pedido: pagado ? {
+                id: pedido.id,
+                cliente: pedido.cliente,
+                telefono: pedido.telefono,
+                total: pedido.total,
+                items: items,
+            } : null,
+        });
+    } catch (err) {
+        console.error('Error al consultar estado del pedido:', err.message);
+        res.status(500).json({ error: 'Error al consultar estado del pedido' });
+    }
+};
+
 exports.getStatus = (req, res) => {
     try {
         const tienda = getTiendaFromRequest(req);

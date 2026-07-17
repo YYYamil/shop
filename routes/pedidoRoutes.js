@@ -25,6 +25,11 @@ router.post(
 
 );
 
+router.get(
+    '/mercadopago/pedido/:id/status',
+    mercadopagoController.getPedidoStatus
+);
+
 router.post(
 
     '/webhook/mercadopago',
