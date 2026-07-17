@@ -104,6 +104,9 @@ function obtenerClaseEstado(estado) {
         case 'Entregado':
             return 'estado-entregado';
 
+        case 'Pagado':
+            return 'estado-pagado';
+
         case 'Cancelado':
             return 'estado-cancelado';
 
@@ -498,7 +501,7 @@ document.getElementById('btnAnterior')
         }
     });
 
-document.getElementById('btnSiguiente')
+    document.getElementById('btnSiguiente')
     ?.addEventListener('click', () => {
 
         const totalPaginas =
@@ -514,3 +517,8 @@ document.getElementById('btnSiguiente')
 
 // CARGA INICIAL
 cargarPedidos();
+
+// Refresco automático para reflejar cambios de webhook sin recargar manualmente
+setInterval(() => {
+    cargarPedidos();
+}, 15000);

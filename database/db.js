@@ -409,6 +409,25 @@ try {
     db.exec(`ALTER TABLE pedido_items ADD COLUMN tienda_id INTEGER DEFAULT NULL`);
 } catch(e) { /* ya existe */ }
 
+// ============================================
+// MIGRACIÓN: Campos Mercado Pago en pedidos
+// ============================================
+try {
+    db.exec(`ALTER TABLE pedidos ADD COLUMN mp_preference_id TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE pedidos ADD COLUMN mp_payment_id TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE pedidos ADD COLUMN mp_payment_status TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE pedidos ADD COLUMN mp_external_reference TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE pedidos ADD COLUMN mp_checkout_url TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+
 module.exports = db;
 
 

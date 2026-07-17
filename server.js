@@ -25,6 +25,7 @@ const pedidoRoutes = require('./routes/pedidoRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 
 const configRoutes = require('./routes/configRoutes');
+const mercadopagoRoutes = require('./routes/mercadopagoRoutes');
 
 const superAdminRoutes = require('./routes/superAdminRoutes');
 
@@ -102,6 +103,7 @@ app.use('/pedidos', pedidoRoutes);
 app.use('/categorias', categoriaRoutes);
 
 app.use('/api/config', configRoutes);
+app.use('/api/mercadopago', mercadopagoRoutes);
 
 app.use('/api/superadmin', superAdminRoutes);
 
@@ -111,6 +113,8 @@ app.use('/api/superadmin', superAdminRoutes);
 app.get('/auth/verificar', authMiddleware, (req, res) => {
     res.json({ success: true, admin: req.session.admin, user: req.session.user });
 });
+
+app.get('/auth/mercadopago/callback', require('./controllers/mercadopagoController').callback);
 
 
 

@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const pedidoController = require('../controllers/pedidoController');
+const mercadopagoController = require('../controllers/mercadopagoController');
 
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -13,6 +14,22 @@ router.post(
     '/',
 
     pedidoController.crearPedido
+
+);
+
+router.post(
+
+    '/mercadopago',
+
+    mercadopagoController.crearPreferenciaDesdePedido
+
+);
+
+router.post(
+
+    '/webhook/mercadopago',
+
+    mercadopagoController.webhook
 
 );
 

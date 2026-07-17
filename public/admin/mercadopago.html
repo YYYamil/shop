@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercado Pago</title>
+    <link rel="stylesheet" href="/css/admin.css?v=14">
+</head>
+
+<body class="bg-gray-100">
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="admin-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Panel Admin</h2>
+                <p class="sidebar-subtitle">Gestión de tienda</p>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebarNav">
+                <a href="/admin/dashboard.html" class="nav-link" data-page="dashboard">📊 Dashboard</a>
+                <a href="/admin/admin.html" class="nav-link" data-page="admin">📦 Productos</a>
+                <a href="/admin/pedidos.html" class="nav-link" data-page="pedidos">🛒 Pedidos</a>
+                <a href="/admin/categorias.html" class="nav-link" data-page="categorias">🏷️ Categorías</a>
+                <a href="/admin/personalizacion.html" class="nav-link" data-page="personalizacion">🎨 Personalizar</a>
+                <a href="/superadmin/" id="linkSuperAdmin" style="display:none;border-top:1px solid #334155;margin-top:8px;padding-top:12px;" class="nav-link" data-page="superadmin">⚙️ Super Admin</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button onclick="logout()" class="logout-btn">Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <main class="admin-content">
+            <div class="topbar">
+                <div>
+                    <h1>Activar método de pago</h1>
+                    <p>Conexión independiente de Mercado Pago para esta tienda</p>
+                </div>
+                <div class="stats-card">
+                    <span>Estado</span>
+                    <strong id="mpEstadoTexto">Cargando...</strong>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <div class="form-header">
+                    <h2>Mercado Pago</h2>
+                </div>
+                <div style="padding:20px;display:flex;flex-direction:column;gap:16px;">
+                    <p style="margin:0;color:#475569;line-height:1.6;">
+                        Esta sección conecta la tienda actual con la cuenta de Mercado Pago del dueño.
+                        La autenticación se guarda aislada por tienda usando el slug actual.
+                    </p>
+
+                    <div id="mpBloqueConectar" style="display:none;">
+                        <button id="btnConectarMp" class="secondary-btn" style="padding:12px 20px;background:#2563eb;color:#fff;border-color:#2563eb;">
+                            Conectar con Mercado Pago
+                        </button>
+                    </div>
+
+                    <div id="mpBloqueConectado" style="display:none;flex-direction:column;gap:12px;">
+                        <div style="padding:14px 16px;border-radius:12px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;">
+                            Conectado exitosamente
+                        </div>
+                        <button id="btnDesconectarMp" class="secondary-btn" style="padding:12px 20px;background:#dc2626;color:#fff;border-color:#dc2626;">
+                            Desconectar
+                        </button>
+                    </div>
+
+                    <div style="padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;line-height:1.6;">
+                        Callback OAuth:
+                        <br>
+                        <code>/auth/mercadopago/callback</code>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/storeContext.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin-menu.js?v=1"></script>
+    <script src="/js/mercadopago-admin.js?v=1"></script>
+    <script>
+        verificarAuth();
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', prefijarSidebar);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            function toggleMenu() {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            }
+            menuToggle.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        });
+    </script>
+</body>
+
+</html>

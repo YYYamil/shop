@@ -1,0 +1,182 @@
+(function () {
+    function getCarritoActual() {
+        try {
+            return typeof obtenerCarrito === 'function' ? obtenerCarrito() : [];
+        } catch (err) {
+            return [];
+        }
+    }
+
+    function getDatosCliente() {
+        const cliente = document.getElementById('cliente')?.value?.trim() || '';
+        const codigo = document.getElementById('tel-codigo')?.value?.replace(/\D/g, '') || '';
+        const numero = document.getElementById('tel-numero')?.value?.replace(/\D/g, '') || '';
+        const telefono = '549' + codigo + numero;
+
+        return { cliente, codigo, numero, telefono };
+    }
+
+    function calcularTotalYMensaje() {
+        const carrito = getCarritoActual();
+        let total = 0;
+        let mensaje = '¡Hola! Quiero hacer un pedido:%0A%0A';
+
+        const datos = getDatosCliente();
+        mensaje += '👤 Cliente: ' + datos.cliente + '%0A';
+        mensaje += '📞 Teléfono: ' + datos.telefono + '%0A%0A';
+        mensaje += '━━━ *PRODUCTOS* ━━━%0A';
+
+        carrito.forEach(producto => {
+            const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
+            const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
+            total += subtotal;
+            mensaje += '• ' + producto.nombre + ' x' + producto.cantidad + ' = $' + subtotal + '%0A';
+        });
+
+        mensaje += '%0A━━━━━━━━━━━━━━━%0A';
+        mensaje += '*TOTAL: $ ' + total + '*';
+
+        return { carrito, total, mensaje, datos };
+    }
+
+    function mostrarToastLocal(mensaje) {
+        if (typeof mostrarToast === 'function') {
+            mostrarToast(mensaje);
+            return;
+        }
+        alert(mensaje);
+    }
+
+    function actualizarBotonCheckout() {
+        const btn = document.getElementById('btnFinalizar');
+        if (!btn) return;
+
+        const mpActivo = Boolean(window.__mercadopagoActivo);
+        btn.dataset.metodoPago = mpActivo ? 'mercadopago' : 'whatsapp';
+        btn.textContent = mpActivo ? 'Pagar con Mercado Pago' : 'Enviar pedido por WhatsApp';
+    }
+
+    async function finalizarCompraWhatsapp() {
+        const { carrito, total, mensaje, datos } = calcularTotalYMensaje();
+
+        if (
+            datos.cliente.trim() === '' ||
+            datos.telefono.trim() === '' ||
+            datos.codigo.length < 3 ||
+            datos.numero.length < 5
+        ) {
+            mostrarToastLocal('Completá tu nombre y un teléfono válido (código + número)');
+            return;
+        }
+
+        try {
+            const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : null;
+            const url = slug ? '/pedidos?slug=' + slug : '/pedidos';
+            await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cliente: datos.cliente,
+                    telefono: datos.telefono,
+                    productos: carrito,
+                    total,
+                }),
+            });
+        } catch (e) {
+            console.error('Error al enviar pedido al servidor:', e);
+        }
+
+        const wpNumero = window.__whatsappNumero;
+        if (wpNumero) {
+            window.open(`https://wa.me/${wpNumero}?text=${mensaje}`, '_blank');
+        } else {
+            mostrarToastLocal('No hay número de WhatsApp configurado para recibir pedidos');
+        }
+
+        if (typeof eliminarCarrito === 'function') {
+            eliminarCarrito();
+        }
+        if (typeof cargarCarrito === 'function') {
+            cargarCarrito();
+        }
+        if (typeof actualizarContadorGlobal === 'function') {
+            actualizarContadorGlobal();
+        }
+        if (typeof window.obtenerBaseUrl === 'function') {
+            window.location = obtenerBaseUrl();
+        }
+    }
+
+    async function finalizarCompraMercadoPago() {
+        const { carrito, total, datos } = calcularTotalYMensaje();
+
+        if (
+            datos.cliente.trim() === '' ||
+            datos.telefono.trim() === '' ||
+            datos.codigo.length < 3 ||
+            datos.numero.length < 5
+        ) {
+            mostrarToastLocal('Completá tu nombre y un teléfono válido (código + número)');
+            return;
+        }
+
+        const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : null;
+        const url = slug ? '/pedidos/mercadopago?slug=' + slug : '/pedidos/mercadopago';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cliente: datos.cliente,
+                    telefono: datos.telefono,
+                    productos: carrito,
+                    total,
+                    slug,
+                }),
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                mostrarToastLocal(data.error || 'No se pudo iniciar el pago con Mercado Pago');
+                return;
+            }
+
+            if (!data.initPoint) {
+                mostrarToastLocal('Mercado Pago no devolvió la URL de pago');
+                return;
+            }
+
+            if (typeof eliminarCarrito === 'function') {
+                eliminarCarrito();
+            }
+
+            window.location = data.initPoint;
+        } catch (err) {
+            console.error('Error al iniciar Mercado Pago:', err);
+            mostrarToastLocal('Error de conexión al iniciar Mercado Pago');
+        }
+    }
+
+    window.__actualizarAccionCarrito = actualizarBotonCheckout;
+    actualizarBotonCheckout();
+
+    window.finalizarCompra = async function () {
+        if (window.__mercadopagoActivo) {
+            return finalizarCompraMercadoPago();
+        }
+        return finalizarCompraWhatsapp();
+    };
+
+    const originalAplicarConfiguracion = window.aplicarConfiguracion;
+    if (typeof originalAplicarConfiguracion === 'function') {
+        window.aplicarConfiguracion = function (config) {
+            const result = originalAplicarConfiguracion(config);
+            window.__mercadopagoActivo = Boolean(config && (config.mp_conectado || config.mp_activo));
+            actualizarBotonCheckout();
+            return result;
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', actualizarBotonCheckout);
+})();
