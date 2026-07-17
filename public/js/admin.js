@@ -185,13 +185,16 @@ function abrirPanelProducto(id) {
 
     // Mostrar preview de imágenes existentes
     const imagenes = producto.imagenes || [];
+    // Limpiar el input multiple al cargar edición
+    const inputFile = document.getElementById('inputImagenes');
+    if (inputFile) {
+        inputFile.value = '';
+        archivosSeleccionados = [];
+    }
     for (let i = 0; i < 4; i++) {
         const placeholder = document.getElementById('placeholder' + i);
         const preview = document.getElementById('preview' + i);
         const previewImg = document.getElementById('previewImg' + i);
-        const fileInput = document.getElementById('imagen' + i);
-
-        fileInput.value = '';
 
         if (imagenes[i]) {
             placeholder.style.display = 'none';
@@ -218,37 +221,57 @@ function cerrarPanelProducto() {
     document.body.style.overflow = '';
 }
 
-/* ===== PREVIEW DE IMÁGENES ===== */
-function previewImagen(input, index) {
-    const placeholder = document.getElementById('placeholder' + index);
-    const preview = document.getElementById('preview' + index);
-    const previewImg = document.getElementById('previewImg' + index);
+/* ===== PREVIEW DE IMÁGENES (MULTIPLE) ===== */
 
-    if (input.files && input.files[0]) {
+// Almacena los archivos seleccionados para poder reenviarlos al servidor
+let archivosSeleccionados = [];
+
+function previewMultiplesImagenes(input) {
+    const archivos = Array.from(input.files).slice(0, 4);
+    archivosSeleccionados = archivos;
+
+    // Limpiar todos los slots primero
+    for (let i = 0; i < 4; i++) {
+        const placeholder = document.getElementById('placeholder' + i);
+        const preview = document.getElementById('preview' + i);
+        const previewImg = document.getElementById('previewImg' + i);
+        if (placeholder) placeholder.style.display = 'flex';
+        if (preview) preview.style.display = 'none';
+        if (previewImg) previewImg.src = '';
+    }
+
+    // Distribuir las imágenes seleccionadas en los slots
+    archivos.forEach((file, index) => {
+        const placeholder = document.getElementById('placeholder' + index);
+        const preview = document.getElementById('preview' + index);
+        const previewImg = document.getElementById('previewImg' + index);
+
+        if (!placeholder || !preview || !previewImg) return;
+
         const reader = new FileReader();
         reader.onload = function(e) {
             placeholder.style.display = 'none';
             preview.style.display = 'block';
             previewImg.src = e.target.result;
         };
-        reader.readAsDataURL(input.files[0]);
-    }
+        reader.readAsDataURL(file);
+    });
 }
 
 function removerImagen(index) {
     const placeholder = document.getElementById('placeholder' + index);
     const preview = document.getElementById('preview' + index);
     const previewImg = document.getElementById('previewImg' + index);
-    const fileInput = document.getElementById('imagen' + index);
 
-    fileInput.value = '';
+    if (!placeholder || !preview || !previewImg) return;
+
     placeholder.style.display = 'flex';
     preview.style.display = 'none';
     previewImg.src = '';
 
     // Si estaba editando y la imagen era existente, marcarla para eliminar
     const imagenesActual = document.getElementById('imagenesActual');
-    if (imagenesActual.value) {
+    if (imagenesActual && imagenesActual.value) {
         try {
             const imagenes = JSON.parse(imagenesActual.value);
             if (imagenes[index]) {
@@ -257,6 +280,18 @@ function removerImagen(index) {
                 imagenesActual.value = JSON.stringify(imagenes.filter(Boolean));
             }
         } catch(e) {}
+    }
+
+    // También remover el archivo del array de seleccionados si corresponde
+    if (archivosSeleccionados[index]) {
+        archivosSeleccionados[index] = null;
+    }
+
+    // Sincronizar el input file: si se eliminaron todas, resetear el input
+    const inputFile = document.getElementById('inputImagenes');
+    if (inputFile && archivosSeleccionados.every(f => f === null)) {
+        inputFile.value = '';
+        archivosSeleccionados = [];
     }
 }
 
@@ -301,11 +336,11 @@ async function guardarProducto() {
     formData.append('nuevo', document.getElementById('nuevo').checked ? 'true' : 'false');
     formData.append('descuento', document.getElementById('descuento').value || 0);
 
-    // Agregar imágenes nuevas
-    for (let i = 0; i < 4; i++) {
-        const fileInput = document.getElementById('imagen' + i);
-        if (fileInput && fileInput.files && fileInput.files[0]) {
-            formData.append('imagenes', fileInput.files[0]);
+    // Agregar imágenes nuevas desde el input multiple
+    const inputFile = document.getElementById('inputImagenes');
+    if (inputFile && inputFile.files && inputFile.files.length > 0) {
+        for (let i = 0; i < inputFile.files.length && i < 4; i++) {
+            formData.append('imagenes', inputFile.files[i]);
         }
     }
 
@@ -389,14 +424,20 @@ function limpiarFormulario() {
     document.getElementById('nuevo').checked = false;
     document.getElementById('descuento').value = 0;
     imagenesAEliminar = [];
+    archivosSeleccionados = [];
 
+    // Limpiar input multiple
+    const inputFile = document.getElementById('inputImagenes');
+    if (inputFile) inputFile.value = '';
+
+    // Resetear slots visuales
     for (let i = 0; i < 4; i++) {
-        const fileInput = document.getElementById('imagen' + i);
-        if (fileInput) fileInput.value = '';
         const placeholder = document.getElementById('placeholder' + i);
         const preview = document.getElementById('preview' + i);
+        const previewImg = document.getElementById('previewImg' + i);
         if (placeholder) placeholder.style.display = 'flex';
         if (preview) preview.style.display = 'none';
+        if (previewImg) previewImg.src = '';
     }
 }
 

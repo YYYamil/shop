@@ -260,68 +260,69 @@
             <!-- Imágenes -->
             <div class="campo">
                 <label>Imágenes del producto (máx. 4)</label>
+                <!-- Input oculto con multiple para seleccionar varias imágenes -->
+                <input type="file" id="inputImagenes" accept="image/*" multiple style="display:none" onchange="previewMultiplesImagenes(this)">
                 <div class="imagenes-upload" id="imagenesUpload">
                     <div class="imagen-upload-item" data-index="0">
-                        <input type="file" id="imagen0" accept="image/*" onchange="previewImagen(this, 0)">
-                        <label for="imagen0" class="imagen-upload-placeholder" id="placeholder0">
+                        <div class="imagen-upload-placeholder" id="placeholder0" onclick="document.getElementById('inputImagenes').click()">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
                                 <polyline points="21 15 16 10 5 21"/>
                             </svg>
                             <span>Agregar imagen</span>
-                        </label>
+                        </div>
                         <div class="imagen-upload-preview" id="preview0" style="display:none">
                             <img id="previewImg0" src="" alt="Preview">
                             <button type="button" class="btn-remove-img" onclick="removerImagen(0)" aria-label="Eliminar imagen">✕</button>
                         </div>
                     </div>
                     <div class="imagen-upload-item" data-index="1">
-                        <input type="file" id="imagen1" accept="image/*" onchange="previewImagen(this, 1)">
-                        <label for="imagen1" class="imagen-upload-placeholder" id="placeholder1">
+                        <div class="imagen-upload-placeholder" id="placeholder1" onclick="document.getElementById('inputImagenes').click()">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
                                 <polyline points="21 15 16 10 5 21"/>
                             </svg>
                             <span>Agregar imagen</span>
-                        </label>
+                        </div>
                         <div class="imagen-upload-preview" id="preview1" style="display:none">
                             <img id="previewImg1" src="" alt="Preview">
                             <button type="button" class="btn-remove-img" onclick="removerImagen(1)" aria-label="Eliminar imagen">✕</button>
                         </div>
                     </div>
                     <div class="imagen-upload-item" data-index="2">
-                        <input type="file" id="imagen2" accept="image/*" onchange="previewImagen(this, 2)">
-                        <label for="imagen2" class="imagen-upload-placeholder" id="placeholder2">
+                        <div class="imagen-upload-placeholder" id="placeholder2" onclick="document.getElementById('inputImagenes').click()">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
                                 <polyline points="21 15 16 10 5 21"/>
                             </svg>
                             <span>Agregar imagen</span>
-                        </label>
+                        </div>
                         <div class="imagen-upload-preview" id="preview2" style="display:none">
                             <img id="previewImg2" src="" alt="Preview">
                             <button type="button" class="btn-remove-img" onclick="removerImagen(2)" aria-label="Eliminar imagen">✕</button>
                         </div>
                     </div>
                     <div class="imagen-upload-item" data-index="3">
-                        <input type="file" id="imagen3" accept="image/*" onchange="previewImagen(this, 3)">
-                        <label for="imagen3" class="imagen-upload-placeholder" id="placeholder3">
+                        <div class="imagen-upload-placeholder" id="placeholder3" onclick="document.getElementById('inputImagenes').click()">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
                                 <polyline points="21 15 16 10 5 21"/>
                             </svg>
                             <span>Agregar imagen</span>
-                        </label>
+                        </div>
                         <div class="imagen-upload-preview" id="preview3" style="display:none">
                             <img id="previewImg3" src="" alt="Preview">
                             <button type="button" class="btn-remove-img" onclick="removerImagen(3)" aria-label="Eliminar imagen">✕</button>
                         </div>
                     </div>
                 </div>
+                <button type="button" class="btn-select-multi" onclick="document.getElementById('inputImagenes').click()" style="margin-top:8px;padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;width:100%;">
+                    📷 Seleccionar imágenes (hasta 4)
+                </button>
             </div>
 
         </div>
