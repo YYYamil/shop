@@ -477,50 +477,47 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
     try {
         const items = db.prepare('SELECT nombre, cantidad, precio FROM pedido_items WHERE pedido_id = ? AND tienda_id = ?').all(pedido.id, pedido.tienda_id);
         items.forEach(item => {
-            itemsStr += `${item.nombre} x${item.cantidad} ................ $${(item.precio * item.cantidad).toFixed(2)}\n`;
+            itemsStr += `   ${item.nombre} x${item.cantidad} ................ $${(item.precio * item.cantidad).toFixed(2)}\n`;
         });
     } catch (e) {
-        itemsStr = `(ver detalle en el panel)\n`;
+        itemsStr = `   (ver detalle en el panel)\n`;
     }
 
     const mensajeCliente = [
-        `FACTURA #${pedido.id} - PAGADO`,
-        `Tienda: ${tiendaNombre || 'Mi Shop'}`,
-        `================================`,
+        `🧾 *FACTURA #${pedido.id}* ✅`,
+        `━━━━━━━━━━━━━━━━━━━━━━`,
         ``,
-        `Cliente: ${pedido.cliente}`,
-        `Telefono: ${pedido.telefono}`,
+        `🏪 *${tiendaNombre || 'MI SHOP'}*`,
+        `👤 ${pedido.cliente}`,
         ``,
-        `--- PRODUCTOS ---`,
+        `📦 *PRODUCTOS*`,
         `${itemsStr}`,
-        `--------------------------------`,
-        `TOTAL .......................... $${Number(totalPagado).toFixed(2)}`,
+        `────────────────────────`,
+        `💲 *TOTAL* ................. *$${Number(totalPagado).toFixed(2)}*`,
         ``,
-        `Pago: ${metodoPago} ${tarjeta}`,
-        `Codigo: ${payment.id}`,
-        `Cuotas: ${cuotas}`,
-        `Fecha: ${fechaPago}`,
-        `================================`,
+        `💳 ${metodoPago} ${tarjeta}`,
+        `🔢 Transacción: ${payment.id}`,
+        `📆 ${cuotas}  |  ${fechaPago}`,
+        `━━━━━━━━━━━━━━━━━━━━━━`,
     ].join('\n');
 
     const mensajeDueno = [
-        `FACTURA #${pedido.id} - PAGADO`,
-        `Tienda: ${tiendaNombre || 'Mi Shop'}`,
-        `================================`,
+        `🧾 *FACTURA #${pedido.id}* ✅`,
+        `━━━━━━━━━━━━━━━━━━━━━━`,
         ``,
-        `Cliente: ${pedido.cliente}`,
-        `Telefono: ${pedido.telefono}`,
+        `🏪 *${tiendaNombre || 'MI SHOP'}*`,
+        `👤 ${pedido.cliente}`,
+        `📞 ${pedido.telefono}`,
         ``,
-        `--- PRODUCTOS ---`,
+        `📦 *PRODUCTOS*`,
         `${itemsStr}`,
-        `--------------------------------`,
-        `TOTAL .......................... $${Number(totalPagado).toFixed(2)}`,
+        `────────────────────────`,
+        `💲 *TOTAL* ................. *$${Number(totalPagado).toFixed(2)}*`,
         ``,
-        `Pago: ${metodoPago} ${tarjeta}`,
-        `Codigo MP: ${payment.id}`,
-        `Cuotas: ${cuotas}`,
-        `Fecha: ${fechaPago}`,
-        `================================`,
+        `💳 ${metodoPago} ${tarjeta}`,
+        `🔢 Transacción: ${payment.id}`,
+        `📆 ${cuotas}  |  ${fechaPago}`,
+        `━━━━━━━━━━━━━━━━━━━━━━`,
     ].join('\n');
 
     return { mensajeCliente, mensajeDueno };

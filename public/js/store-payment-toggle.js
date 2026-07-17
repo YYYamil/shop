@@ -42,28 +42,30 @@
     }
 
     function buildMensajePagoExitoso({ pedidoId, cliente, telefono, total, carrito }) {
+        const slug = typeof obtenerSlug === 'function' ? obtenerSlug() : '';
+        const tiendaSlug = slug ? slug.toUpperCase() : (window.__tiendaNombre || 'MI SHOP');
+
         let itemsStr = '';
         carrito.forEach(producto => {
             const precioUnitario = producto.precioConDescuento != null ? producto.precioConDescuento : producto.precio;
             const subtotal = Math.round(precioUnitario * producto.cantidad * 100) / 100;
-            itemsStr += `${producto.nombre} x${producto.cantidad} ................ $${subtotal}\n`;
+            itemsStr += `   ${producto.nombre} x${producto.cantidad} ................ $${subtotal}\n`;
         });
 
         const mensaje = [
-            `FACTURA #${pedidoId || '---'} - PAGADO`,
-            `Tienda: ${window.__tiendaNombre || 'Mi Shop'}`,
-            `================================`,
+            `🧾 *FACTURA #${pedidoId || '---'}* ✅`,
+            `━━━━━━━━━━━━━━━━━━━━━━`,
             ``,
-            `Cliente: ${cliente}`,
-            `Telefono: ${telefono}`,
+            `🏪 *${tiendaSlug}*`,
+            `👤 ${cliente}`,
             ``,
-            `--- PRODUCTOS ---`,
+            `📦 *PRODUCTOS*`,
             `${itemsStr}`,
-            `--------------------------------`,
-            `TOTAL .......................... $${total}`,
+            `────────────────────────`,
+            `💲 *TOTAL* ................. *$${total}*`,
             ``,
-            `Pago: Mercado Pago`,
-            `================================`,
+            `💳 Mercado Pago`,
+            `━━━━━━━━━━━━━━━━━━━━━━`,
         ].join('\n');
 
         return mensaje;
