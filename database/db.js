@@ -428,6 +428,35 @@ try {
     db.exec(`ALTER TABLE pedidos ADD COLUMN mp_checkout_url TEXT DEFAULT NULL`);
 } catch (e) { /* ya existe */ }
 
+// ============================================
+// MIGRACIÓN: Método de entrega en pedidos
+// ============================================
+try {
+    db.exec(`ALTER TABLE pedidos ADD COLUMN metodo_entrega TEXT DEFAULT 'retiro_local'`);
+} catch (e) { /* ya existe */ }
+
+// ============================================
+// MIGRACIÓN: Dirección de retiro en configuración
+// ============================================
+try {
+    const tiendas = db.prepare('SELECT id FROM tiendas').all();
+    if (tiendas.length === 0) {
+        const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get('direccion_retiro');
+        if (!existente) {
+            db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('direccion_retiro', '', 'texto', 'whatsapp', null);
+        }
+    } else {
+        tiendas.forEach(t => {
+            const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id = ?').get('direccion_retiro', t.id);
+            if (!existente) {
+                db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run('direccion_retiro', '', 'texto', 'whatsapp', t.id);
+            }
+        });
+    }
+} catch (e) {
+    // Ignorar error
+}
+
 module.exports = db;
 
 

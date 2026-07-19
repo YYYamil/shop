@@ -48,6 +48,20 @@
         return { cliente: cliente, codigo: codigo, numero: numero, telefono: telefono };
     }
 
+    function getMetodoEntrega() {
+        var seleccionado = document.querySelector('input[name="metodo_entrega"]:checked');
+        return seleccionado ? seleccionado.value : 'retiro_local';
+    }
+
+    function getTextoEntrega() {
+        var metodo = getMetodoEntrega();
+        if (metodo === 'retiro_local') {
+            var direccion = window.__direccionRetiro || '';
+            return direccion ? 'Retiro en local - ' + direccion : 'Retiro en local';
+        }
+        return 'Coordinar con el vendedor';
+    }
+
     function calcularTotalYMensaje() {
         var carrito = getCarritoActual();
         var total = 0;
@@ -67,6 +81,7 @@
 
         mensaje += '%0A━━━━━━━━━━━━━━━%0A';
         mensaje += '*TOTAL: $ ' + total + '*';
+        mensaje += '%0A📦 Metodo de entrega: ' + getTextoEntrega();
 
         return { carrito: carrito, total: total, mensaje: mensaje, datos: datos };
     }
@@ -107,6 +122,7 @@
             itemsStr +
             SEP + '\n' +
             '  TOTAL .......................... $' + total + '\n' +
+            '  Metodo de entrega: ' + getTextoEntrega() + '\n' +
             '\n' +
             '  Pago: Mercado Pago' + '\n' +
             '  Estado: PAGADO' + '\n' +
@@ -289,6 +305,7 @@
                     telefono: datos.telefono,
                     productos: carrito,
                     total: total,
+                    metodo_entrega: getMetodoEntrega(),
                 }),
             });
         } catch (e) {
@@ -345,6 +362,7 @@
                     productos: carrito,
                     total: total,
                     slug: slug,
+                    metodo_entrega: getMetodoEntrega(),
                 }),
             });
 

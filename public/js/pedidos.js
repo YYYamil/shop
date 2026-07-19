@@ -217,6 +217,10 @@ function renderizarPedidos() {
                         <strong>Total:</strong> $${pedido.total || 0}
                     </div>
 
+                    <div class="pedido-detalle">
+                        <strong>Metodo de entrega:</strong> ${pedido.metodo_entrega === 'retiro_local' ? 'Retiro en local' : 'Coordinar con el vendedor'}
+                    </div>
+
                 </div>
 
                 <!-- BOTON TOGGLE DETALLE -->

@@ -52,6 +52,11 @@ function aplicarConfiguracion(config) {
         window.__whatsappNumero = config.whatsapp_numero;
     }
 
+    // 0b. Guardar dirección de retiro para el carrito
+    if (config.direccion_retiro) {
+        window.__direccionRetiro = config.direccion_retiro;
+    }
+
     // 1. Colores CSS
     aplicarColores(config);
 

@@ -2,7 +2,7 @@ const db = require('../database/db');
 const { v4: uuidv4 } = require('uuid');
 
 exports.crearPedido = (req, res) => {
-    const { cliente, telefono, productos, total } = req.body;
+    const { cliente, telefono, productos, total, metodo_entrega } = req.body;
     const tiendaId = req.tiendaId || 1;
 
     if (!cliente || !telefono || productos.length === 0) {
@@ -10,12 +10,13 @@ exports.crearPedido = (req, res) => {
     }
 
     const codigo = uuidv4().split('-')[0].toUpperCase();
+    const entrega = metodo_entrega || 'retiro_local';
 
     try {
         const result = db.prepare(`
-            INSERT INTO pedidos (cliente, telefono, total, estado, fecha, tienda_id)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `).run(cliente, telefono, total, 'Pendiente', new Date().toLocaleString(), tiendaId);
+            INSERT INTO pedidos (cliente, telefono, total, estado, fecha, tienda_id, metodo_entrega)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(cliente, telefono, total, 'Pendiente', new Date().toLocaleString(), tiendaId, entrega);
 
         const pedidoId = result.lastInsertRowid;
 

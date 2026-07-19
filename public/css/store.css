@@ -2276,10 +2276,70 @@ body > main {
     background: #009ee3 !important;
     color: #fff !important;
 }
-
 .btn-mp-checkout:hover {
     opacity: 0.9;
 }
+
+/* ===== Metodo de entrega ===== */
+.resumen-entrega {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.resumen-entrega h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #374151;
+}
+
+.entrega-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.entrega-option:hover {
+    border-color: var(--color-boton);
+    background: rgba(0,0,0,0.02);
+}
+
+.entrega-option input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--color-boton);
+}
+
+.entrega-option-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.entrega-label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.entrega-direccion {
+    display: block;
+    font-size: 13px;
+    color: #4b5563;
+    margin-top: 2px;
+    font-style: italic;
+    padding: 3px 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    line-height: 1.4;
+}
+
 
 
 

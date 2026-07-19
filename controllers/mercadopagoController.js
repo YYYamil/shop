@@ -231,6 +231,7 @@ exports.getPedidoStatus = (req, res) => {
                 cliente: pedido.cliente,
                 telefono: pedido.telefono,
                 total: pedido.total,
+                metodo_entrega: pedido.metodo_entrega || 'retiro_local',
                 items: items,
             } : null,
         });
@@ -466,7 +467,7 @@ async function createMercadoPagoPreference({ accessToken, pedido, tiendaSlug, pr
 }
 
 exports.crearPreferenciaDesdePedido = async (req, res) => {
-    const { cliente, telefono, productos, total } = req.body || {};
+    const { cliente, telefono, productos, total, metodo_entrega } = req.body || {};
     const tienda = getTiendaFromRequest(req);
 
     if (!tienda) {
@@ -500,17 +501,20 @@ exports.crearPreferenciaDesdePedido = async (req, res) => {
         refreshMercadoPagoToken(tienda.id).catch(() => {});
     }
 
+    const entrega = metodo_entrega || 'retiro_local';
+
     const insertPedido = db.transaction((pedidoData, items) => {
         const result = db.prepare(`
-            INSERT INTO pedidos (cliente, telefono, total, estado, fecha, tienda_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO pedidos (cliente, telefono, total, estado, fecha, tienda_id, metodo_entrega)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `).run(
             pedidoData.cliente,
             pedidoData.telefono,
             pedidoData.total,
             'Pendiente',
             new Date().toLocaleString(),
-            tienda.id
+            tienda.id,
+            entrega
         );
 
         const pedidoId = result.lastInsertRowid;
@@ -657,6 +661,10 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
     const SEP = '----------------------------------------';
     const LINE = '========================================';
 
+    var textoEntrega = pedido.metodo_entrega === 'retiro_local'
+        ? 'Retiro en local'
+        : 'Coordinar con el vendedor';
+
     const mensajeCliente =
         '  FACTURA #' + pedido.id + '  -  PAGADO\n' +
         LINE + '\n' +
@@ -669,6 +677,7 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
         itemsStr +
         SEP + '\n' +
         '  TOTAL .......................... $' + Number(totalPagado).toFixed(2) + '\n' +
+        '  Metodo de entrega: ' + textoEntrega + '\n' +
         '\n' +
         '  Pago: ' + metodoPago + ' ' + tarjeta + '\n' +
         '  Transaccion: ' + payment.id + '\n' +
@@ -689,6 +698,7 @@ function buildWhatsAppMessage({ pedido, payment, tiendaNombre }) {
         itemsStr +
         SEP + '\n' +
         '  TOTAL .......................... $' + Number(totalPagado).toFixed(2) + '\n' +
+        '  Metodo de entrega: ' + textoEntrega + '\n' +
         '\n' +
         '  Pago: ' + metodoPago + ' ' + tarjeta + '\n' +
         '  Transaccion: ' + payment.id + '\n' +
