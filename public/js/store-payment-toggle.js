@@ -245,12 +245,20 @@
     }
 
     function actualizarBotonCheckout() {
-        var btn = document.getElementById('btnFinalizar');
-        if (!btn) return;
+        var btnWA = document.getElementById('btnFinalizarWhatsapp');
+        var btnMP = document.getElementById('btnFinalizarMP');
+        if (!btnWA && !btnMP) return;
 
         var mpActivo = Boolean(window.__mercadopagoActivo);
-        btn.dataset.metodoPago = mpActivo ? 'mercadopago' : 'whatsapp';
-        btn.textContent = mpActivo ? 'Pagar con Mercado Pago' : 'Enviar pedido por WhatsApp';
+
+        // Cuando MP está activo, mostrar ambos botones
+        // Cuando MP NO está activo, mostrar solo WhatsApp
+        if (btnWA) {
+            btnWA.style.display = '';
+        }
+        if (btnMP) {
+            btnMP.style.display = mpActivo ? '' : 'none';
+        }
     }
 
     async function finalizarCompraWhatsapp() {
@@ -367,15 +375,10 @@
         }
     }
 
+    window.finalizarCompraWhatsapp = finalizarCompraWhatsapp;
+    window.finalizarCompraMercadoPago = finalizarCompraMercadoPago;
     window.__actualizarAccionCarrito = actualizarBotonCheckout;
     actualizarBotonCheckout();
-
-    window.finalizarCompra = async function () {
-        if (window.__mercadopagoActivo) {
-            return finalizarCompraMercadoPago();
-        }
-        return finalizarCompraWhatsapp();
-    };
 
     var originalAplicarConfiguracion = window.aplicarConfiguracion;
     if (typeof originalAplicarConfiguracion === 'function') {

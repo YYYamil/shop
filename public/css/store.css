@@ -2261,6 +2261,26 @@ body > main {
 
 }
 
+.botones-checkout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.botones-checkout .btn-finalizar {
+    margin-top: 0;
+}
+
+.btn-mp-checkout {
+    background: #009ee3 !important;
+    color: #fff !important;
+}
+
+.btn-mp-checkout:hover {
+    opacity: 0.9;
+}
+
 
 
 /* Volver */
