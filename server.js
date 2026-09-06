@@ -29,6 +29,8 @@ const mercadopagoRoutes = require('./routes/mercadopagoRoutes');
 
 const superAdminRoutes = require('./routes/superAdminRoutes');
 
+const seoController = require('./controllers/seoController');
+
 
 
 
@@ -78,11 +80,26 @@ app.use(tiendaMiddleware);
 
 app.use('/uploads', express.static('uploads'));
 
+// /carrito.html (raíz) - Página de proceso privada → noindex
+// Debe ir ANTES de express.static para que no la sirva como archivo crudo
+app.get('/carrito.html', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'carrito.html');
+    if (!fs.existsSync(filePath)) return res.status(404).send('Not found');
+    const html = fs.readFileSync(filePath, 'utf8');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(seoController.inyectarNoindex(html));
+});
+
 // Servir archivos estáticos con headers anti-caché para JS, HTML y CSS
 // Esto evita que el navegador use versiones cacheadas de archivos críticos
+// index:false → NO servir index.html en "/" (lo maneja la ruta raíz con redirect SEO)
 app.use(express.static('public', {
     etag: false,
     lastModified: false,
+    index: false,
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.js')) {
             res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
@@ -124,17 +141,38 @@ app.get('/auth/mercadopago/callback', require('./controllers/mercadopagoControll
 
 
 // ============================================
+// RUTAS SEO GLOBALES (robots.txt / sitemap.xml)
+// ============================================
+
+// /robots.txt - Dinámico (bloquea zonas privadas y APIs, permite assets)
+app.get('/robots.txt', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(seoController.generarRobotsTxt(req));
+});
+
+// /sitemap.xml - Dinámico (solo homes canónicas de tiendas activas)
+app.get('/sitemap.xml', (req, res) => {
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.send(seoController.generarSitemapXml(req));
+});
+
+// ============================================
 // RUTAS DINÁMICAS MULTI-TENANT
 // ============================================
 
-// Ruta raíz: sirve index.html (tienda por defecto)
+// Ruta raíz: redirige a la tienda por defecto (primera activa / tienda1)
+// para evitar contenido duplicado con /:slug/
 app.get('/', (req, res) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.sendFile(
-        path.join(__dirname, 'public', 'index.html')
-    );
+    const tienda = seoController.obtenerTiendaPorDefecto();
+    if (!tienda) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        return res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    }
+    res.redirect(301, '/' + tienda.slug + '/');
 });
 
 // /superadmin/ - Sirve archivos estáticos del superadmin
@@ -145,7 +183,7 @@ app.get('/superadmin', (req, res) => {
     res.redirect('/superadmin/');
 });
 
-// /:slug/admin/:file - Sirve páginas admin de una tienda específica
+// /:slug/admin/:file - Sirve páginas admin de una tienda específica (noindex)
 // Ej: /tienda1/admin/admin.html, /tienda1/admin/pedidos.html
 app.get('/:slug/admin/:file', (req, res, next) => {
     const { slug, file } = req.params;
@@ -155,14 +193,21 @@ app.get('/:slug/admin/:file', (req, res, next) => {
     }
     const filePath = path.join(__dirname, 'public', 'admin', file);
     if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-    } else {
-        next();
+        // Inyectar noindex en páginas admin (privadas, sin valor SEO)
+        if (file.endsWith('.html')) {
+            const html = fs.readFileSync(filePath, 'utf8');
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            return res.send(seoController.inyectarNoindex(html));
+        }
+        return res.sendFile(filePath);
     }
+    next();
 });
 
 // /:slug/:file - Sirve páginas HTML públicas de una tienda específica
-// Ej: /tienda1/carrito.html, /tienda1/index.html
+// Ej: /tienda1/carrito.html (noindex) — /tienda1/index.html → 301 a /tienda1/
 app.get('/:slug/:file', (req, res, next) => {
     const { slug, file } = req.params;
     if (!slug.match(/^[a-z0-9-]+$/)) {
@@ -176,53 +221,68 @@ app.get('/:slug/:file', (req, res, next) => {
     if (!file.endsWith('.html')) {
         return next();
     }
+
+    // /:slug/index.html es duplicado de /:slug/ → redirigir a la versión canónica
+    if (file === 'index.html') {
+        return res.redirect(301, '/' + slug + '/');
+    }
+
     const filePath = path.join(__dirname, 'public', file);
     if (fs.existsSync(filePath)) {
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
-        res.sendFile(filePath);
-    } else {
-        next();
+        // Las páginas de proceso (carrito) no deben indexarse
+        if (file === 'carrito.html') {
+            const html = fs.readFileSync(filePath, 'utf8');
+            return res.send(seoController.inyectarNoindex(html));
+        }
+        return res.sendFile(filePath);
     }
+    next();
 });
 
-// /:slug/ - Sirve la tienda pública para ese slug
-// Ej: /tienda1/ → public/index.html con slug=tienda1
-app.get('/:slug/', (req, res, next) => {
-    const { slug } = req.params;
-    if (!slug.match(/^[a-z0-9-]+$/)) {
-        return next();
-    }
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// /:slug (sin slash) - Sirve index.html directamente (sin redirección)
-// para evitar problemas con express.static que podría interceptar la ruta
+// /:slug y /:slug/ - Home pública de la tienda con SEO dinámico
+// Express 4 sin strict routing trata "/vibra" y "/vibra/" como la misma ruta,
+// así que distingue por req.path para evitar bucles de redirección.
+//   - Con slash final → renderiza la home con SEO
+//   - Sin slash final → 301 a la versión canónica "/:slug/"
+//   - Slug inexistente o inactivo → 404 real (evita soft-404)
 app.get('/:slug', (req, res, next) => {
     const { slug } = req.params;
     if (!slug.match(/^[a-z0-9-]+$/)) {
         return next();
     }
+
+    // Sin trailing slash → redirigir a la versión canónica (301)
+    if (!req.path.endsWith('/')) {
+        return res.redirect(301, '/' + slug + '/');
+    }
+
+    // Con trailing slash → renderizar tienda con SEO (404 si no existe)
+    seoController.renderizarTienda(req, res, next, slug);
+});
+
+// 404 real para slugs inexistentes o rutas no encontradas
+app.use((req, res) => {
+    res.status(404);
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    if (req.accepts('html')) {
+        return res.send('<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>404 - No encontrado</title></head><body><h1>404</h1><p>La página que buscás no existe.</p></body></html>');
+    }
+    res.json({ error: 'Not Found' });
 });
 
 
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
+// Solo escuchar si este archivo se ejecuta directamente.
+// Si se importa (require) desde una prueba, se exporta la app sin escuchar.
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log('Servidor funcionando en http://localhost:' + PORT);
+    });
+}
 
-    console.log(
-
-        'Servidor funcionando en http://localhost:' + PORT
-
-    );
-
-});
+module.exports = app;

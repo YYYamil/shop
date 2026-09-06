@@ -219,6 +219,28 @@
 
             </div>
 
+            <!-- 1b. POSICIONAMIENTO EN BUSCADORES (SEO) -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Buscadores (SEO)</h2>
+
+                </div>
+
+                <p style="color:#6b7280;font-size:13px;margin:0 20px 12px;line-height:1.5;">
+                    Completá estos datos para que Google encuentre tu tienda. Si los dejás vacíos,
+                    el sistema genera el título y la descripción automáticamente.
+                </p>
+
+                <div class="form-grid" id="grupo-seo">
+
+                    <!-- Se llena dinámicamente: rubro_actividad, ciudad, seo_title, seo_description -->
+
+                </div>
+
+            </div>
+
             <!-- 2. PORTADA (HERO) -->
             <div class="form-card">
 
@@ -465,6 +487,10 @@
             redes_whatsapp: 'WhatsApp (URL)',
             logo_imagen: 'Logo de la tienda (se sube abajo)',
             font_family: 'Tipografía para el nombre de la tienda y título del Hero',
+            rubro_actividad: 'Rubro o actividad (ej: Indumentaria deportiva)',
+            ciudad: 'Ciudad (ej: Tucumán)',
+            seo_title: 'Título para buscadores (opcional)',
+            seo_description: 'Descripción para buscadores (opcional)',
         };
 
         // Grupos para cada clave
@@ -496,6 +522,10 @@
             redes_tiktok: 'redes',
             redes_whatsapp: 'redes',
             logo_imagen: 'apariencia',
+            rubro_actividad: 'seo',
+            ciudad: 'seo',
+            seo_title: 'seo',
+            seo_description: 'seo',
         };
 
         // Textos por defecto para restaurar (guía para el usuario)
@@ -517,6 +547,10 @@
             redes_facebook: 'https://facebook.com/',
             redes_tiktok: 'https://tiktok.com/',
             redes_whatsapp: 'https://www.pagina.com/',
+            rubro_actividad: '',
+            ciudad: '',
+            seo_title: '',
+            seo_description: '',
         };
 
         function limpiarDigitos(valor) {
@@ -1191,9 +1225,78 @@
             }
 
             // ============================================
+            // 5b. SEO: rubro_actividad + ciudad (fila) y seo_title + seo_description
+            // ============================================
+            const contSeo = document.getElementById('grupo-seo');
+            if (contSeo) {
+                const itemRubro = datos.find(d => d.clave === 'rubro_actividad');
+                const itemCiudad = datos.find(d => d.clave === 'ciudad');
+                const itemTitulo = datos.find(d => d.clave === 'seo_title');
+                const itemDesc = datos.find(d => d.clave === 'seo_description');
+
+                if (itemRubro || itemCiudad) {
+                    const filaSEO = document.createElement('div');
+                    filaSEO.className = 'grid-2cols';
+                    filaSEO.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;';
+
+                    [itemRubro, itemCiudad].forEach(item => {
+                        if (!item) return;
+                        const grupo = document.createElement('div');
+                        grupo.className = 'input-group';
+                        const label = document.createElement('label');
+                        label.htmlFor = 'input-' + item.clave;
+                        label.textContent = etiquetas[item.clave] || item.clave;
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = 'input-' + item.clave;
+                        input.value = item.valor || '';
+                        input.addEventListener('change', function() { guardarCambio(item.clave, this.value); });
+                        grupo.appendChild(label);
+                        grupo.appendChild(input);
+                        filaSEO.appendChild(grupo);
+                    });
+                    contSeo.appendChild(filaSEO);
+                }
+
+                if (itemTitulo) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-seo_title';
+                    label.textContent = etiquetas.seo_title;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = 'input-seo_title';
+                    input.value = itemTitulo.valor || '';
+                    input.placeholder = 'Vacío = se genera automático (ej: Nombre | Rubro - Ciudad)';
+                    input.addEventListener('change', function() { guardarCambio('seo_title', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(input);
+                    contSeo.appendChild(grupo);
+                }
+
+                if (itemDesc) {
+                    const grupo = document.createElement('div');
+                    grupo.className = 'input-group';
+                    const label = document.createElement('label');
+                    label.htmlFor = 'input-seo_description';
+                    label.textContent = etiquetas.seo_description;
+                    const textarea = document.createElement('textarea');
+                    textarea.id = 'input-seo_description';
+                    textarea.value = itemDesc.valor || '';
+                    textarea.placeholder = 'Vacío = se genera automático';
+                    textarea.style.minHeight = '70px';
+                    textarea.addEventListener('change', function() { guardarCambio('seo_description', this.value); });
+                    grupo.appendChild(label);
+                    grupo.appendChild(textarea);
+                    contSeo.appendChild(grupo);
+                }
+            }
+
+            // ============================================
             // 6. RESTO DE SECCIONES (whatsapp, contacto)
             // ============================================
-            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp', 'logo_forma', 'whatsapp_codigo_area', 'whatsapp_numero_local'];
+            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp', 'logo_forma', 'whatsapp_codigo_area', 'whatsapp_numero_local', 'rubro_actividad', 'ciudad', 'seo_title', 'seo_description'];
 
             datos.forEach(item => {
                 // Saltar items ya renderizados en secciones custom

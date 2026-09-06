@@ -209,12 +209,14 @@ function aplicarNombreTienda(config) {
 
     if (footerTitulo) footerTitulo.textContent = nombre;
 
-    // Descripción en footer (abajo del nombre)
+    // Descripción en footer (abajo del nombre).
+    // SOLO se pisa si hay una descripción real configurada. Si no existe, se
+    // conserva el texto servido por el servidor (fallback SEO de la Etapa 5).
     const footerDesc = document.querySelector('.footer-brand p');
 
-    if (footerDesc) {
+    if (footerDesc && config.tienda_descripcion && config.tienda_descripcion.trim() !== '') {
 
-        footerDesc.textContent = config.tienda_descripcion || '';
+        footerDesc.textContent = config.tienda_descripcion;
 
     }
 
@@ -229,8 +231,11 @@ function aplicarNombreTienda(config) {
 
     }
 
-    // Título de la página
-    document.title = nombre;
+    // Título de la página: el servidor ya inyecta un <title> SEO por tienda.
+    // Solo se pisa si todavía quedó el genérico "Mi Shop" de la plantilla.
+    if (!document.title || document.title.indexOf('Mi Shop') !== -1) {
+        document.title = nombre;
+    }
 
 }
 
@@ -271,29 +276,23 @@ function aplicarLogo(config) {
 
 function aplicarHero(config) {
 
-    // Hero título
+    // Hero título.
+    // El servidor ya inyecta el h1 real (hero_titulo o tienda_nombre). Si no hay
+    // hero_titulo configurado, se conserva lo servido (fallback SEO Etapa 5).
     const titulo = document.querySelector('.hero-content h1');
-    if (config.hero_titulo) {
+    if (config.hero_titulo && config.hero_titulo.trim() !== '') {
 
         if (titulo) titulo.textContent = config.hero_titulo;
 
-    } else {
-
-        // Si no hay título configurado, limpiar el HTML hardcodeado
-        if (titulo) titulo.textContent = '';
-
     }
 
-    // Hero descripción
+    // Hero descripción.
+    // Si no hay hero_descripcion configurada, se conserva la descripción servida
+    // (tienda_descripcion o rubro). Nunca se reemplaza contenido válido por vacío.
     const desc = document.querySelector('.hero-content p');
-    if (config.hero_descripcion) {
+    if (config.hero_descripcion && config.hero_descripcion.trim() !== '') {
 
         if (desc) desc.textContent = config.hero_descripcion;
-
-    } else {
-
-        // Si no hay descripción configurada, limpiar el HTML hardcodeado
-        if (desc) desc.textContent = '';
 
     }
 

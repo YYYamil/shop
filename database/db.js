@@ -457,6 +457,42 @@ try {
     // Ignorar error
 }
 
+// ============================================
+// MIGRACIÓN: Claves SEO por tienda
+// (rubro_actividad, ciudad, seo_title, seo_description)
+// ============================================
+// Se insertan vacías para cada tienda que no las tenga (o global si no hay
+// tiendas aún). Con valor vacío el sistema SEO autogenera el <title> y la
+// meta description a partir de los datos reales de la tienda.
+try {
+    const clavesSEO = [
+        { clave: 'rubro_actividad', valor: '' },
+        { clave: 'ciudad', valor: '' },
+        { clave: 'seo_title', valor: '' },
+        { clave: 'seo_description', valor: '' },
+    ];
+    const tiendas = db.prepare('SELECT id FROM tiendas').all();
+    if (tiendas.length === 0) {
+        clavesSEO.forEach((item) => {
+            const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id IS NULL').get(item.clave);
+            if (!existente) {
+                db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run(item.clave, item.valor, 'texto', 'seo', null);
+            }
+        });
+    } else {
+        tiendas.forEach(t => {
+            clavesSEO.forEach((item) => {
+                const existente = db.prepare('SELECT clave FROM configuracion WHERE clave = ? AND tienda_id = ?').get(item.clave, t.id);
+                if (!existente) {
+                    db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)').run(item.clave, item.valor, 'texto', 'seo', t.id);
+                }
+            });
+        });
+    }
+} catch (e) {
+    // Ignorar error
+}
+
 module.exports = db;
 
 

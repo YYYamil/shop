@@ -61,6 +61,10 @@ exports.crearTienda = (req, res) => {
         const defaults = [
             ['tienda_nombre', nombre, 'texto', 'general'],
             ['tienda_descripcion', 'Descripción de mi tienda - Aquí podés contar qué ofrecés', 'texto', 'general'],
+            ['rubro_actividad', '', 'texto', 'seo'],
+            ['ciudad', '', 'texto', 'seo'],
+            ['seo_title', '', 'texto', 'seo'],
+            ['seo_description', '', 'texto', 'seo'],
             ['color_primario', '#000000', 'color', 'oculto'],
             ['color_secundario', '#444444', 'color', 'oculto'],
             ['color_fondo', '#f4f4f4', 'color', 'oculto'],
