@@ -162,17 +162,19 @@ app.get('/sitemap.xml', (req, res) => {
 // RUTAS DINÁMICAS MULTI-TENANT
 // ============================================
 
-// Ruta raíz: redirige a la tienda por defecto (primera activa / tienda1)
-// para evitar contenido duplicado con /:slug/
+// Ruta raíz: sirve la landing del producto/SaaS.
+// Las tiendas individuales se siguen sirviendo en /:slug/.
 app.get('/', (req, res) => {
-    const tienda = seoController.obtenerTiendaPorDefecto();
-    if (!tienda) {
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-        return res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    }
-    res.redirect(301, '/' + tienda.slug + '/');
+    const landingPath = path.join(__dirname, 'public', 'landing.html');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    return res.sendFile(landingPath);
+});
+
+// /home y /home/ → 301 canónico a la landing en la raíz (evita contenido duplicado)
+app.get(['/home', '/home/'], (req, res) => {
+    res.redirect(301, '/');
 });
 
 // /superadmin/ - Sirve archivos estáticos del superadmin

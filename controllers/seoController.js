@@ -461,14 +461,21 @@ function generarRobotsTxt(req) {
     return lineas.join('\n');
 }
 
-// /sitemap.xml lista SOLO la home canónica de cada tienda activa.
-// Categorías y productos se excluyen: hoy no tienen URLs propias indexables.
+// /sitemap.xml lista la raíz (landing del producto) + la home canónica de cada
+// tienda activa. Categorías y productos se excluyen: hoy no tienen URLs propias indexables.
 function generarSitemapXml(req) {
     const tiendas = db.prepare('SELECT slug FROM tiendas WHERE activo = 1 ORDER BY id ASC').all();
     const base = construirUrlAbsoluta(req, '');
 
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+    // Landing del producto/SaaS en la raíz
+    xml += '  <url>\n';
+    xml += '    <loc>' + escapeHtml(base + '/') + '</loc>\n';
+    xml += '    <changefreq>weekly</changefreq>\n';
+    xml += '  </url>\n';
+
     tiendas.forEach((tienda) => {
         const url = base + '/' + tienda.slug + '/';
         xml += '  <url>\n';
