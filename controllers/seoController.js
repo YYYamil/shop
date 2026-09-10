@@ -120,6 +120,17 @@ function buscarTiendaActiva(slug) {
     `).get(slug);
 }
 
+// Busca una tienda por slug SIN filtrar por activo: permite distinguir un slug
+// CONOCIDO pero fuera de servicio (baja manual o calendario vencido) de un slug
+// inexistente (que sí debe seguir como 404 real).
+function buscarTienda(slug) {
+    return db.prepare(`
+        SELECT id, slug, nombre, activo, plan, trial_inicio, trial_fin,
+               suscripcion_inicio, suscripcion_fin
+        FROM tiendas WHERE slug = ?
+    `).get(slug);
+}
+
 function existeTiendaActiva(slug) {
     return !!db.prepare('SELECT id FROM tiendas WHERE slug = ? AND activo = 1').get(slug);
 }
@@ -393,21 +404,103 @@ function inyectarContenidoVisible(html, tienda, config) {
 }
 
 /* ============================================
+   PÁGINA DE TIENDA SUSPENDIDA / FUERA DE SERVICIO
+   ============================================ */
+
+// Devuelve el color de acento de la tienda (color_boton) validado como hex,
+// o un azul neutro como fallback para que el aviso sea siempre legible.
+function colorAcentoTienda(config) {
+    const color = String(config.color_boton || '').trim();
+    return /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#1d4ed8';
+}
+
+// Construye una página autónoma (CSS inline, sin assets externos) que muestra
+// solo la identidad de la tienda (logo + nombre) y un aviso profesional de que
+// está temporalmente fuera de servicio. Respuesta HTTP 503 + noindex.
+function renderTiendaSuspendida(req, res, tienda) {
+    const config = obtenerConfig(tienda.id);
+
+    const nombre = escapeHtml(String(config.tienda_nombre || tienda.nombre || '').trim() || 'Tienda');
+    const inicial = escapeHtml(nombre.charAt(0).toUpperCase());
+    const logo = String(config.logo_imagen || '').trim();
+    const logoAbs = urlAbsolutaDeImagen(req, logo);
+    const esRounded = String(config.logo_forma || '').trim() === 'redondeado';
+    const accent = colorAcentoTienda(config);
+
+    let identidadLogo = '<div class="logo-circulo">' + inicial + '</div>';
+    if (logoAbs) {
+        identidadLogo = '<img src="' + escapeHtml(logoAbs) + '" alt="' + nombre + '" class="logo-img' + (esRounded ? ' logo-img-rounded' : '') + '">';
+    }
+
+    const html =
+        '<!DOCTYPE html>' +
+        '<html lang="es">' +
+        '<head>' +
+        '<meta charset="UTF-8">' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+        '<title>' + nombre + ' - Tienda temporalmente fuera de servicio</title>' +
+        '<meta name="robots" content="noindex, nofollow">' +
+        '<style>' +
+        '*{box-sizing:border-box}' +
+        'html,body{height:100%}' +
+        'body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f5f6f8;color:#111827;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}' +
+        '.tarjeta{background:#fff;max-width:480px;width:100%;border-radius:18px;padding:44px 36px;text-align:center;box-shadow:0 8px 30px rgba(17,24,39,.08)}' +
+        '.identidad{display:flex;flex-direction:column;align-items:center;gap:14px}' +
+        '.logo-img{width:76px;height:76px;object-fit:cover;border-radius:50%;box-shadow:0 2px 8px rgba(17,24,39,.12)}' +
+        '.logo-img-rounded{border-radius:18px}' +
+        '.logo-circulo{width:76px;height:76px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#6b7280}' +
+        '.identidad h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.2px}' +
+        '.aviso{margin-top:28px;border:1px solid #dbeafe;border-radius:12px;background:#eff6ff;padding:24px 20px}' +
+        '.aviso .icono{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}' +
+        '.aviso h2{margin:0 0 8px;font-size:17px;font-weight:700}' +
+        '.aviso p{margin:0;font-size:14px;line-height:1.6;color:#4b5563}' +
+        'footer{margin-top:32px;font-size:12px;color:#9ca3af}' +
+        '</style>' +
+        '</head>' +
+        '<body>' +
+        '<main class="tarjeta">' +
+        '<header class="identidad">' +
+        identidadLogo +
+        '<h1>' + nombre + '</h1>' +
+        '</header>' +
+        '<div class="aviso">' +
+        '<div class="icono" style="color:' + accent + ';background:' + accent + '1a">' +
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>' +
+        '</div>' +
+        '<h2>Tienda temporalmente fuera de servicio</h2>' +
+        '<p>Estamos trabajando para volver a atenderte pronto. Gracias por tu comprensi&oacute;n.</p>' +
+        '</div>' +
+        '</main>' +
+        '<footer>&copy; ' + new Date().getFullYear() + ' ' + nombre + '</footer>' +
+        '</body>' +
+        '</html>';
+
+    res.status(503);
+    res.setHeader('Retry-After', '3600');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+}
+
+/* ============================================
    RENDERIZADO DE LA HOME DE TIENDA
    ============================================ */
 
 // Renderiza la home pública de una tienda con su SEO inyectado en el <head>.
-// Si el slug no corresponde a una tienda activa, llama a next() → 404 real.
+// - Slug inexistente → next() → 404 real (evita soft-404).
+// - Slug conocido pero fuera de servicio (baja manual o calendario vencido)
+//   → página profesional de cierre con HTTP 503 (no se vende ni se indexa).
 function renderizarTienda(req, res, next, slug) {
     try {
-        const tienda = buscarTiendaActiva(slug);
+        const tienda = buscarTienda(slug);
         if (!tienda) return next();
 
-        // BLOQUE 3: una tienda con estado DERIVADO SUSPENDIDO (prueba o
-        // suscripción vencida, aunque activo siga en 1) no se renderiza:
-        // se comporta como inactiva → 404 real (evita soft-404 y deja de vender).
         const estado = obtenerEstadoTienda(tienda);
-        if (estado.estado === ESTADOS.SUSPENDIDO) return next();
+        if (tienda.activo === 0 || estado.estado === ESTADOS.SUSPENDIDO) {
+            return renderTiendaSuspendida(req, res, tienda);
+        }
 
         const config = obtenerConfig(tienda.id);
         const htmlBase = obtenerIndexHTML();
