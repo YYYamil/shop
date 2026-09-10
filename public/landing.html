@@ -869,7 +869,7 @@
                 <a href="#como-funciona">Cómo funciona</a>
                 <a href="#planes">Planes</a>
                 <a href="#faq">FAQ</a>
-                <a href="#contacto" class="cta nav-cta">Crear mi tienda</a>
+                <a href="/registro" class="cta nav-cta">Crear mi tienda</a>
             </div>
             <button class="nav-toggle" id="navToggle" aria-label="Menú">
                 <span></span><span></span><span></span>
@@ -885,7 +885,7 @@
                 <h1>Creá tu tienda online <span class="grad">en minutos</span>, sin programar</h1>
                 <p>Todo lo que necesitás para vender por internet: carrito de compras, pagos con Mercado Pago, promociones y un diseño que se adapta a tu marca.</p>
                 <div class="hero-ctas">
-                    <a href="#planes" class="cta">Empezar gratis</a>
+                    <a href="/registro" class="cta">Empezar gratis</a>
                     <a href="#como-funciona" class="cta-secundario">Ver cómo funciona</a>
                 </div>
                 <div class="hero-stats">
@@ -1070,13 +1070,13 @@
                         <li>Pedidos por WhatsApp</li>
                         <li>Diseño personalizable</li>
                     </ul>
-                    <a href="#contacto" class="cta cta-plan">Empezar gratis</a>
+                    <a href="/registro" class="cta cta-plan">Empezar gratis</a>
                 </div>
                 <div class="plan destacado">
                     <div class="etiqueta">Más popular</div>
-                    <h3>Profesional</h3>
-                    <p class="desc">Para negocios que quieren crecer.</p>
-                    <div class="precio">$9<span>/mes</span></div>
+                    <h3 id="planNombreDestacado">Profesional</h3>
+                    <p class="desc" id="planDescDestacado">Para negocios que quieren crecer.</p>
+                    <div class="precio"><span id="planPrecioDestacado">$5.000</span><span>/mes</span> <span id="planMonedaDestacado" style="font-size:0.65em;color:#8b5cf6;font-weight:600;">ARS</span></div>
                     <div class="periocidad">Facturación mensual</div>
                     <ul>
                         <li>Todo lo del plan Emprendedor</li>
@@ -1086,13 +1086,13 @@
                         <li>Dominio / marca propia</li>
                         <li>Prioridad en soporte</li>
                     </ul>
-                    <a href="#contacto" class="cta cta-plan">Empezar ahora</a>
+                    <a href="/registro" class="cta cta-plan">Empezar ahora</a>
                 </div>
                 <div class="plan">
                     <h3>Empresarial</h3>
                     <p class="desc">Para negocios con mayor volumen.</p>
-                    <div class="precio">$19<span>/mes</span></div>
-                    <div class="periocidad">Facturación mensual</div>
+                    <div class="precio">A medida<span></span></div>
+                    <div class="periocidad">Consultar</div>
                     <ul>
                         <li>Todo lo del plan Profesional</li>
                         <li>Múltiples usuarios</li>
@@ -1178,7 +1178,7 @@
             <div class="cta-final">
                 <h2>¿Listo para vender online?</h2>
                 <p>Creá tu tienda gratis y empezá a recibir pedidos hoy mismo. Es más fácil de lo que pensás.</p>
-                <a href="#planes" class="cta btn-blanco">Crear mi tienda gratis</a>
+                <a href="/registro" class="cta btn-blanco">Crear mi tienda gratis</a>
             </div>
         </div>
     </section>
@@ -1210,9 +1210,9 @@
             <div>
                 <h4>Legal</h4>
                 <ul>
-                    <li><a href="#">Términos</a></li>
-                    <li><a href="#">Privacidad</a></li>
-                    <li><a href="#">Cookies</a></li>
+                    <li><a href="/terminos.html">Términos</a></li>
+                    <li><a href="/privacidad.html">Privacidad</a></li>
+                    <li><a href="/cookies.html">Cookies</a></li>
                 </ul>
             </div>
         </div>
@@ -1221,6 +1221,40 @@
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Precio y nombre del plan Profesional desde la config SaaS global.
+        // El precio se muestra siempre en pesos argentinos (ARS).
+        // Si el endpoint no responde se conservan los valores estáticos del HTML.
+        (async function cargarPlanDesdeConfig() {
+            try {
+                const res = await fetch('/api/saas/info-publica', {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                const cfg = data && data.config;
+                if (!cfg) return;
+
+                function formatearPrecioArs(valor) {
+                    const n = Number(valor);
+                    if (Number.isNaN(n)) return '';
+                    return n.toLocaleString('es-AR', { maximumFractionDigits: 0 });
+                }
+
+                if (cfg.precioMensualArs) {
+                    const elPrecio = document.getElementById('planPrecioDestacado');
+                    if (elPrecio) elPrecio.textContent = '$' + formatearPrecioArs(cfg.precioMensualArs);
+                    const elMoneda = document.getElementById('planMonedaDestacado');
+                    if (elMoneda) elMoneda.textContent = 'ARS';
+                }
+                if (cfg.planNombre) {
+                    const elNombre = document.getElementById('planNombreDestacado');
+                    if (elNombre) elNombre.textContent = cfg.planNombre;
+                }
+            } catch (err) {
+                // Sin cambios: la landing mantiene el precio por defecto
+            }
+        })();
 
         // Menú móvil
         const toggle = document.getElementById('navToggle');

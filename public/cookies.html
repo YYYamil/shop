@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de cookies - Shop SaaS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar {
+            background: #0f172a;
+            color: #fff;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 20px; font-weight: 800; color: #fff; text-decoration: none; }
+        .logo .badge {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            color: #fff; font-size: 10px; padding: 3px 7px;
+            border-radius: 999px; vertical-align: middle; margin-left: 4px;
+        }
+        .volver { color: #94a3b8; text-decoration: none; font-size: 14px; }
+        .volver:hover { color: #fff; }
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+        h1 { font-size: 28px; margin-bottom: 8px; color: #0f172a; }
+        .fecha { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+        h2 { font-size: 18px; margin: 24px 0 8px; color: #0f172a; }
+        p, li { font-size: 15px; margin-bottom: 8px; color: #334155; }
+        ul { padding-left: 22px; margin-bottom: 8px; }
+        a { color: #2563eb; }
+        footer {
+            text-align: center;
+            padding: 18px;
+            font-size: 13px;
+            color: #64748b;
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <a class="logo" href="/">Shop<span class="badge">SaaS</span></a>
+        <a class="volver" href="/">&larr; Volver al inicio</a>
+    </div>
+
+    <main>
+        <h1>Política de cookies</h1>
+        <p class="fecha">Última actualización: <span id="fecha"></span></p>
+
+        <p>Esta página explica qué son las cookies y cómo las usamos en Shop SaaS.</p>
+
+        <h2>1. ¿Qué son las cookies?</h2>
+        <p>Las cookies son pequeños archivos que se guardan en tu navegador cuando visitás un sitio web. Sirven para recordar información entre visitas.</p>
+
+        <h2>2. Cookies que usamos</h2>
+        <ul>
+            <li><strong>Cookies de sesión:</strong> necesarias para mantenerte identificado cuando ingresás al panel de administración de tu tienda.</li>
+            <li><strong>Cookies de preferencias:</strong> guardan elecciones básicas de la interfaz para mejorar tu experiencia.</li>
+        </ul>
+
+        <h2>3. Cookies de terceros</h2>
+        <p>Si configurás pagos con Mercado Pago en tu tienda, el flujo de pago se realiza en la plataforma de Mercado Pago, que puede usar sus propias cookies bajo su propia política de privacidad.</p>
+
+        <h2>4. Cómo desactivarlas</h2>
+        <p>Podés bloquear o eliminar las cookies desde la configuración de tu navegador. Tené en cuenta que sin las cookies de sesión no vas a poder ingresar al panel de administración.</p>
+
+        <h2>5. Contacto</h2>
+        <p>Ante cualquier consulta sobre cookies escribinos desde la <a href="/">página principal</a>.</p>
+    </main>
+
+    <footer>© <span id="year"></span> Shop SaaS - Todos los derechos reservados</footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+    </script>
+</body>
+</html>

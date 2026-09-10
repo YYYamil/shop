@@ -15,18 +15,35 @@ function mostrarSeccion(seccion) {
     // Ocultar todas las secciones
     document.getElementById('seccionTiendas').classList.add('hidden');
     document.getElementById('seccionBackups').classList.add('hidden');
+    const secSaas = document.getElementById('seccionSaasConfig');
+    if (secSaas) secSaas.classList.add('hidden');
+    const secEv = document.getElementById('seccionEventos');
+    if (secEv) secEv.classList.add('hidden');
 
-    // Mostrar la sección seleccionada
-    document.getElementById('seccion' + seccion.charAt(0).toUpperCase() + seccion.slice(1)).classList.remove('hidden');
+    // Mostrar la sección seleccionada. Mapa nombre de sección → id real del
+    // elemento HTML (ej.: 'saasconfig' → 'seccionSaasConfig').
+    const MAPA_SECCIONES = {
+        tiendas: 'seccionTiendas',
+        backups: 'seccionBackups',
+        saasconfig: 'seccionSaasConfig',
+        eventos: 'seccionEventos'
+    };
+    const secEl = document.getElementById(MAPA_SECCIONES[seccion] || seccion);
+    if (secEl) secEl.classList.remove('hidden');
 
     // Actualizar nav items
     document.querySelectorAll('.superadmin-sidebar .nav-item').forEach(item => {
         item.classList.toggle('active', item.dataset.section === seccion);
     });
 
-    // Si es la sección de backups, cargar la lista
+    // Cargar datos según la sección
     if (seccion === 'backups') {
         cargarBackups();
+    } else if (seccion === 'saasconfig') {
+        cargarSaasConfig();
+        cargarEstadoPlataforma();
+    } else if (seccion === 'eventos') {
+        cargarEventos();
     }
 }
 
@@ -70,6 +87,75 @@ function actualizarStats() {
     document.getElementById('totalPedidos').textContent = totalPedidos;
 }
 
+// Estado comercial derivado (misma lógica que utils/saasUtils.obtenerEstadoTienda).
+// Recibe la fila de tienda que ya incluye plan/trial_fin/suscripcion_fin (SELECT t.*).
+function calcularEstadoTienda(t) {
+    // Fecha de Buenos Aires (en-CA => YYYY-MM-DD), igual que el backend.
+    const fechaHoy = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        year: 'numeric', month: '2-digit', day: '2-digit'
+    }).format(new Date());
+    const activo = t.activo === 1 || t.activo === true || t.activo === null;
+    if (!activo) {
+        return { estado: 'suspendido', plan: String(t.plan || 'ilimitado'), diasRestantes: null, motivo: 'manual' };
+    }
+    const plan = String(t.plan || 'ilimitado');
+    let estado = 'activo';
+    let diasRestantes = null;
+    let motivo = null;
+    if (plan === 'demo') {
+        if (!t.trial_fin || fechaHoy > String(t.trial_fin).slice(0, 10)) {
+            estado = 'suspendido';
+            motivo = 'trial-vencido';
+        } else {
+            estado = 'demo';
+            diasRestantes = diasEntreFechas(fechaHoy, String(t.trial_fin).slice(0, 10));
+        }
+    } else if (plan !== 'ilimitado') {
+        if (t.suscripcion_fin && fechaHoy > String(t.suscripcion_fin).slice(0, 10)) {
+            estado = 'suspendido';
+            motivo = 'suscripcion-vencida';
+        } else if (t.suscripcion_fin) {
+            diasRestantes = diasEntreFechas(fechaHoy, String(t.suscripcion_fin).slice(0, 10));
+        }
+    }
+    return { estado, plan, diasRestantes, motivo };
+}
+
+function diasEntreFechas(aISO, bISO) {
+    const a = new Date(aISO + 'T12:00:00');
+    const b = new Date(bISO + 'T12:00:00');
+    return Math.max(0, Math.round((b - a) / 86400000));
+}
+
+function etiquetaEstadoFront(t) {
+    const e = calcularEstadoTienda(t);
+    if (e.estado === 'demo') return 'Período de prueba';
+    if (e.estado === 'suspendido') return e.motivo === 'manual' ? 'Inactiva (manual)' : 'Suspendida';
+    return 'Activa';
+}
+
+function etiquetaPlanFront(t) {
+    const plan = String(t.plan || 'ilimitado');
+    if (plan === 'demo') return 'DEMO';
+    if (plan === 'ilimitado') return 'Ilimitado';
+    return plan.charAt(0).toUpperCase() + plan.slice(1);
+}
+
+function claseEstadoFront(t) {
+    const e = calcularEstadoTienda(t);
+    if (e.estado === 'demo') return 'badge-demo';
+    if (e.estado === 'suspendido') return 'badge-inactive';
+    return 'badge-active';
+}
+
+function clasePlanFront(t) {
+    const plan = String(t.plan || 'ilimitado');
+    if (plan === 'demo') return 'badge-plan-demo';
+    if (plan === 'ilimitado') return 'badge-plan-ilimitado';
+    return 'badge-plan-pago';
+}
+
 function renderizarTiendas() {
     const tbody = document.getElementById('tablaTiendas');
     tbody.innerHTML = tiendas.map(t => `
@@ -78,9 +164,10 @@ function renderizarTiendas() {
             <td><code>${t.slug}</code></td>
             <td><strong>${escapeHtml(t.nombre)}</strong></td>
             <td>
-                <span class="badge ${t.activo ? 'badge-active' : 'badge-inactive'}">
-                    ${t.activo ? 'Activo' : 'Inactivo'}
-                </span>
+                <div class="estado-col">
+                    <span class="badge ${claseEstadoFront(t)}">${etiquetaEstadoFront(t)}</span>
+                    <span class="badge badge-plan ${clasePlanFront(t)}">${etiquetaPlanFront(t)}</span>
+                </div>
             </td>
             <td>${t.total_admins || 0}</td>
             <td>${t.total_productos || 0}</td>
@@ -126,6 +213,8 @@ function abrirModalTienda() {
     document.getElementById('tiendaNombre').value = '';
     document.getElementById('tiendaAdminUsuario').value = '';
     document.getElementById('tiendaAdminPassword').value = '';
+    const selPlan = document.getElementById('tiendaPlan');
+    if (selPlan) selPlan.value = 'demo';
     document.getElementById('previewSlug').textContent = 'nombre-de-la-tienda';
     document.getElementById('modalTiendaTitle').textContent = 'Nueva Tienda';
     modal.style.display = 'flex';
@@ -148,6 +237,8 @@ async function guardarTienda() {
     const slug = nombreToSlug(nombre);
     const admin_usuario = document.getElementById('tiendaAdminUsuario').value.trim();
     const admin_password = document.getElementById('tiendaAdminPassword').value;
+    const planSel = document.getElementById('tiendaPlan');
+    const plan = (planSel && planSel.value) || 'demo';
 
     if (!nombre) {
         mostrarToast('Ingresá el nombre de la tienda', 'error');
@@ -169,7 +260,7 @@ async function guardarTienda() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
-            body: JSON.stringify({ slug, nombre, admin_usuario, admin_password })
+            body: JSON.stringify({ slug, nombre, admin_usuario, admin_password, plan })
         });
 
         const data = await res.json();
@@ -309,10 +400,27 @@ function abrirModalGestion(id) {
 
     const slug = t.slug;
     const adminUser = t.admin_usuario || '—';
+    const est = calcularEstadoTienda(t);
+    const planLabel = etiquetaPlanFront(t);
+    const estadoLabel = etiquetaEstadoFront(t);
+    let planDetalle = '';
+    if (est.plan === 'demo') {
+        planDetalle = t.trial_fin
+            ? ' · vence <strong>' + String(t.trial_fin).slice(0, 10) + '</strong>' + (est.diasRestantes !== null ? ' (' + est.diasRestantes + ' días)' : '')
+            : '';
+    } else if (est.plan !== 'ilimitado' && t.suscripcion_fin) {
+        planDetalle = ' · vence <strong>' + String(t.suscripcion_fin).slice(0, 10) + '</strong>' + (est.diasRestantes !== null ? ' (' + est.diasRestantes + ' días)' : '');
+    }
+    const fechaAlt = est.plan === 'demo'
+        ? (t.trial_fin ? ' · fin prueba: ' + String(t.trial_fin).slice(0, 10) : '')
+        : (t.suscripcion_fin ? ' · fin suscripción: ' + String(t.suscripcion_fin).slice(0, 10) : '');
+
     document.getElementById('gestionInfo').innerHTML =
         '<strong>Slug:</strong> ' + slug + '<br>' +
         '<strong>Admin:</strong> ' + escapeHtml(adminUser) + '<br>' +
-        '<strong>Estado:</strong> ' + (t.activo ? '✅ Activo' : '❌ Inactivo');
+        '<strong>Plan:</strong> ' + planLabel + planDetalle + '<br>' +
+        '<strong>Estado:</strong> ' + (est.estado === 'demo' ? '🧪 ' : est.estado === 'suspendido' ? '🔴 ' : '✅ ') + estadoLabel +
+        (est.estado === 'suspendido' ? fechaAlt : '');
 
     // Botón toggle
     const btnToggle = document.getElementById('gestionBtnToggle');
@@ -390,8 +498,9 @@ function gestionResumenTienda() {
     const dominio = 'shop.yamy.fun';
     const slug = t.slug;
     const adminUser = t.admin_usuario || '—';
-    const adminPass = t.admin_password || '—';
 
+    // BLOQUE 3: password_plain ya NO existe (ni se expone ni se guarda).
+    // El superadmin solo puede definir una contraseña nueva desde "Modificar Admin".
     const texto = `🛍️ Guía rápida para usar tu tienda online: ${t.nombre}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -408,9 +517,9 @@ function gestionResumenTienda() {
 🚀 En 5 pasos tenés tu tienda lista
 
 1️⃣ Ingresá al panel de administración
-Entrá a https://${dominio}/${slug}/admin/login.html con tu usuario y contraseña.
-Usuario: ${adminUser}
-Contraseña: ${adminPass}
+Entrá a https://${dominio}/${slug}/admin/login.html con el usuario ${adminUser}.
+La contraseña es la que definiste al crear la tienda. Si la olvidaste, usá
+"👤 Modificar Admin" en el panel de Super Admin para asignar una nueva.
 
 2️⃣ Personalizá el diseño
 Andá a "Personalizar Tienda" y configurá:
@@ -551,6 +660,275 @@ async function eliminarBackup(nombre) {
     } catch (err) {
         console.error('Error al eliminar backup:', err);
         mostrarToast('Error de conexión', 'error');
+    }
+}
+
+
+/* ===== CONFIG SAAS GLOBAL (BLOQUE 4) ===== */
+
+let saasConfigCache = [];
+
+async function cargarSaasConfig() {
+    const lista = document.getElementById('saasConfigList');
+    if (!lista) return;
+    lista.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">Cargando configuración...</div>';
+    try {
+        const res = await fetch('/api/superadmin/saas-config', { credentials: 'same-origin' });
+        if (res.status === 401) {
+            window.location = '/superadmin/login.html';
+            return;
+        }
+        if (!res.ok) {
+            lista.innerHTML = '<div style="padding:20px;text-align:center;color:#ef4444;">Error al cargar la configuración</div>';
+            return;
+        }
+        const data = await res.json();
+        saasConfigCache = (data && data.config) || [];
+        renderizarSaasConfig();
+    } catch (err) {
+        console.error('Error al cargar config SaaS:', err);
+        lista.innerHTML = '<div style="padding:20px;text-align:center;color:#ef4444;">Error de conexión al cargar la configuración</div>';
+    }
+}
+
+function renderizarSaasConfig() {
+    const lista = document.getElementById('saasConfigList');
+    if (!lista) return;
+    if (!saasConfigCache.length) {
+        lista.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;">No hay parámetros configurados.</div>';
+        return;
+    }
+    lista.innerHTML = saasConfigCache.map(item => {
+        const valorActual = item.valor !== null && item.valor !== undefined ? escapeHtml(String(item.valor)) : '';
+        return `
+        <div class="saas-field">
+            <div class="saas-info">
+                <div class="saas-label">${escapeHtml(item.etiqueta)}</div>
+                <div class="saas-key">${escapeHtml(item.clave)}</div>
+            </div>
+            <div class="saas-input-wrap">
+                <input
+                    type="text"
+                    id="saasInput_${escapeHtml(item.clave)}"
+                    value="${valorActual}"
+                    data-tipo="${escapeHtml(item.tipoEsperado)}"
+                    onkeydown="if(event.key === 'Enter') guardarSaasConfig('${escapeHtml(item.clave)}', this.value)"
+                />
+            </div>
+            <div class="saas-item-actions">
+                <button class="btn-primary" onclick="guardarSaasConfig('${escapeHtml(item.clave)}', document.getElementById('saasInput_${escapeHtml(item.clave)}').value)">Guardar</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+/* ===== CUENTA DE COBRO DEL SaaS (Mercado Pago del SuperAdmin) - BLOQUE 5 ===== */
+
+const ESTADO_MP_PLATAFORMA = {
+    conectado: { texto: 'Conectada · cobra la mensualidad en ARS', color: '#166534', clase: '' },
+    no_conectado: { texto: 'No conectada. Conectá tu cuenta de Mercado Pago para cobrar la mensualidad de las tiendas.', color: '#92400e', clase: '' },
+    expirado: { texto: 'La conexión con Mercado Pago expiró. Volvé a conectar tu cuenta.', color: '#991b1b', clase: '' },
+    proximo_a_vencer: { texto: 'La conexión vence pronto. Reconectá para evitar cortes en el cobro.', color: '#92400e', clase: '' },
+    sin_fecha: { texto: 'Conectada (sin fecha de vencimiento conocida).', color: '#166534', clase: '' },
+};
+
+async function cargarEstadoPlataforma() {
+    const card = document.getElementById('mpPlataformaCard');
+    const estadoEl = document.getElementById('mpPlataformaEstado');
+    const accionesEl = document.getElementById('mpPlataformaAcciones');
+    if (!estadoEl || !accionesEl) return;
+    estadoEl.textContent = 'Cargando…';
+    accionesEl.innerHTML = '';
+    try {
+        const res = await fetch('/api/superadmin/mp-plataforma/status', { credentials: 'same-origin' });
+        if (res.status === 401) {
+            window.location = '/superadmin/login.html';
+            return;
+        }
+        const data = await res.json().catch(() => ({}));
+        if (!data || data.ok !== true) {
+            estadoEl.textContent = 'No se pudo consultar el estado de la cuenta de cobro.';
+            estadoEl.style.color = '#991b1b';
+            return;
+        }
+
+        const info = ESTADO_MP_PLATAFORMA[data.estadoTexto] || { texto: 'Estado desconocido', color: '#475569' };
+        estadoEl.textContent = info.texto + (data.userId ? ' (usuario ' + data.userId + ')' : '') + ' · moneda ARS';
+        estadoEl.style.color = info.color;
+
+        if (data.conectado) {
+            const btn = document.createElement('button');
+            btn.className = 'btn-secondary';
+            btn.textContent = 'Desconectar';
+            btn.onclick = async function () {
+                if (!confirm('¿Desconectar tu cuenta de Mercado Pago? Las tiendas no podrán renovar el plan hasta reconectar.')) return;
+                btn.disabled = true;
+                btn.textContent = 'Desconectando…';
+                try {
+                    const r = await fetch('/api/superadmin/mp-plataforma/disconnect', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                    });
+                    if (r.ok) {
+                        mostrarToast('Cuenta de cobro desconectada', 'success');
+                        cargarEstadoPlataforma();
+                    } else {
+                        const d = await r.json().catch(() => ({}));
+                        mostrarToast('❌ ' + (d.error || 'No se pudo desconectar'), 'error');
+                    }
+                } catch (e) {
+                    mostrarToast('Error de conexión', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Desconectar';
+                }
+            };
+            accionesEl.appendChild(btn);
+        } else {
+            const btn = document.createElement('button');
+            btn.className = 'btn-primary';
+            btn.textContent = 'Conectar Mercado Pago';
+            btn.onclick = function () {
+                // /connect responde 302 al OAuth de MP cuando está todo bien. Si faltan
+                // credenciales o la sesión no es válida responde JSON de error. Con
+                // redirect:'manual' el 302 llega como respuesta "opaqueredirect"
+                // (status 0 en navegadores), por eso hay que detectar ese caso para
+                // navegar al OAuth; si no, el botón no hace nada.
+                const urlConnect = '/api/superadmin/mp-plataforma/connect';
+                fetch(urlConnect, { credentials: 'same-origin', redirect: 'manual' })
+                    .then(r => {
+                        if (r.type === 'opaqueredirect' || r.status === 0 || (r.status >= 300 && r.status < 400)) {
+                            window.location = urlConnect;
+                            return null;
+                        }
+                        return r.json().catch(() => ({}));
+                    })
+                    .then(d => {
+                        if (d && d.error) {
+                            mostrarToast('❌ ' + d.error, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        // El fetch puede abortarse al navegar: es el flujo esperado de OAuth
+                        window.location = urlConnect;
+                    });
+            };
+            accionesEl.appendChild(btn);
+        }
+    } catch (err) {
+        console.error('Error al cargar estado plataforma:', err);
+        estadoEl.textContent = 'Error de conexión al consultar la cuenta de cobro.';
+        estadoEl.style.color = '#991b1b';
+    }
+}
+
+/* ===== EVENTOS DE AUDITORÍA (BLOQUE 4) ===== */
+
+function etiquetaTipoEvento(tipo) {
+    const map = {
+        'tienda_creada': 'Tienda creada',
+        'tienda_actualizada': 'Tienda actualizada',
+        'tienda_eliminada': 'Tienda eliminada',
+        'config_saas_actualizada': 'Config SaaS actualizada',
+        // BLOQUE 5 — Pagos de la mensualidad del plan
+        'suscripcion_activada': 'Suscripción activada',
+        'suscripcion_renovada': 'Suscripción renovada',
+        'mp_plataforma_conectada': 'Cuenta de cobro conectada',
+        'mp_plataforma_desconectada': 'Cuenta de cobro desconectada',
+    };
+    return map[tipo] || tipo;
+}
+
+function claseTipoEvento(tipo) {
+    if (tipo === 'tienda_eliminada') return 'badge-inactive';
+    if (tipo === 'tienda_creada') return 'badge-active';
+    if (tipo === 'config_saas_actualizada' || tipo === 'mp_plataforma_conectada' || tipo === 'mp_plataforma_desconectada') return 'badge-plan-demo';
+    // suscripcion_activada / suscripcion_renovada → badge de pago
+    if (tipo === 'suscripcion_activada' || tipo === 'suscripcion_renovada') return 'badge-plan-pago';
+    return 'badge-plan-pago';
+}
+
+function formatearFechaEvento(fecha) {
+    // created_at viene con formato SQLite: YYYY-MM-DD HH:MM:SS
+    if (!fecha) return '—';
+    const txt = String(fecha).replace(' ', 'T') + (String(fecha).includes('.') ? '' : '');
+    const d = new Date(txt);
+    if (isNaN(d.getTime())) return String(fecha);
+    return d.toLocaleString('es-AR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+}
+
+async function cargarEventos() {
+    const tbody = document.getElementById('tablaEventos');
+    if (!tbody) return;
+    const tipoSel = document.getElementById('filtroEventosTipo');
+    const tipo = (tipoSel && tipoSel.value) || '';
+
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">Cargando eventos...</td></tr>';
+    try {
+        let url = '/api/superadmin/eventos?limite=150';
+        if (tipo) url += '&tipo=' + encodeURIComponent(tipo);
+        const res = await fetch(url, { credentials: 'same-origin' });
+        if (res.status === 401) {
+            window.location = '/superadmin/login.html';
+            return;
+        }
+        if (!res.ok) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ef4444;">Error al cargar eventos</td></tr>';
+            return;
+        }
+        const data = await res.json();
+        renderizarEventos((data && data.eventos) || []);
+    } catch (err) {
+        console.error('Error al cargar eventos:', err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#ef4444;">Error de conexión</td></tr>';
+    }
+}
+
+function renderizarEventos(eventos) {
+    const tbody = document.getElementById('tablaEventos');
+    if (!tbody) return;
+    if (!eventos.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;">Sin eventos para el filtro seleccionado</td></tr>';
+        return;
+    }
+    tbody.innerHTML = eventos.map(ev => {
+        const tienda = ev.tienda_slug
+            ? '<code>' + escapeHtml(ev.tienda_slug) + '</code> <span style="font-size:12px;color:#64748b;">#' + ev.tienda_id + '</span>'
+            : '<span style="color:#94a3b8;">Global</span>';
+        return `
+        <tr>
+            <td style="color:#94a3b8;">${ev.id}</td>
+            <td style="white-space:nowrap;">${formatearFechaEvento(ev.created_at)}</td>
+            <td><span class="badge ${claseTipoEvento(ev.tipo)}">${escapeHtml(etiquetaTipoEvento(ev.tipo))}</span></td>
+            <td>${tienda}</td>
+            <td style="max-width:420px;overflow-wrap:anywhere;">${escapeHtml(ev.detalle || '')}</td>
+        </tr>`;
+    }).join('');
+}
+
+async function guardarSaasConfig(clave, valor) {
+    try {
+        const res = await fetch('/api/superadmin/saas-config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ clave, valor })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            mostrarToast('✅ ' + clave + ' = ' + data.valor, 'success');
+            cargarSaasConfig();
+        } else {
+            mostrarToast('❌ ' + (data.error || 'Error al guardar'), 'error');
+            // Restaurar el valor mostrado con lo que realmente quedó en servidor
+            cargarSaasConfig();
+        }
+    } catch (err) {
+        console.error('Error al guardar config SaaS:', err);
+        mostrarToast('Error de conexión al guardar', 'error');
     }
 }
 

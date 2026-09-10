@@ -31,11 +31,18 @@ db.exec(`
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         usuario TEXT UNIQUE,
         password TEXT,
+        email TEXT DEFAULT NULL,
         tienda_id INTEGER DEFAULT NULL,
         es_superadmin INTEGER DEFAULT 0,
         FOREIGN KEY (tienda_id) REFERENCES tiendas(id)
     )
 `);
+
+// Migración (Fase 1): agregar columna email a usuarios si la tabla ya existía
+// sin ese campo (recuperación de contraseña por correo).
+try {
+    db.exec(`ALTER TABLE usuarios ADD COLUMN email TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
 
 // ============================================
 // TABLA DE CATEGORÍAS
@@ -491,6 +498,133 @@ try {
     }
 } catch (e) {
     // Ignorar error
+}
+
+// ============================================
+// MIGRACIÓN SAAS (BLOQUE 1): plan y suscripción
+// ============================================
+// Tiendas legacy (creadas antes del SaaS) quedan con plan 'ilimitado':
+// nunca se suspenden solas ni se les calcula DEMO retroactivo.
+// Las tiendas nuevas en DEMO se crean con plan 'demo' + trial_inicio/fin.
+try {
+    db.exec(`ALTER TABLE tiendas ADD COLUMN plan TEXT DEFAULT 'ilimitado'`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE tiendas ADD COLUMN trial_inicio TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE tiendas ADD COLUMN trial_fin TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE tiendas ADD COLUMN suscripcion_inicio TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+try {
+    db.exec(`ALTER TABLE tiendas ADD COLUMN suscripcion_fin TEXT DEFAULT NULL`);
+} catch (e) { /* ya existe */ }
+
+// Backfill: tiendas existentes sin plan definido → ilimitado
+try {
+    db.prepare(`UPDATE tiendas SET plan = 'ilimitado' WHERE plan IS NULL`).run();
+} catch (e) { /* ignorar */ }
+
+// ============================================
+// TABLA SAAS: store_events (auditoría/eventos de tienda)
+// ============================================
+// Registra eventos del ciclo de vida SaaS: tienda_creada, trial_iniciado,
+// suscripcion_activada, suspendida, reactivada, etc.
+db.exec(`
+    CREATE TABLE IF NOT EXISTS store_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tienda_id INTEGER DEFAULT NULL,
+        tipo TEXT NOT NULL,
+        detalle TEXT DEFAULT '',
+        created_at TEXT DEFAULT (datetime('now', 'localtime')),
+        FOREIGN KEY (tienda_id) REFERENCES tiendas(id)
+    )
+`);
+
+// ============================================
+// TABLA SAAS: saas_pagos (suscripciones BLOQUE 5)
+// ============================================
+// Registro de los pagos de mensualidad del plan SaaS (Checkout Pro de la
+// cuenta Mercado Pago de la plataforma). Cada pago aprobado extiende la
+// suscripción de la tienda +1 mes. `external_reference` y `payment_id` son
+// únicos para que el webhook sea IDEMPOTENTE (no duplicar meses si MP reenvía
+// la misma notificación varias veces).
+db.exec(`
+    CREATE TABLE IF NOT EXISTS saas_pagos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tienda_id INTEGER NOT NULL,
+        plan TEXT DEFAULT 'profesional',
+        monto REAL NOT NULL,
+        moneda TEXT DEFAULT 'ARS',
+        meses INTEGER DEFAULT 1,
+        external_reference TEXT,
+        preference_id TEXT,
+        payment_id TEXT,
+        estado TEXT DEFAULT 'pendiente',
+        vencimiento_previo TEXT DEFAULT NULL,
+        nueva_fecha_fin TEXT DEFAULT NULL,
+        created_at TEXT DEFAULT (datetime('now', 'localtime')),
+        aprobado_at TEXT DEFAULT NULL,
+        FOREIGN KEY (tienda_id) REFERENCES tiendas(id)
+    )
+`);
+// Índices de idempotencia/consulta
+try {
+    db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_saas_pagos_payment ON saas_pagos (payment_id) WHERE payment_id IS NOT NULL');
+} catch (e) { /* ignorar */ }
+try {
+    db.exec('CREATE INDEX IF NOT EXISTS idx_saas_pagos_tienda ON saas_pagos (tienda_id, estado)');
+} catch (e) { /* ignorar */ }
+
+// ============================================
+// SEMILLA: Config global del SaaS (tienda_id = NULL)
+// ============================================
+// Claves globales del producto SaaS. No pertenecen a ninguna tienda
+// (tienda_id = NULL). Se usa INSERT OR IGNORE para no pisar valores
+// que el SuperAdmin haya editado desde el panel.
+try {
+    // Limpieza de claves legacy de display en USD (BLOQUE 5: la moneda real de
+    // cobro es ARS y se edita con saas.monto_mensual_ars).
+    db.exec("DELETE FROM configuracion WHERE tienda_id IS NULL AND grupo = 'saas' AND clave IN ('saas.monthly_price', 'saas.currency')");
+
+    // Deduplicar filas globales del SaaS dejando la más reciente por clave.
+    // La PK es (clave, tienda_id) y dos NULL no colisionan en SQLite, por eso
+    // los seeds previos con INSERT OR IGNORE acumularon filas duplicadas en
+    // cada arranque del servidor.
+    db.exec(`
+        DELETE FROM configuracion
+        WHERE tienda_id IS NULL AND grupo = 'saas'
+          AND rowid NOT IN (
+              SELECT MAX(rowid)
+              FROM configuracion
+              WHERE tienda_id IS NULL AND grupo = 'saas'
+              GROUP BY clave
+          )
+    `);
+
+    // Sembrar solo si la clave global todavía no existe (idempotente incluso
+    // con tienda_id NULL).
+    const existeClaveSaas = db.prepare(
+        'SELECT COUNT(*) AS n FROM configuracion WHERE tienda_id IS NULL AND grupo = ? AND clave = ?'
+    );
+    const insertSaas = db.prepare(`
+        INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id)
+        VALUES (?, ?, ?, ?, NULL)
+    `);
+    const saasDefaults = [
+        ['saas.trial_days', '30', 'texto', 'saas'],
+        ['saas.monto_mensual_ars', '5000', 'texto', 'saas'],
+        ['saas.warning_days', '3', 'texto', 'saas'],
+        ['saas.plan_name', 'Profesional', 'texto', 'saas'],
+    ];
+    for (const [clave, valor, tipo, grupo] of saasDefaults) {
+        const fila = existeClaveSaas.get(grupo, clave);
+        if (!fila || fila.n === 0) insertSaas.run(clave, valor, tipo, grupo);
+    }
+} catch (e) {
+    // La tabla configuracion puede no existir todavía en una primera corrida
 }
 
 module.exports = db;

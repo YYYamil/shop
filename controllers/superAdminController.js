@@ -2,17 +2,19 @@ const db = require('../database/db');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
+const saasUtils = require('../utils/saasUtils');
+const { insertarConfigPorDefecto, insertarCategoriasPorDefecto } = require('../utils/defaultConfig');
 
 // GET /api/superadmin/tiendas - Listar todas las tiendas
 exports.getTiendas = (req, res) => {
     try {
+        // BLOQUE 3: ya NO se expone password_plain (nunca se guarda en altas nuevas).
         const tiendas = db.prepare(`
             SELECT t.*,
                    (SELECT COUNT(*) FROM usuarios WHERE tienda_id = t.id) as total_admins,
                    (SELECT COUNT(*) FROM productos WHERE tienda_id = t.id) as total_productos,
                    (SELECT COUNT(*) FROM pedidos WHERE tienda_id = t.id) as total_pedidos,
-                   (SELECT usuario FROM usuarios WHERE tienda_id = t.id AND es_superadmin = 0 LIMIT 1) as admin_usuario,
-                   (SELECT password_plain FROM usuarios WHERE tienda_id = t.id AND es_superadmin = 0 LIMIT 1) as admin_password
+                   (SELECT usuario FROM usuarios WHERE tienda_id = t.id AND es_superadmin = 0 LIMIT 1) as admin_usuario
             FROM tiendas t
             ORDER BY t.id ASC
         `).all();
@@ -25,7 +27,7 @@ exports.getTiendas = (req, res) => {
 
 // POST /api/superadmin/tiendas - Crear nueva tienda con su admin
 exports.crearTienda = (req, res) => {
-    const { slug, nombre, admin_usuario, admin_password } = req.body;
+    const { slug, nombre, admin_usuario, admin_password, plan } = req.body;
 
     if (!slug || !nombre) {
         return res.status(400).json({ error: 'Slug y nombre son requeridos' });
@@ -53,59 +55,47 @@ exports.crearTienda = (req, res) => {
             return res.status(400).json({ error: 'Ya existe un usuario con ese nombre' });
         }
 
-        const result = db.prepare('INSERT INTO tiendas (slug, nombre) VALUES (?, ?)').run(slug, nombre);
-        const tiendaId = result.lastInsertRowid;
-
-        // Crear configuración por defecto para la nueva tienda
-        // Mismos valores que el botón "Restaurar todos los textos" en Personalización
-        const defaults = [
-            ['tienda_nombre', nombre, 'texto', 'general'],
-            ['tienda_descripcion', 'Descripción de mi tienda - Aquí podés contar qué ofrecés', 'texto', 'general'],
-            ['rubro_actividad', '', 'texto', 'seo'],
-            ['ciudad', '', 'texto', 'seo'],
-            ['seo_title', '', 'texto', 'seo'],
-            ['seo_description', '', 'texto', 'seo'],
-            ['color_primario', '#000000', 'color', 'oculto'],
-            ['color_secundario', '#444444', 'color', 'oculto'],
-            ['color_fondo', '#f4f4f4', 'color', 'oculto'],
-            ['color_texto', '#111827', 'color', 'oculto'],
-            ['color_boton', '#000000', 'color', 'apariencia'],
-            ['color_boton_texto', '#ffffff', 'color', 'apariencia'],
-            ['hero_titulo', 'Título de portada', 'texto', 'hero'],
-            ['hero_descripcion', 'Descripción de portada - Contá lo que quieras destacar', 'texto', 'hero'],
-            ['hero_fondo', '#ffffff', 'texto', 'hero'],
-            ['hero_titulo_color', '#ffffff', 'color', 'hero'],
-            ['hero_imagen', '', 'imagen', 'hero'],
-            ['marquee_textos', '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA', 'texto', 'general'],
-            ['whatsapp_numero', '', 'texto', 'whatsapp'],
-            ['whatsapp_mensaje', 'Hola! Quiero consultar por un producto', 'texto', 'whatsapp'],
-            ['whatsapp_activo', 'true', 'booleano', 'whatsapp'],
-            ['contacto_email', '', 'texto', 'contacto'],
-            ['contacto_telefono', '', 'texto', 'contacto'],
-            ['contacto_direccion', '', 'texto', 'contacto'],
-            ['redes_instagram', 'https://instagram.com/', 'texto', 'redes'],
-            ['redes_facebook', 'https://facebook.com/', 'texto', 'redes'],
-            ['redes_tiktok', 'https://tiktok.com/', 'texto', 'redes'],
-            ['redes_whatsapp', 'https://www.pagina.com/', 'texto', 'redes'],
-            ['logo_imagen', '', 'imagen', 'apariencia'],
-        ];
-
-        const insertConfig = db.prepare('INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, ?, ?, ?)');
-        const insertAll = db.transaction((rows) => {
-            for (const row of rows) insertConfig.run(...row, tiendaId);
-        });
-        insertAll(defaults);
-
-        // Crear categorías por defecto
-        db.prepare('INSERT INTO categorias(nombre, tienda_id) VALUES (?, ?)').run('Ropa', tiendaId);
-        db.prepare('INSERT INTO categorias(nombre, tienda_id) VALUES (?, ?)').run('Calzado', tiendaId);
-        db.prepare('INSERT INTO categorias(nombre, tienda_id) VALUES (?, ?)').run('Accesorios', tiendaId);
-
-        // Crear usuario admin para la tienda
+        // BLOQUE 3: alta transaccional reutilizando utils/defaultConfig (misma
+        // config/categorías que el alta DEMO del SaaS, BLOQUE 2) y SIN password_plain.
+        // El SuperAdmin puede indicar plan 'demo' (trial calculado con la config
+        // global saas.trial_days) o dejar el default 'ilimitado' (comportamiento
+        // legacy: nunca se suspende sola). Hash ANTES de la transacción (bcrypt es
+        // lento y no debe bloquear la DB).
+        const planFinal = String(plan || '').toLowerCase() === 'demo' ? 'demo' : 'ilimitado';
         const hash = bcrypt.hashSync(admin_password, 10);
-        db.prepare('INSERT INTO usuarios (usuario, password, password_plain, tienda_id, es_superadmin) VALUES (?, ?, ?, ?, 0)').run(admin_usuario, hash, admin_password, tiendaId);
 
-        res.json({ ok: true, id: tiendaId, slug, nombre, admin_usuario });
+        const hoy = saasUtils.hoyBuenosAires();
+        const trialDays = parseInt(saasUtils.getGlobalConfig('saas.trial_days'), 10) || 30;
+        const trialFin = saasUtils.sumarDias(hoy, trialDays);
+
+        const crearTodo = db.transaction(() => {
+            // 1. Tienda (plan demo con trial calculado, o ilimitado legacy)
+            const info = planFinal === 'demo'
+                ? db.prepare(`INSERT INTO tiendas (slug, nombre, activo, plan, trial_inicio, trial_fin) VALUES (?, ?, 1, 'demo', ?, ?)`).run(slug, nombre, hoy, trialFin)
+                : db.prepare(`INSERT INTO tiendas (slug, nombre, activo, plan) VALUES (?, ?, 1, 'ilimitado')`).run(slug, nombre);
+            const tiendaId = Number(info.lastInsertRowid);
+
+            // 2. Dueño (admin). Sin password_plain (BLOQUE 3).
+            db.prepare('INSERT INTO usuarios (usuario, password, tienda_id, es_superadmin) VALUES (?, ?, ?, 0)').run(admin_usuario, hash, tiendaId);
+
+            // 3. Config por defecto (con el nombre real de la tienda)
+            insertarConfigPorDefecto(tiendaId, { tienda_nombre: nombre });
+
+            // 4. Categorías por defecto
+            insertarCategoriasPorDefecto(tiendaId);
+
+            // 5. Evento de auditoría (si la tabla existe)
+            try {
+                db.prepare('INSERT INTO store_events (tienda_id, tipo, detalle) VALUES (?, ?, ?)').run(tiendaId, 'tienda_creada', planFinal === 'demo'
+                    ? 'Alta manual DEMO ' + trialDays + ' días (válida hasta ' + trialFin + ')'
+                    : 'Alta manual plan ilimitado (legacy)');
+            } catch (e) { /* versiones antiguas sin store_events */ }
+
+            return tiendaId;
+        });
+
+        const tiendaId = crearTodo();
+        res.json({ ok: true, id: tiendaId, slug, nombre, admin_usuario, plan: planFinal });
     } catch (err) {
         console.error('Error al crear tienda:', err.message);
         res.status(500).json({ error: 'Error al crear tienda' });
@@ -135,8 +125,27 @@ exports.actualizarTienda = (req, res) => {
             return res.status(400).json({ error: 'No hay campos para actualizar' });
         }
 
+        // BLOQUE 4.5: estado previo para el evento de auditoría
+        const previa = db.prepare('SELECT nombre, activo FROM tiendas WHERE id = ?').get(id);
+        if (!previa) {
+            return res.status(404).json({ error: 'Tienda no encontrada' });
+        }
+
         params.push(id);
         db.prepare(`UPDATE tiendas SET ${updates.join(', ')} WHERE id = ?`).run(...params);
+
+        // Auditoría de cambios
+        const detalles = [];
+        if (nombre !== undefined && String(nombre) !== String(previa.nombre)) {
+            detalles.push('nombre: "' + previa.nombre + '" → "' + nombre + '"');
+        }
+        if (activo !== undefined && Number(Boolean(activo)) !== Number(Boolean(previa.activo))) {
+            detalles.push('activo: ' + (previa.activo ? '1' : '0') + ' → ' + (activo ? '1' : '0'));
+        }
+        if (detalles.length) {
+            registrarEvento(parseInt(id, 10), 'tienda_actualizada', detalles.join(' | '));
+        }
+
         res.json({ ok: true });
     } catch (err) {
         console.error('Error al actualizar tienda:', err.message);
@@ -161,12 +170,21 @@ exports.eliminarTienda = (req, res) => {
         }
 
         // Eliminar todos los datos asociados a la tienda (en orden por FK)
+        // 1) Hijos de pedidos y eventos (FK -> pedidos/tiendas)
+        db.prepare('DELETE FROM pedido_items WHERE tienda_id = ?').run(id);
+        db.prepare('DELETE FROM store_events WHERE tienda_id = ?').run(id);
+        // 2) Hijos directos de tiendas
         db.prepare('DELETE FROM pedidos WHERE tienda_id = ?').run(id);
         db.prepare('DELETE FROM productos WHERE tienda_id = ?').run(id);
         db.prepare('DELETE FROM categorias WHERE tienda_id = ?').run(id);
         db.prepare('DELETE FROM configuracion WHERE tienda_id = ?').run(id);
         db.prepare('DELETE FROM usuarios WHERE tienda_id = ? AND es_superadmin = 0').run(id);
         db.prepare('DELETE FROM tiendas WHERE id = ?').run(id);
+
+        // BLOQUE 4.5: evento global de auditoría. La tienda ya no existe, así que
+        // el evento queda con tienda_id NULL (no viola la FK a tiendas).
+        registrarEvento(null, 'tienda_eliminada',
+            'Tienda eliminada: ' + tienda.nombre + ' (slug: ' + tienda.slug + ', id: ' + id + ')');
 
         res.json({ ok: true, mensaje: `Tienda "${tienda.nombre}" eliminada correctamente` });
     } catch (err) {
@@ -182,9 +200,9 @@ exports.getUsuarios = (req, res) => {
     try {
         let usuarios;
         if (tiendaId) {
-            usuarios = db.prepare('SELECT id, usuario, password_plain, tienda_id, es_superadmin FROM usuarios WHERE tienda_id = ? ORDER BY id ASC').all(tiendaId);
+            usuarios = db.prepare('SELECT id, usuario, tienda_id, es_superadmin FROM usuarios WHERE tienda_id = ? ORDER BY id ASC').all(tiendaId);
         } else {
-            usuarios = db.prepare('SELECT id, usuario, password_plain, tienda_id, es_superadmin FROM usuarios ORDER BY id ASC').all();
+            usuarios = db.prepare('SELECT id, usuario, tienda_id, es_superadmin FROM usuarios ORDER BY id ASC').all();
         }
         res.json(usuarios);
     } catch (err) {
@@ -215,7 +233,7 @@ exports.crearUsuario = async (req, res) => {
         }
 
         const hash = await bcrypt.hash(password, 10);
-        db.prepare('INSERT INTO usuarios (usuario, password, password_plain, tienda_id, es_superadmin) VALUES (?, ?, ?, ?, 0)').run(usuario, hash, password, tienda_id);
+        db.prepare('INSERT INTO usuarios (usuario, password, tienda_id, es_superadmin) VALUES (?, ?, ?, 0)').run(usuario, hash, tienda_id);
 
         res.json({ ok: true });
     } catch (err) {
@@ -258,8 +276,6 @@ exports.actualizarUsuario = async (req, res) => {
             const hash = bcrypt.hashSync(password.trim(), 10);
             updates.push('password = ?');
             params.push(hash);
-            updates.push('password_plain = ?');
-            params.push(password.trim());
         }
 
         if (updates.length === 0) {
@@ -449,7 +465,7 @@ exports.backupTienda = (req, res) => {
         }
 
         // Obtener usuarios admin de la tienda (sin SuperAdmin)
-        const usuarios = db.prepare('SELECT id, usuario, password_plain, tienda_id, es_superadmin FROM usuarios WHERE tienda_id = ? AND es_superadmin = 0').all(tiendaId);
+        const usuarios = db.prepare('SELECT id, usuario, tienda_id, es_superadmin FROM usuarios WHERE tienda_id = ? AND es_superadmin = 0').all(tiendaId);
 
         // Obtener configuración
         const configuracion = db.prepare('SELECT * FROM configuracion WHERE tienda_id = ?').all(tiendaId);
@@ -513,5 +529,152 @@ exports.backupTienda = (req, res) => {
     } catch (err) {
         console.error('Error al crear backup de tienda:', err.message);
         res.status(500).json({ error: 'Error al crear backup de tienda: ' + err.message });
+    }
+};
+
+// ============================================
+// BLOQUE 4 - Configuración global del SaaS editable
+// ============================================
+
+// Claves SaaS editables por el SuperAdmin (orden estable para la UI y validación).
+const SAAS_CONFIG_KEYS = [
+    { clave: 'saas.plan_name', etiqueta: 'Nombre del plan', tipoEsperado: 'texto' },
+    { clave: 'saas.monto_mensual_ars', etiqueta: 'Precio mensual (ARS)', tipoEsperado: 'entero' },
+    { clave: 'saas.trial_days', etiqueta: 'Días de prueba DEMO', tipoEsperado: 'entero' },
+    { clave: 'saas.warning_days', etiqueta: 'Días de aviso de vencimiento', tipoEsperado: 'entero' },
+];
+
+function validarValorSaas(clave, valor) {
+    const def = SAAS_CONFIG_KEYS.find(k => k.clave === clave);
+    if (!def) return { ok: false, error: 'Clave SaaS no editable: ' + clave };
+    if (valor === undefined || valor === null || String(valor).trim() === '') {
+        return { ok: false, error: 'El valor no puede estar vacío' };
+    }
+    const texto = String(valor).trim();
+    switch (def.tipoEsperado) {
+        case 'entero':
+            if (!/^\d+$/.test(texto)) return { ok: false, error: 'Debe ser un número entero' };
+            const entero = parseInt(texto, 10);
+            if (clave === 'saas.trial_days' && entero < 1) {
+                return { ok: false, error: 'Debe ser mayor a 0' };
+            }
+            return { ok: true, valor: String(entero) };
+        case 'numero':
+            if (!/^\d+(\.\d{1,2})?$/.test(texto)) {
+                return { ok: false, error: 'Precio inválido (ej: 9 o 9.99)' };
+            }
+            return { ok: true, valor: texto };
+        default:
+            if (texto.length > 60) return { ok: false, error: 'Máximo 60 caracteres' };
+            return { ok: true, valor: texto };
+    }
+}
+
+// Registra un evento de auditoría en store_events. `tiendaId` puede ser null
+// para eventos globales del SaaS. Tolerante a esquemas viejos (try/catch).
+function registrarEvento(tiendaId, tipo, detalle) {
+    try {
+        const params = tiendaId
+            ? [tiendaId, tipo, detalle]
+            : [tipo, detalle];
+        const sql = tiendaId
+            ? 'INSERT INTO store_events (tienda_id, tipo, detalle) VALUES (?, ?, ?)'
+            : 'INSERT INTO store_events (tipo, detalle) VALUES (?, ?)';
+        db.prepare(sql).run(...params);
+    } catch (e) {
+        console.warn('[EVENTOS] No se pudo registrar evento:', tipo, '-', e.message);
+    }
+}
+
+// GET /api/superadmin/saas-config - Lista la configuración global del SaaS
+exports.getSaasConfig = (req, res) => {
+    try {
+        const filas = db.prepare(
+            "SELECT clave, valor, tipo, grupo FROM configuracion WHERE tienda_id IS NULL AND grupo = 'saas' ORDER BY clave"
+        ).all();
+        const valores = {};
+        for (const f of filas) valores[f.clave] = f.valor;
+        const config = SAAS_CONFIG_KEYS.map(def => ({
+            clave: def.clave,
+            etiqueta: def.etiqueta,
+            tipoEsperado: def.tipoEsperado,
+            valor: Object.prototype.hasOwnProperty.call(valores, def.clave) ? valores[def.clave] : null,
+        }));
+        res.json({ ok: true, config });
+    } catch (err) {
+        console.error('Error al obtener config SaaS:', err.message);
+        res.status(500).json({ error: 'Error al obtener config SaaS' });
+    }
+};
+
+// PUT /api/superadmin/saas-config - Actualiza UNA clave de configuración global del SaaS
+exports.updateSaasConfig = (req, res) => {
+    try {
+        const { clave, valor } = req.body || {};
+        const val = validarValorSaas(clave, valor);
+        if (!val.ok) {
+            return res.status(400).json({ error: val.error });
+        }
+
+        const anterior = saasUtils.getGlobalConfig(clave);
+
+        // Upsert robusto: la fila global es un singleton lógico (clave + tienda_id NULL).
+        // En SQLite dos NULL no colisionan en la PK compuesta, así que se hace
+        // delete + insert dentro de una transacción para evitar duplicados.
+        const guardar = db.transaction(() => {
+            db.prepare('DELETE FROM configuracion WHERE clave = ? AND tienda_id IS NULL').run(clave);
+            db.prepare(
+                "INSERT INTO configuracion (clave, valor, tipo, grupo, tienda_id) VALUES (?, ?, 'texto', 'saas', NULL)"
+            ).run(clave, val.valor);
+        });
+        guardar();
+
+        registrarEvento(null, 'config_saas_actualizada',
+            clave + ': ' + (anterior || '(vacío)') + ' → ' + val.valor);
+
+        console.log('[SAAS-CONFIG] Actualizada ' + clave + ' = ' + val.valor + ' (antes: ' + (anterior || '(vacío)') + ')');
+        res.json({ ok: true, clave, valor: val.valor, anterior: anterior || null });
+    } catch (err) {
+        console.error('Error al actualizar config SaaS:', err.message);
+        res.status(500).json({ error: 'Error al actualizar config SaaS' });
+    }
+};
+
+// Helper reutilizable por otros controladores (BLOQUE 4.5: eventos en acciones clave)
+exports.registrarEvento = registrarEvento;
+
+// GET /api/superadmin/eventos - Lista eventos de auditoría (store_events).
+// Filtros opcionales: ?tienda_id=ID&tipo=tienda_eliminada&limite=100
+exports.getEventos = (req, res) => {
+    try {
+        const tiendaId = req.query.tienda_id ? parseInt(req.query.tienda_id, 10) : null;
+        const tipo = (req.query.tipo || '').trim();
+        const limite = Math.min(Math.max(parseInt(req.query.limite, 10) || 100, 1), 500);
+
+        let sql = `
+            SELECT e.id, e.tienda_id, e.tipo, e.detalle, e.created_at,
+                   t.slug AS tienda_slug, t.nombre AS tienda_nombre
+            FROM store_events e
+            LEFT JOIN tiendas t ON t.id = e.tienda_id
+        `;
+        const where = [];
+        const params = [];
+        if (tiendaId && !isNaN(tiendaId)) {
+            where.push('e.tienda_id = ?');
+            params.push(tiendaId);
+        }
+        if (tipo) {
+            where.push('e.tipo = ?');
+            params.push(tipo);
+        }
+        if (where.length) sql += ' WHERE ' + where.join(' AND ');
+        sql += ' ORDER BY e.id DESC LIMIT ?';
+        params.push(limite);
+
+        const eventos = db.prepare(sql).all(...params);
+        res.json({ ok: true, eventos });
+    } catch (err) {
+        console.error('Error al obtener eventos:', err.message);
+        res.status(500).json({ error: 'Error al obtener eventos' });
     }
 };

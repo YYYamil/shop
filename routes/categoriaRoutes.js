@@ -5,6 +5,7 @@ const router = express.Router();
 const categoriaController = require('../controllers/categoriaController');
 
 const authMiddleware = require('../middleware/authMiddleware');
+const { requiereTiendaActiva } = require('../middleware/planEstadoMiddleware');
 
 
 
@@ -15,12 +16,12 @@ router.get('/public', categoriaController.getCategoriasPublic);
 router.get('/', categoriaController.getCategorias);
 
 // PUT requiere autenticación (admin)
-router.put('/:id', authMiddleware, categoriaController.actualizarCategoria);
+router.put('/:id', authMiddleware, requiereTiendaActiva, categoriaController.actualizarCategoria);
 
 // POST y DELETE requieren autenticación (admin)
-router.post('/', authMiddleware, categoriaController.crearCategoria);
+router.post('/', authMiddleware, requiereTiendaActiva, categoriaController.crearCategoria);
 
-router.delete('/:id', authMiddleware, categoriaController.eliminarCategoria);
+router.delete('/:id', authMiddleware, requiereTiendaActiva, categoriaController.eliminarCategoria);
 
 
 

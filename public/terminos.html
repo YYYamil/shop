@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Términos del servicio - Shop SaaS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar {
+            background: #0f172a;
+            color: #fff;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 20px; font-weight: 800; color: #fff; text-decoration: none; }
+        .logo .badge {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            color: #fff; font-size: 10px; padding: 3px 7px;
+            border-radius: 999px; vertical-align: middle; margin-left: 4px;
+        }
+        .volver { color: #94a3b8; text-decoration: none; font-size: 14px; }
+        .volver:hover { color: #fff; }
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+        h1 { font-size: 28px; margin-bottom: 8px; color: #0f172a; }
+        .fecha { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+        h2 { font-size: 18px; margin: 24px 0 8px; color: #0f172a; }
+        p, li { font-size: 15px; margin-bottom: 8px; color: #334155; }
+        ul { padding-left: 22px; margin-bottom: 8px; }
+        a { color: #2563eb; }
+        footer {
+            text-align: center;
+            padding: 18px;
+            font-size: 13px;
+            color: #64748b;
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <a class="logo" href="/">Shop<span class="badge">SaaS</span></a>
+        <a class="volver" href="/">&larr; Volver al inicio</a>
+    </div>
+
+    <main>
+        <h1>Términos del servicio</h1>
+        <p class="fecha">Última actualización: <span id="fecha"></span></p>
+
+        <p>Bienvenido a Shop SaaS. Al crear una tienda y usar la plataforma aceptás estos Términos del servicio. Te pedimos que los leas con atención.</p>
+
+        <h2>1. El servicio</h2>
+        <p>Shop SaaS es una plataforma de e-commerce que te permite crear y administrar una tienda online, cargar productos, recibir pedidos y cobrar a tus clientes mediante los medios de pago que configures.</p>
+
+        <h2>2. Registro y cuenta</h2>
+        <ul>
+            <li>Para usar el servicio debés crear una cuenta con un nombre de usuario, una contraseña y un correo electrónico válido.</li>
+            <li>La contraseña se almacena de forma segura (encriptada). Somos la única plataforma que la maneja, y solo vos la conocés.</li>
+            <li>Si olvidás tu contraseña, podés solicitar una nueva: te la enviamos por correo al email registrado.</li>
+            <li>El usuario es responsable de mantener la confidencialidad de su contraseña y de toda actividad realizada desde su cuenta.</li>
+        </ul>
+
+        <h2>3. Plan y prueba gratuita</h2>
+        <p>Las tiendas nuevas se crean con un plan de prueba gratuito por tiempo limitado. Al vencer la prueba podés renovar abonando el plan vigente. Si no renovás, el acceso al panel de administración queda suspendido hasta regularizar el pago.</p>
+
+        <h2>4. Uso correcto</h2>
+        <p>Te comprometés a no usar la plataforma para actividades ilegales, publicar contenido que infrinja derechos de terceros o intentar dañar el funcionamiento del servicio.</p>
+
+        <h2>5. Responsabilidad</h2>
+        <p>Shop SaaS actúa como proveedor de la herramienta. El contenido, los productos y las ventas de cada tienda son responsabilidad de su dueño.</p>
+
+        <h2>6. Modificaciones</h2>
+        <p>Podemos actualizar estos Términos en cualquier momento. La versión vigente estará siempre disponible en esta página.</p>
+
+        <h2>7. Contacto</h2>
+        <p>Ante cualquier duda escribinos por la sección de contacto de la <a href="/">página principal</a>.</p>
+    </main>
+
+    <footer>© <span id="year"></span> Shop SaaS - Todos los derechos reservados</footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+    </script>
+</body>
+</html>

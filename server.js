@@ -10,6 +10,7 @@ const fs = require('fs');
 
 const authMiddleware = require('./middleware/authMiddleware');
 const tiendaMiddleware = require('./middleware/tiendaMiddleware');
+const { cargarPlanEstado } = require('./middleware/planEstadoMiddleware');
 
 
 
@@ -28,6 +29,8 @@ const configRoutes = require('./routes/configRoutes');
 const mercadopagoRoutes = require('./routes/mercadopagoRoutes');
 
 const superAdminRoutes = require('./routes/superAdminRoutes');
+
+const saasRoutes = require('./routes/saasRoutes');
 
 const seoController = require('./controllers/seoController');
 
@@ -75,6 +78,10 @@ app.use(session({
 
 // Middleware de tienda global (detecta slug de tienda desde URL o sesión)
 app.use(tiendaMiddleware);
+
+// Adjunta a req el estado comercial DERIVADO de la tienda actual
+// (demo/activo/suspendido) + datos del plan, para guards y vistas (BLOQUE 3)
+app.use(cargarPlanEstado);
 
 
 
@@ -129,6 +136,8 @@ app.use('/api/mercadopago', mercadopagoRoutes);
 
 app.use('/api/superadmin', superAdminRoutes);
 
+app.use('/api/saas', saasRoutes);
+
 
 
 // Ruta para verificar sesión (muy importante)
@@ -175,6 +184,30 @@ app.get('/', (req, res) => {
 // /home y /home/ → 301 canónico a la landing en la raíz (evita contenido duplicado)
 app.get(['/home', '/home/'], (req, res) => {
     res.redirect(301, '/');
+});
+
+// /registro y /registro/ → formulario público de alta de tienda (noindex)
+app.get(['/registro', '/registro/', '/registrate', '/registrate/'], (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'registro.html');
+    if (!fs.existsSync(filePath)) return res.status(404).send('Not found');
+    const html = fs.readFileSync(filePath, 'utf8');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(seoController.inyectarNoindex(html));
+});
+
+// /recuperar y /recuperar.html → recuperación de contraseña por correo (Fase 1)
+app.get(['/recuperar', '/recuperar/', '/recuperar.html'], (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'recuperar.html');
+    if (!fs.existsSync(filePath)) return res.status(404).send('Not found');
+    const html = fs.readFileSync(filePath, 'utf8');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(seoController.inyectarNoindex(html));
 });
 
 // /superadmin/ - Sirve archivos estáticos del superadmin
@@ -253,6 +286,10 @@ app.get('/:slug/:file', (req, res, next) => {
 app.get('/:slug', (req, res, next) => {
     const { slug } = req.params;
     if (!slug.match(/^[a-z0-9-]+$/)) {
+        return next();
+    }
+    // Slugs reservados del producto/SaaS nunca se interpretan como tienda
+    if (['saas', 'registro', 'registrate', 'recuperar', 'home'].includes(slug)) {
         return next();
     }
 

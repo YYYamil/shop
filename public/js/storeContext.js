@@ -12,12 +12,34 @@
    ============================================ */
 
 /**
+ * Segmentos de primer nivel que NO son tiendas (rutas técnicas o páginas del
+ * producto SaaS). Sin este filtro, en /admin/login.html obtenerSlug()
+ * devolvería "admin" y en /registro devolvería "registro", rompiendo el
+ * contexto (el campo de slug manual nunca se mostraba).
+ */
+const SEGMENTOS_SIN_TIENDA = new Set([
+    'api', 'auth', 'admin', 'superadmin', 'css', 'js', 'images', 'uploads',
+    'productos', 'pedidos', 'categorias', 'config', 'checkout', 'webhook',
+    'registro', 'registrate', 'crear-tienda', 'recuperar', 'home', 'saas',
+    'landing', 'planes', 'precios', 'faq', 'contacto', 'terminos',
+    'privacidad', 'cookies', 'soporte', 'panel', 'cuenta', 'login', 'logout',
+]);
+
+/**
  * Obtiene el slug de la tienda desde la URL actual.
+ * Devuelve null si la URL no pertenece a una tienda (rutas técnicas del
+ * sistema, páginas del SaaS, etc.).
  * @returns {string|null} Ej: 'vibra' o null si no hay slug
  */
 function obtenerSlug() {
-    const match = window.location.pathname.match(/^\/([a-z0-9-]+)(?:\/|$)/);
-    return match ? match[1] : null;
+    const path = window.location.pathname;
+    // Páginas HTML sueltas (terminos.html, recuperar.html, login.html…) no
+    // matchean porque incluyen "." y quedan fuera de [a-z0-9-]+
+    const match = path.match(/^\/([a-z0-9-]+)(?:\/|$)/);
+    if (!match) return null;
+    const primerSegmento = match[1];
+    if (SEGMENTOS_SIN_TIENDA.has(primerSegmento)) return null;
+    return primerSegmento;
 }
 
 /**

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de privacidad - Shop SaaS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .topbar {
+            background: #0f172a;
+            color: #fff;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 20px; font-weight: 800; color: #fff; text-decoration: none; }
+        .logo .badge {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            color: #fff; font-size: 10px; padding: 3px 7px;
+            border-radius: 999px; vertical-align: middle; margin-left: 4px;
+        }
+        .volver { color: #94a3b8; text-decoration: none; font-size: 14px; }
+        .volver:hover { color: #fff; }
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+        h1 { font-size: 28px; margin-bottom: 8px; color: #0f172a; }
+        .fecha { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+        h2 { font-size: 18px; margin: 24px 0 8px; color: #0f172a; }
+        p, li { font-size: 15px; margin-bottom: 8px; color: #334155; }
+        ul { padding-left: 22px; margin-bottom: 8px; }
+        a { color: #2563eb; }
+        footer {
+            text-align: center;
+            padding: 18px;
+            font-size: 13px;
+            color: #64748b;
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <a class="logo" href="/">Shop<span class="badge">SaaS</span></a>
+        <a class="volver" href="/">&larr; Volver al inicio</a>
+    </div>
+
+    <main>
+        <h1>Política de privacidad</h1>
+        <p class="fecha">Última actualización: <span id="fecha"></span></p>
+
+        <p>En Shop SaaS nos tomamos en serio la privacidad de tus datos. Esta política explica qué información recopilamos, para qué la usamos y cómo la protegemos.</p>
+
+        <h2>1. Información que recopilamos</h2>
+        <ul>
+            <li><strong>Datos de la cuenta:</strong> nombre de usuario, contraseña (encriptada) y correo electrónico.</li>
+            <li><strong>Datos de tu tienda:</strong> nombre, productos, categorías, precios, imágenes y configuración que cargues.</li>
+            <li><strong>Datos de pedidos:</strong> información de tus clientes y sus compras, necesaria para operar tu tienda.</li>
+        </ul>
+
+        <h2>2. Para qué usamos tus datos</h2>
+        <ul>
+            <li>Crear y administrar tu tienda y tu cuenta.</li>
+            <li>Enviarte tu contraseña por correo cuando la solicitás (recuperación de contraseña).</li>
+            <li>Mejorar el funcionamiento y la seguridad de la plataforma.</li>
+            <li>Comunicarnos con vos sobre el estado de tu plan.</li>
+        </ul>
+
+        <h2>3. Correo electrónico</h2>
+        <p>Usamos tu correo exclusivamente para cuestiones de la cuenta (por ejemplo, el envío de una contraseña nueva). No lo compartimos con terceros ni lo usamos para publicidad sin tu consentimiento.</p>
+
+        <h2>4. Almacenamiento y seguridad</h2>
+        <p>Tus datos se guardan en servidores con acceso restringido. Las contraseñas se almacenan encriptadas y nunca se guardan en texto plano.</p>
+
+        <h2>5. Tus derechos</h2>
+        <p>Podés pedirnos acceso, corrección o eliminación de los datos de tu cuenta y tu tienda. Para gestionar tu tienda podés contactarnos desde la <a href="/">página principal</a>.</p>
+
+        <h2>6. Cambios en esta política</h2>
+        <p>Si actualizamos esta política, publicaremos la nueva versión en esta misma página con su fecha de vigencia.</p>
+    </main>
+
+    <footer>© <span id="year"></span> Shop SaaS - Todos los derechos reservados</footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+        document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+    </script>
+</body>
+</html>

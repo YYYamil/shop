@@ -16,6 +16,7 @@
 const db = require('../database/db');
 const fs = require('fs');
 const path = require('path');
+const { ESTADOS, obtenerEstadoTienda } = require('../utils/saasUtils');
 
 const INDEX_HTML_PATH = path.join(__dirname, '..', 'public', 'index.html');
 const MARCA_SEO_HEAD = '<!--SEO_HEAD-->';
@@ -110,7 +111,13 @@ function urlAbsolutaDeImagen(req, valor) {
    ============================================ */
 
 function buscarTiendaActiva(slug) {
-    return db.prepare('SELECT id, slug, nombre, activo FROM tiendas WHERE slug = ? AND activo = 1').get(slug);
+    // Incluye las columnas de plan para poder derivar el estado comercial
+    // (BLOQUE 3): una tienda activa=1 puede estar SUSPENDIDA por calendario.
+    return db.prepare(`
+        SELECT id, slug, nombre, activo, plan, trial_inicio, trial_fin,
+               suscripcion_inicio, suscripcion_fin
+        FROM tiendas WHERE slug = ? AND activo = 1
+    `).get(slug);
 }
 
 function existeTiendaActiva(slug) {
@@ -396,6 +403,12 @@ function renderizarTienda(req, res, next, slug) {
         const tienda = buscarTiendaActiva(slug);
         if (!tienda) return next();
 
+        // BLOQUE 3: una tienda con estado DERIVADO SUSPENDIDO (prueba o
+        // suscripción vencida, aunque activo siga en 1) no se renderiza:
+        // se comporta como inactiva → 404 real (evita soft-404 y deja de vender).
+        const estado = obtenerEstadoTienda(tienda);
+        if (estado.estado === ESTADOS.SUSPENDIDO) return next();
+
         const config = obtenerConfig(tienda.id);
         const htmlBase = obtenerIndexHTML();
 
@@ -464,7 +477,14 @@ function generarRobotsTxt(req) {
 // /sitemap.xml lista la raíz (landing del producto) + la home canónica de cada
 // tienda activa. Categorías y productos se excluyen: hoy no tienen URLs propias indexables.
 function generarSitemapXml(req) {
-    const tiendas = db.prepare('SELECT slug FROM tiendas WHERE activo = 1 ORDER BY id ASC').all();
+    // BLOQUE 3: solo entran al sitemap tiendas comercialmente activas. Se
+    // consultan todas las activo=1 y se filtran las suspendidas por calendario
+    // (prueba/suscripción vencidas), que no deben indexarse.
+    const filas = db.prepare(`
+        SELECT slug, activo, plan, trial_fin, suscripcion_fin
+        FROM tiendas WHERE activo = 1 ORDER BY id ASC
+    `).all();
+    const tiendas = filas.filter((t) => obtenerEstadoTienda(t).estado !== ESTADOS.SUSPENDIDO);
     const base = construirUrlAbsoluta(req, '');
 
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';

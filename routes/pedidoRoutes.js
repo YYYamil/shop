@@ -6,12 +6,15 @@ const pedidoController = require('../controllers/pedidoController');
 const mercadopagoController = require('../controllers/mercadopagoController');
 
 const authMiddleware = require('../middleware/authMiddleware');
+const { requiereTiendaActiva } = require('../middleware/planEstadoMiddleware');
 
 
 
 router.post(
 
     '/',
+
+    requiereTiendaActiva,
 
     pedidoController.crearPedido
 
@@ -20,6 +23,8 @@ router.post(
 router.post(
 
     '/mercadopago',
+
+    requiereTiendaActiva,
 
     mercadopagoController.crearPreferenciaDesdePedido
 
@@ -58,6 +63,8 @@ router.put(
 
     authMiddleware,
 
+    requiereTiendaActiva,
+
     pedidoController.cambiarEstado
 
 );
@@ -67,6 +74,7 @@ router.put(
 router.delete(
     '/:id',
     authMiddleware,
+    requiereTiendaActiva,
     pedidoController.eliminarPedido
 );
 
@@ -89,6 +97,8 @@ router.put(
     '/:id/notas',
 
     authMiddleware,
+
+    requiereTiendaActiva,
 
     pedidoController.actualizarNotas
 

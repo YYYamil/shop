@@ -4,6 +4,7 @@ const router = express.Router();
 const upload = require('../middleware/uploadMiddleware');
 const configController = require('../controllers/configController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { requiereTiendaActiva } = require('../middleware/planEstadoMiddleware');
 
 // Pública - Obtener toda la configuración (usa slug de query param o middleware)
 router.get('/', configController.getConfig);
@@ -15,12 +16,12 @@ router.get('/slug/:slug', configController.getConfigBySlug);
 router.get('/admin', authMiddleware, configController.getConfigAdmin);
 
 // Requiere auth - Actualizar un valor específico
-router.put('/:clave', authMiddleware, configController.updateConfig);
+router.put('/:clave', authMiddleware, requiereTiendaActiva, configController.updateConfig);
 
 // Requiere auth - Subir imagen de logo
-router.post('/logo', authMiddleware, upload.single('logo'), configController.uploadLogo);
+router.post('/logo', authMiddleware, requiereTiendaActiva, upload.single('logo'), configController.uploadLogo);
 
 // Requiere auth - Subir imagen de hero
-router.post('/hero-imagen', authMiddleware, upload.single('hero'), configController.uploadHero);
+router.post('/hero-imagen', authMiddleware, requiereTiendaActiva, upload.single('hero'), configController.uploadHero);
 
 module.exports = router;

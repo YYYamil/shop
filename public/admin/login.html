@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Login Admin</title>
+    <title>Ingresá a tu tienda - Shop SaaS</title>
 
     <link rel="stylesheet"
           href="/css/admin.css">
@@ -29,9 +29,7 @@
             min-height: 100vh;
 
             display: flex;
-
             align-items: center;
-
             justify-content: center;
 
             padding: 20px;
@@ -103,7 +101,7 @@
             z-index: 2;
 
             width: 100%;
-            max-width: 430px;
+            max-width: 440px;
 
             padding: 42px 34px;
 
@@ -141,7 +139,7 @@
             width: 82px;
             height: 82px;
 
-            margin: 0 auto 24px;
+            margin: 0 auto 22px;
 
             border-radius: 24px;
 
@@ -170,11 +168,11 @@
 
             color: white;
 
-            font-size: 34px;
+            font-size: 32px;
 
             font-weight: 800;
 
-            margin-bottom: 10px;
+            margin-bottom: 8px;
 
             letter-spacing: -1px;
         }
@@ -185,7 +183,7 @@
 
             color: rgba(255,255,255,.7);
 
-            margin-bottom: 34px;
+            margin-bottom: 26px;
 
             font-size: 15px;
         }
@@ -194,7 +192,7 @@
 
         .input-group {
 
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
         .input-group label {
@@ -214,7 +212,7 @@
 
             width: 100%;
 
-            padding: 16px 18px;
+            padding: 15px 18px;
 
             border-radius: 16px;
 
@@ -244,19 +242,170 @@
                 rgba(96,165,250,.7);
 
             background:
-                rgba(255,255,255,.12);
+                rgba(255,255,255,.92);
 
             box-shadow:
                 0 0 0 4px rgba(37,99,235,.18);
         }
 
-        /* Botón */
+        .input-group input[readonly] {
+
+            background: rgba(226,232,240,.7);
+
+            color: #334155;
+
+            cursor: default;
+        }
+
+        .hint-detalle {
+
+            font-size: 12px;
+
+            color: rgba(255,255,255,.55);
+
+            margin-top: 6px;
+
+            line-height: 1.5;
+        }
+
+        /* Tienda seleccionada (pill en paso 2) */
+
+        .tienda-detectada {
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 10px;
+
+            padding: 13px 16px;
+
+            border-radius: 16px;
+
+            background: rgba(16,185,129,.16);
+
+            border: 1px solid rgba(16,185,129,.45);
+
+            color: #d1fae5;
+
+            margin-bottom: 18px;
+        }
+
+        .tienda-detectada strong {
+
+            color: white;
+
+            font-weight: 700;
+        }
+
+        .tienda-detectada .td-url {
+
+            font-size: 12px;
+
+            color: rgba(255,255,255,.6);
+        }
+
+        .tienda-detectada .td-cambiar {
+
+            flex-shrink: 0;
+
+            background: rgba(255,255,255,.12);
+
+            border: 1px solid rgba(255,255,255,.2);
+
+            color: #e2e8f0;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            padding: 6px 12px;
+
+            border-radius: 999px;
+
+            cursor: pointer;
+
+            transition: .2s;
+        }
+
+        .tienda-detectada .td-cambiar:hover {
+
+            background: rgba(255,255,255,.22);
+        }
+
+        /* Botones de tiendas detectadas */
+
+        .tienda-opcion {
+
+            width: 100%;
+
+            text-align: left;
+
+            padding: 13px 15px;
+
+            border-radius: 14px;
+
+            border: 1px solid rgba(255,255,255,.12);
+
+            background: rgba(255,255,255,.08);
+
+            color: white;
+
+            cursor: pointer;
+
+            margin-bottom: 8px;
+
+            transition: .2s;
+        }
+
+        .tienda-opcion:hover {
+
+            background: rgba(255,255,255,.18);
+
+            border-color: rgba(96,165,250,.6);
+        }
+
+        .tienda-opcion .to-nombre {
+
+            display: block;
+
+            font-size: 15px;
+
+            font-weight: 700;
+        }
+
+        .tienda-opcion .to-url {
+
+            display: block;
+
+            font-size: 12px;
+
+            color: rgba(255,255,255,.55);
+
+            margin-top: 3px;
+        }
+
+        .tienda-opcion .to-suspendida {
+
+            color: #fbbf24;
+
+            font-weight: 600;
+        }
+
+        .tienda-opcion.disabled {
+
+            opacity: .6;
+
+            cursor: not-allowed;
+        }
+
+        /* Botón principal */
 
         .login-btn {
 
             width: 100%;
 
-            margin-top: 12px;
+            margin-top: 8px;
 
             padding: 16px;
 
@@ -293,9 +442,94 @@
                 0 18px 35px rgba(37,99,235,.4);
         }
 
+        .login-btn:disabled {
+
+            opacity: .6;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+        .login-btn-secundario {
+
+            margin-top: 8px;
+
+            background: rgba(255,255,255,.1);
+
+            box-shadow: none;
+
+            color: #e2e8f0;
+        }
+
+        .login-btn-secundario:hover {
+
+            background: rgba(255,255,255,.18);
+
+            box-shadow: none;
+
+            transform: none;
+        }
+
+        /* Mensaje de error */
+
+        .login-error {
+
+            display: none;
+
+            margin-top: 14px;
+
+            padding: 12px 14px;
+
+            border-radius: 12px;
+
+            background: rgba(239,68,68,.15);
+
+            border: 1px solid rgba(239,68,68,.4);
+
+            color: #fecaca;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .login-error.show {
+
+            display: block;
+        }
+
+        .login-links {
+
+            text-align: center;
+
+            margin-top: 18px;
+
+            font-size: 13px;
+        }
+
+        .login-links a {
+
+            color: #93c5fd;
+
+            text-decoration: none;
+        }
+
+        .login-links a:hover {
+
+            text-decoration: underline;
+        }
+
+        .login-links .sep {
+
+            color: rgba(255,255,255,.35);
+
+            margin: 0 8px;
+        }
+
         .login-footer {
 
-            margin-top: 24px;
+            margin-top: 20px;
 
             text-align: center;
 
@@ -317,7 +551,7 @@
 
             .login-card h1 {
 
-                font-size: 28px;
+                font-size: 26px;
             }
 
             .login-subtitle {
@@ -349,7 +583,7 @@
 
     <!-- Card -->
 
-    <div class="login-card">
+    <div class="login-card" id="loginCard">
 
         <div class="login-logo">
 
@@ -369,64 +603,147 @@
 
         </p>
 
-        <div class="input-group">
+        <!-- PASO 1: identificar la tienda del dueño -->
+        <div id="pasoBuscar">
 
-            <label>
+            <div class="input-group">
 
-                Usuario
+                <label for="usuario">
 
-            </label>
+                    Tu usuario
 
-            <input
-                type="text"
-                id="usuario"
-                placeholder="Ingresá tu usuario"
-            >
+                </label>
+
+                <input
+                    type="text"
+                    id="usuario"
+                    placeholder="ej: juanperez, maria25"
+                    autocomplete="username"
+                >
+                <p class="hint-detalle">
+                    Escribí tu usuario y te mostramos tu tienda automáticamente.
+                </p>
+
+            </div>
+
+            <div style="text-align:center;margin:-2px 0 14px;font-size:12.5px;">
+                <a href="javascript:void(0)"
+                   onclick="mostrarSlugManual()"
+                   style="color:#c4b5fd;text-decoration:none;">
+                    ¿No recordás tu usuario? Ingresá el identificador de tu tienda
+                </a>
+            </div>
+
+            <!-- Resultado de la búsqueda -->
+            <div id="zonaResultado"></div>
+
+            <!-- Respaldo manual (si la autodetección no encontró nada) -->
+            <div class="input-group" id="campoSlugManual" style="display:none;">
+
+                <label for="slugManual">
+
+                    Identificador de tu tienda
+
+                </label>
+
+                <input
+                    type="text"
+                    id="slugManual"
+                    placeholder="ej: deportes-rodriguez, nike, adidas"
+                    autocomplete="off"
+                >
+                <p class="hint-detalle">
+                    No pudimos encontrar tu tienda con ese usuario. Ingresá el
+                    identificador que aparece en la URL de tu tienda:
+                    <strong>tudominio.com/tu-tienda/</strong>
+                </p>
+
+            </div>
+
+            <button
+                class="login-btn"
+                id="btnBuscar"
+                onclick="btnPrincipalClick()"
+                disabled>
+
+                Buscar mi tienda
+
+            </button>
 
         </div>
 
-        <div class="input-group">
+        <!-- PASO 2: credenciales de la tienda elegida -->
+        <div id="pasoLogin" style="display:none;">
 
-            <label>
+            <div class="tienda-detectada">
 
-                Contraseña
+                <div>
+                    <div><strong id="pillNombre"></strong></div>
+                    <div class="td-url" id="pillUrl"></div>
+                </div>
 
-            </label>
+                <button type="button" class="td-cambiar" onclick="volverABuscar()">
+                    Cambiar
+                </button>
 
-            <input
-                type="password"
-                id="password"
-                placeholder="Ingresá tu contraseña"
-            >
+            </div>
+
+            <div class="input-group">
+
+                <label for="usuarioLogin">
+
+                    Usuario
+
+                </label>
+
+                <input
+                    type="text"
+                    id="usuarioLogin"
+                    placeholder="Ingresá tu usuario"
+                    autocomplete="username"
+                >
+
+            </div>
+
+            <div class="input-group">
+
+                <label for="password">
+
+                    Contraseña
+
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Ingresá tu contraseña"
+                    autocomplete="current-password"
+                >
+
+            </div>
+
+            <button
+                class="login-btn"
+                id="btnIngresar"
+                onclick="login()">
+
+                Ingresar al panel
+
+            </button>
 
         </div>
 
-        <div class="input-group" id="campoSlugManual" style="display:none;">
+        <div class="login-links">
 
-            <label>
+            <a href="/recuperar">¿Olvidaste tu contraseña?</a>
 
-                Identificador de la tienda
+            <span class="sep">•</span>
 
-            </label>
-
-            <input
-                type="text"
-                id="slugManual"
-                placeholder="ej: deportes-rodriguez, nike, adidas"
-            >
-            <p style="font-size:12px;color:#94a3b8;margin-top:4px;">
-                Este dato está en la URL de tu tienda: <strong>tudominio.com/<slug>/</strong>
-            </p>
+            <a href="/">Volver al inicio</a>
 
         </div>
 
-        <button
-            class="login-btn"
-            onclick="login()">
-
-            Ingresar al panel
-
-        </button>
+        <div class="login-error" id="loginError"></div>
 
         <div class="login-footer">
 
@@ -438,64 +755,392 @@
 
     <script src="/js/storeContext.js"></script>
     <script>
-        // Mostrar/ocultar campo de slug manual según si se detecta desde la URL
-        function actualizarCampoSlug() {
-            const slug = obtenerSlug();
-            const campoSlug = document.getElementById('campoSlugManual');
-            if (campoSlug) {
-                campoSlug.style.display = slug ? 'none' : 'block';
+        // ============================================================
+        // LOGIN INTUITIVO PARA EL DUEÑO DE LA TIENDA
+        // ============================================================
+        // 1) Si la URL trae el slug (/:slug/admin/login.html) → se va directo
+        //    al paso de credenciales con la tienda ya identificada.
+        // 2) Si es el login genérico (/admin/login.html) → el dueño escribe su
+        //    USUARIO y el sistema detecta su(s) tienda(s) sin pedir el slug.
+        // ============================================================
+
+        var slugInicial = obtenerSlug();
+        var tiendaSeleccionada = null;   // { slug, nombre, activo }
+        var usuarioDetectado = '';
+
+        var pasoBuscar = document.getElementById('pasoBuscar');
+        var pasoLogin = document.getElementById('pasoLogin');
+        var campoSlugManual = document.getElementById('campoSlugManual');
+        var zonaResultado = document.getElementById('zonaResultado');
+        var btnBuscar = document.getElementById('btnBuscar');
+        var btnIngresar = document.getElementById('btnIngresar');
+
+        var inputUsuario = document.getElementById('usuario');
+        var inputSlugManual = document.getElementById('slugManual');
+        var inputUsuarioLogin = document.getElementById('usuarioLogin');
+        var inputPassword = document.getElementById('password');
+
+        function mostrarError(msg) {
+            var box = document.getElementById('loginError');
+            box.textContent = msg || '';
+            box.classList.add('show');
+        }
+
+        function limpiarError() {
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        function urlDeTienda(slug) {
+            return window.location.origin + '/' + slug + '/';
+        }
+
+        // Estado derivado por calendario (misma regla que el backend):
+        // demo/suscripción vencidos → suspendida.
+        function tiendaSuspendida(t) {
+            if (t.activo === false) return true;
+            var hoy = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Argentina/Buenos_Aires',
+                year: 'numeric', month: '2-digit', day: '2-digit'
+            }).format(new Date());
+            if (t.trial_fin) return hoy > t.trial_fin;
+            if (t.suscripcion_fin) return hoy > t.suscripcion_fin;
+            return false;
+        }
+
+        // ---------- Navegación entre pasos ----------
+
+        function irALogin(tienda, usuario) {
+            tiendaSeleccionada = tienda;
+            usuarioDetectado = usuario || '';
+
+            document.getElementById('pillNombre').textContent = tienda.nombre;
+            document.getElementById('pillUrl').textContent = urlDeTienda(tienda.slug);
+
+            inputUsuarioLogin.value = usuarioDetectado;
+            inputUsuarioLogin.readOnly = Boolean(usuarioDetectado);
+
+            pasoBuscar.style.display = 'none';
+            pasoLogin.style.display = 'block';
+            limpiarError();
+
+            if (usuarioDetectado) {
+                inputPassword.focus();
+            } else {
+                inputUsuarioLogin.focus();
             }
         }
+
+        function volverABuscar() {
+            pasoLogin.style.display = 'none';
+            pasoBuscar.style.display = 'block';
+            limpiarError();
+            inputUsuario.focus();
+        }
+
+        // ---------- Paso 1: detectar la tienda ----------
+
+        function limpiarResultado() {
+            zonaResultado.innerHTML = '';
+            campoSlugManual.style.display = 'none';
+        }
+
+        async function detectarTienda() {
+            limpiarError();
+            limpiarResultado();
+
+            var u = inputUsuario.value.trim();
+
+            if (u.length < 2) {
+                mostrarError('Escribí tu usuario (mínimo 2 caracteres) para encontrar tu tienda.');
+                inputUsuario.focus();
+                return;
+            }
+
+            btnBuscar.disabled = true;
+            btnBuscar.textContent = 'Buscando…';
+
+            var tiendas = [];
+
+            try {
+                var res = await fetch('/auth/tiendas-por-usuario?usuario=' + encodeURIComponent(u));
+                var data = await res.json();
+                if (res.ok && data.ok) tiendas = data.tiendas || [];
+            } catch (e) {
+                tiendas = [];
+            }
+
+            btnBuscar.disabled = false;
+            btnBuscar.textContent = 'Buscar mi tienda';
+
+            var activas = tiendas.filter(function (t) { return !tiendaSuspendida(t); });
+            var suspendidas = tiendas.filter(function (t) { return tiendaSuspendida(t); });
+
+            if (activas.length === 1) {
+                // Caso más común: una sola tienda activa
+                var t = activas[0];
+                irALogin({ slug: t.slug, nombre: t.nombre, activo: t.activo }, u);
+                return;
+            }
+
+            if (tiendas.length > 1) {
+                renderListaTiendas(activas, suspendidas, u);
+                return;
+            }
+
+            if (tiendas.length === 1) {
+                // Solo estaba suspendida
+                mostrarError('Tu tienda está suspendida. Renová tu plan para volver a ingresar.');
+                return;
+            }
+
+            // No se encontró ninguna tienda para ese usuario → respaldo manual
+            var aviso = document.createElement('p');
+            aviso.style.cssText = 'color:#fbbf24;font-size:13px;margin-bottom:10px;line-height:1.5;';
+            aviso.textContent = 'No encontramos ninguna tienda para el usuario "' + u + '".';
+            zonaResultado.appendChild(aviso);
+
+            campoSlugManual.style.display = 'block';
+            inputSlugManual.focus();
+        }
+
+        function renderListaTiendas(activas, suspendidas, u) {
+            var titulo = document.createElement('p');
+            titulo.style.cssText = 'color:rgba(255,255,255,.7);font-size:13px;margin-bottom:10px;';
+            titulo.textContent = 'Tenés varias tiendas. Elegí a cuál querés ingresar:';
+            zonaResultado.appendChild(titulo);
+
+            activas.forEach(function (t) {
+                zonaResultado.appendChild(botonTienda(t, u));
+            });
+
+            if (suspendidas.length) {
+                var divSus = document.createElement('div');
+                divSus.style.marginTop = '10px';
+
+                var aviso = document.createElement('p');
+                aviso.style.cssText = 'color:#fbbf24;font-size:12px;margin-bottom:6px;';
+                aviso.textContent = 'Suspendidas (renová el plan para acceder):';
+                divSus.appendChild(aviso);
+
+                suspendidas.forEach(function (t) {
+                    var btn = botonTienda(t, u, true);
+                    divSus.appendChild(btn);
+                });
+                zonaResultado.appendChild(divSus);
+            }
+
+            var btnManual = document.createElement('button');
+            btnManual.type = 'button';
+            btnManual.className = 'tienda-opcion';
+            btnManual.style.background = 'transparent';
+            btnManual.style.borderColor = 'rgba(255,255,255,.2)';
+            btnManual.style.marginTop = '10px';
+
+            var txt = document.createElement('span');
+            txt.className = 'to-nombre';
+            txt.textContent = 'No está mi tienda — ingresar el identificador';
+            btnManual.appendChild(txt);
+
+            btnManual.onclick = function () {
+                limpiarResultado();
+                campoSlugManual.style.display = 'block';
+                inputSlugManual.focus();
+            };
+            zonaResultado.appendChild(btnManual);
+        }
+
+        function botonTienda(t, u, soloMostrar) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'tienda-opcion';
+
+            var nombreEl = document.createElement('span');
+            nombreEl.className = 'to-nombre';
+            nombreEl.textContent = t.nombre;
+
+            var urlEl = document.createElement('span');
+            urlEl.className = 'to-url';
+            urlEl.textContent = urlDeTienda(t.slug);
+
+            btn.appendChild(nombreEl);
+            btn.appendChild(urlEl);
+
+            if (soloMostrar) {
+                btn.classList.add('disabled');
+                var warn = document.createElement('span');
+                warn.className = 'to-suspendida';
+                warn.textContent = ' · suspendida';
+                nombreEl.appendChild(warn);
+            } else {
+                btn.onclick = function () {
+                    irALogin({ slug: t.slug, nombre: t.nombre, activo: t.activo }, u);
+                };
+            }
+
+            return btn;
+        }
+
+        // Acceso directo al respaldo manual sin escribir usuario
+        function mostrarSlugManual() {
+            limpiarError();
+            limpiarResultado();
+            campoSlugManual.style.display = 'block';
+            inputSlugManual.focus();
+        }
+
+        // Autodetección al escribir (debounce) + respaldo manual
+        function usarSlugManual() {
+            var slug = inputSlugManual.value.trim().toLowerCase();
+            if (!slug) {
+                mostrarError('Ingresá el identificador de tu tienda.');
+                inputSlugManual.focus();
+                return;
+            }
+            irALogin({
+                slug: slug,
+                nombre: slug,
+                activo: true
+            }, inputUsuario.value.trim());
+        }
+
+        // El botón principal es contextual:
+        //  - Si el respaldo manual está visible con valor → continúa con ese slug.
+        //  - Si no → busca la(s) tienda(s) por usuario.
+        function btnPrincipalClick() {
+            limpiarError();
+
+            var manualVisible = campoSlugManual.style.display !== 'none';
+            var slugManualVal = inputSlugManual.value.trim();
+
+            if (manualVisible && slugManualVal) {
+                usarSlugManual();
+                return;
+            }
+
+            detectarTienda();
+        }
+
+        var timerBuscar = null;
+        inputUsuario.addEventListener('input', function () {
+            limpiarError();
+            limpiarResultado();
+
+            var val = this.value.trim();
+            if (val.length < 2) {
+                btnBuscar.disabled = true;
+                return;
+            }
+            btnBuscar.disabled = false;
+
+            clearTimeout(timerBuscar);
+            timerBuscar = setTimeout(detectarTienda, 600);
+        });
+
+        inputSlugManual.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') usarSlugManual();
+        });
+
+        // Habilitar el botón principal cuando hay un identificador escrito a mano
+        inputSlugManual.addEventListener('input', function () {
+            limpiarError();
+            btnBuscar.disabled = this.value.trim().length === 0;
+        });
+
+        // ---------- Paso 2: login final ----------
 
         async function login() {
-            const usuario = document.getElementById('usuario').value;
-            const password = document.getElementById('password').value;
-            let slug = obtenerSlug();
-
-            // Si no hay slug en la URL, usar el ingresado manualmente
-            if (!slug) {
-                slug = document.getElementById('slugManual').value.trim().toLowerCase();
-            }
-
-            if (!slug) {
-                alert('Ingresá el identificador de tu tienda (ej: "deportes-rodriguez" o "nike")');
-                document.getElementById('slugManual').focus();
+            if (!tiendaSeleccionada || !tiendaSeleccionada.slug) {
+                mostrarError('Primero elegí tu tienda.');
                 return;
             }
 
-            const respuesta = await fetch(
-                '/auth/login/tienda',
-                {
+            var usuario = inputUsuarioLogin.value.trim();
+            var password = inputPassword.value;
+
+            if (!usuario) {
+                mostrarError('Ingresá tu usuario.');
+                inputUsuarioLogin.focus();
+                return;
+            }
+            if (!password) {
+                mostrarError('Ingresá tu contraseña.');
+                inputPassword.focus();
+                return;
+            }
+
+            limpiarError();
+            btnIngresar.disabled = true;
+            btnIngresar.textContent = 'Ingresando…';
+
+            try {
+                var respuesta = await fetch('/auth/login/tienda', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        usuario,
-                        password,
-                        slug
+                        usuario: usuario,
+                        password: password,
+                        slug: tiendaSeleccionada.slug
                     })
+                });
+
+                var data = await respuesta.json();
+
+                if (data.error) {
+                    mostrarError(data.error);
+                    btnIngresar.disabled = false;
+                    btnIngresar.textContent = 'Ingresar al panel';
+                    return;
                 }
-            );
 
-            const data = await respuesta.json();
-
-            if (data.error) {
-                alert(data.error);
-                return;
-            }
-
-            // Redirigir al dashboard de la tienda
-            // Si el servidor devuelve un slug (login sin slug en URL), usarlo explícitamente
-            if (data.tiendaSlug) {
-                window.location = obtenerRutaConSlug(data.tiendaSlug, 'admin/dashboard.html');
-            } else {
-                window.location = obtenerRutaAdmin('dashboard.html');
+                // Redirigir al dashboard de la tienda
+                var destino = data.tiendaSlug
+                    ? obtenerRutaConSlug(data.tiendaSlug, 'admin/dashboard.html')
+                    : obtenerRutaAdmin('dashboard.html');
+                window.location = destino;
+            } catch (err) {
+                mostrarError('Error de conexión. Intentá de nuevo.');
+                btnIngresar.disabled = false;
+                btnIngresar.textContent = 'Ingresar al panel';
             }
         }
 
-        // Inicializar: mostrar campo slug si es necesario
-        document.addEventListener('DOMContentLoaded', actualizarCampoSlug);
+        inputPassword.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') login();
+        });
+
+        // ---------- Inicialización ----------
+
+        function cargarDatosDeSlug(slug) {
+            // Pide el nombre real de la tienda para mostrarlo en la tarjeta
+            fetch('/auth/tiendas-por-usuario?slug=' + encodeURIComponent(slug))
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.ok && data.tiendas && data.tiendas.length) {
+                        var t = data.tiendas[0];
+                        document.getElementById('pillNombre').textContent = t.nombre;
+                    }
+                })
+                .catch(function () { /* queda el slug como nombre */ });
+        }
+
+        function init() {
+            if (slugInicial) {
+                // Llegó desde /:slug/admin/login.html → tienda ya identificada
+                document.getElementById('pillNombre').textContent = slugInicial;
+                document.getElementById('pillUrl').textContent = urlDeTienda(slugInicial);
+
+                pasoBuscar.style.display = 'none';
+                pasoLogin.style.display = 'block';
+                limpiarError();
+                cargarDatosDeSlug(slugInicial);
+                inputUsuarioLogin.focus();
+            } else {
+                // Login genérico /admin/login.html → buscar la tienda por usuario
+                inputUsuario.focus();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 
 </body>

@@ -7,6 +7,7 @@ const upload = require('../middleware/uploadMiddleware');
 const productController = require('../controllers/productController');
 
 const authMiddleware = require('../middleware/authMiddleware');
+const { requiereTiendaActiva } = require('../middleware/planEstadoMiddleware');
 
 
 
@@ -22,6 +23,8 @@ router.post(
 
     authMiddleware,
 
+    requiereTiendaActiva,
+
     upload.any(),
 
     productController.crearProducto
@@ -34,6 +37,8 @@ router.put(
 
     authMiddleware,
 
+    requiereTiendaActiva,
+
     upload.any(),
 
     productController.editarProducto
@@ -45,6 +50,8 @@ router.delete(
     '/:id',
 
     authMiddleware,
+
+    requiereTiendaActiva,
 
     productController.eliminarProducto
 

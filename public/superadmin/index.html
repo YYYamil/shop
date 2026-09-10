@@ -238,6 +238,34 @@
             background: #fef2f2;
             color: #991b1b;
         }
+        .badge-demo {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-plan {
+            display: inline-block;
+            margin-top: 3px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .badge-plan-ilimitado {
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .badge-plan-demo {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        .badge-plan-pago {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+        .estado-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -346,6 +374,56 @@
             border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
+        }
+
+        /* ===== CONFIG SAAS (BLOQUE 4) ===== */
+        .saas-field {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .saas-field:last-child {
+            border-bottom: none;
+        }
+        .saas-info {
+            flex: 1 1 260px;
+            min-width: 200px;
+        }
+        .saas-info .saas-label {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+        .saas-info .saas-key {
+            font-size: 12px;
+            color: #64748b;
+            font-family: Consolas, monospace;
+            margin-top: 2px;
+        }
+        .saas-input-wrap {
+            flex: 1 1 220px;
+            max-width: 360px;
+        }
+        .saas-input-wrap input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .saas-input-wrap input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .saas-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* ===== FILA CLICKEABLE ===== */
@@ -535,6 +613,12 @@
             <div class="nav-item" data-section="backups" onclick="mostrarSeccion('backups')">
                 <span class="icon">💾</span> Backups
             </div>
+            <div class="nav-item" data-section="saasconfig" onclick="mostrarSeccion('saasconfig')">
+                <span class="icon">⚙️</span> Config SaaS
+            </div>
+            <div class="nav-item" data-section="eventos" onclick="mostrarSeccion('eventos')">
+                <span class="icon">📋</span> Eventos
+            </div>
             <div class="nav-footer">
                 <a href="#" onclick="logout(); return false;">← Cerrar sesión</a>
             </div>
@@ -576,7 +660,7 @@
                                 <th>ID</th>
                                 <th>Slug</th>
                                 <th>Nombre</th>
-                                <th>Estado</th>
+                                <th>Plan / Estado</th>
                                 <th>Admin</th>
                                 <th>Productos</th>
                                 <th>Pedidos</th>
@@ -614,6 +698,79 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Sección Config SaaS (BLOQUE 4) -->
+            <div id="seccionSaasConfig" class="hidden">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>⚙️ Configuración del SaaS</h3>
+                        <button class="btn-secondary" onclick="cargarSaasConfig()">↻ Recargar</button>
+                    </div>
+                    <div style="padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b;">
+                        Parámetros globales que aplican a todo el SaaS: duración de la prueba DEMO, días de aviso
+                        de vencimiento, el precio (ARS) del plan y el nombre del plan.
+                    </div>
+
+                    <!-- Cuenta de cobro del SaaS (Mercado Pago del SuperAdmin) - BLOQUE 5 -->
+                    <div id="mpPlataformaCard" style="background:white;border-bottom:1px solid #e2e8f0;padding:18px 20px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+                            <div style="display:flex;align-items:center;gap:12px;min-width:200px;">
+                                <span style="font-size:26px;">💳</span>
+                                <div>
+                                    <div style="font-weight:700;color:#1e293b;font-size:14px;">Cuenta de cobro del SaaS</div>
+                                    <div id="mpPlataformaEstado" style="font-size:12.5px;color:#64748b;margin-top:2px;">Cargando…</div>
+                                </div>
+                            </div>
+                            <div id="mpPlataformaAcciones" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+                        </div>
+                    </div>
+
+                    <div id="saasConfigList" style="background:white;">
+                        <div style="padding:20px;text-align:center;color:#94a3b8;">Cargando configuración...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Eventos (BLOQUE 4) -->
+            <div id="seccionEventos" class="hidden">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>📋 Eventos de auditoría</h3>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <select id="filtroEventosTipo" onchange="cargarEventos()" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;">
+                                <option value="">Todos los tipos</option>
+                                <option value="tienda_creada">Tienda creada</option>
+                                <option value="tienda_actualizada">Tienda actualizada</option>
+                                <option value="tienda_eliminada">Tienda eliminada</option>
+                                <option value="config_saas_actualizada">Config SaaS</option>
+                                <option value="suscripcion_activada">Suscripción activada</option>
+                                <option value="suscripcion_renovada">Suscripción renovada</option>
+                                <option value="mp_plataforma_conectada">Cuenta de cobro conectada</option>
+                                <option value="mp_plataforma_desconectada">Cuenta de cobro desconectada</option>
+                            </select>
+                            <button class="btn-secondary" onclick="cargarEventos()">↻ Recargar</button>
+                        </div>
+                    </div>
+                    <div style="padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b;">
+                        Registro de las acciones importantes del SuperAdmin y altas automáticas del SaaS.
+                        Los eventos globales (config, eliminaciones) no pertenecen a una tienda.
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Tienda</th>
+                                <th>Detalle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaEventos">
+                            <tr><td colspan="5" style="text-align:center;color:#94a3b8;">Sin eventos todavía</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -634,6 +791,17 @@
             <div class="form-group">
                 <label>Contraseña del admin</label>
                 <input type="password" id="tiendaAdminPassword" placeholder="Contraseña" />
+            </div>
+            <div class="form-group">
+                <label>Plan inicial</label>
+                <select id="tiendaPlan">
+                    <option value="demo">🚀 Demo — prueba gratuita</option>
+                    <option value="ilimitado">♾️ Ilimitado — sin vencimiento</option>
+                </select>
+                <p style="font-size:12px;color:#94a3b8;margin-top:4px;" id="tiendaPlanHint">
+                    Demo: la tienda se crea en período de prueba. Al vencer, se suspende sola hasta que pague.
+                    Ilimitado: se comporta como las tiendas legacy (nunca se suspende).
+                </p>
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="cerrarModal(null, 'modalTienda')">Cancelar</button>
@@ -729,6 +897,17 @@
                 if (ok) {
                     console.log('[SuperAdmin] Auth verificada, cargando datos...');
                     cargarDatos();
+
+                    // Retorno del OAuth de la cuenta de cobro (BLOQUE 5)
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('mp_connect') === '1') {
+                        mostrarSeccion('saasconfig');
+                        mostrarToast('✅ Cuenta de cobro de Mercado Pago conectada', 'success');
+                        params.delete('mp_connect');
+                        if (window.history && window.history.replaceState) {
+                            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                        }
+                    }
                 }
             } catch(e) {
                 console.error('[SuperAdmin] Error en verificación:', e);

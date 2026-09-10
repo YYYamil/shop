@@ -4,15 +4,23 @@
 
 const db = require('../database/db');
 
+// Rutas globales del SaaS/producto donde NO aplica contexto de tienda
+const rutasGlobalesSaaS = ['/superadmin', '/saas', '/registro', '/registrate', '/home'];
+
 function tiendaMiddleware(req, res, next) {
-    // 0. Si la ruta es /superadmin, no aplicar lógica de tienda
-    if (req.path.startsWith('/superadmin')) {
+    // 0. Si la ruta es global del producto/SaaS, no aplicar lógica de tienda
+    if (rutasGlobalesSaaS.some((prefijo) => req.path === prefijo || req.path.startsWith(prefijo + '/'))) {
         req.tiendaId = null;
         req.tiendaSlug = null;
         return next();
     }
 
-    const rutasConocidas = ['api', 'auth', 'productos', 'pedidos', 'categorias', 'uploads', 'css', 'js', 'admin', 'superadmin', 'carrito.html'];
+    const rutasConocidas = [
+        'api', 'auth', 'productos', 'pedidos', 'categorias', 'uploads', 'css', 'js',
+        'admin', 'superadmin', 'carrito.html',
+        // Rutas SaaS top-level (BLOQUE 1): nunca pueden interpretarse como slug
+        'saas', 'registro', 'registrate', 'registro.html', 'home', 'robots.txt', 'sitemap.xml',
+    ];
 
     // --- FUNCIÓN AUXILIAR: detectar slug desde URL o Referer ---
     function detectarSlugDesdeUrl() {

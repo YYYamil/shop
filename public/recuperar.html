@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Recuperar contraseña - Shop SaaS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, .32), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(168, 85, 247, .25), transparent 30%),
+                linear-gradient(135deg, #0f172a, #111827, #1e293b);
+            color: #e2e8f0;
+        }
+
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .logo .badge {
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            color: #fff;
+            font-size: 10px;
+            padding: 3px 7px;
+            border-radius: 999px;
+            vertical-align: middle;
+            margin-left: 4px;
+        }
+
+        .volver {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .volver:hover {
+            color: #fff;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, .10);
+            border: 1px solid rgba(255, 255, 255, .14);
+            backdrop-filter: blur(18px);
+            border-radius: 22px;
+            padding: 38px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+            margin-top: 30px;
+        }
+
+        .icono {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            background: linear-gradient(135deg, #2563eb, #9333ea);
+            margin: 0 auto 16px;
+        }
+
+        h1 {
+            font-size: 22px;
+            text-align: center;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .error-box {
+            display: none;
+            background: rgba(239, 68, 68, .18);
+            border: 1px solid rgba(248, 113, 113, .4);
+            color: #fecaca;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        .aviso-box {
+            display: none;
+            background: rgba(16, 185, 129, .16);
+            border: 1px solid rgba(52, 211, 153, .4);
+            color: #a7f3d0;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 18px;
+        }
+
+        .aviso-box.show {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .18);
+            background: rgba(15, 23, 42, .45);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .input-group input:focus {
+            border-color: #3b82f6;
+        }
+
+        .input-group input::placeholder {
+            color: #64748b;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity .15s, transform .1s;
+        }
+
+        .btn:hover {
+            opacity: .92;
+        }
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .enlace-volver {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 14px;
+        }
+
+        .enlace-volver a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .enlace-volver a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 26px;
+            color: #64748b;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <a class="logo" href="/">Shop<span class="badge">SaaS</span></a>
+        <a class="volver" href="/">&larr; Volver al inicio</a>
+    </div>
+
+    <div class="card">
+        <div class="icono">🔑</div>
+        <h1>Recuperar contraseña</h1>
+        <p class="subtitulo">Ingresá tu usuario y el correo con el que te registraste. Si coinciden, te enviamos una contraseña nueva.</p>
+
+        <div class="error-box" id="errorBox"></div>
+        <div class="aviso-box" id="avisoBox"></div>
+
+        <form id="recuperarForm" novalidate autocomplete="on">
+            <div class="input-group">
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" name="usuario" placeholder="Ej: juanperez" maxlength="30" required autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="Ej: juan@correo.com" required autocomplete="email">
+                <p class="hint">Es el correo que usaste al crear tu tienda.</p>
+            </div>
+
+            <button type="submit" class="btn" id="btnEnviar">Enviar contraseña nueva</button>
+        </form>
+
+        <div class="enlace-volver">
+            ¿Recordás tu contraseña? <a href="/admin/login.html">Ingresá a tu panel</a>
+        </div>
+    </div>
+
+    <footer>© <span id="year"></span> Shop SaaS - Todos los derechos reservados</footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        function mostrarError(msg) {
+            const box = document.getElementById('errorBox');
+            box.textContent = msg;
+            box.classList.add('show');
+            document.getElementById('avisoBox').classList.remove('show');
+        }
+
+        function limpiarError() {
+            document.getElementById('errorBox').classList.remove('show');
+        }
+
+        function mostrarAviso(msg) {
+            const box = document.getElementById('avisoBox');
+            box.textContent = msg;
+            box.classList.add('show');
+            document.getElementById('errorBox').classList.remove('show');
+        }
+
+        document.getElementById('recuperarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            limpiarError();
+
+            const usuario = document.getElementById('usuario').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            if (!usuario) {
+                mostrarError('Ingresá tu usuario.');
+                return;
+            }
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+                mostrarError('Ingresá un correo electrónico válido.');
+                return;
+            }
+
+            const btn = document.getElementById('btnEnviar');
+            btn.disabled = true;
+            btn.textContent = 'Enviando…';
+
+            try {
+                const resp = await fetch('/auth/recuperar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, email })
+                });
+                const data = await resp.json();
+
+                if (!resp.ok || data.error) {
+                    mostrarError(data.error || 'No se pudo procesar la solicitud. Intentá de nuevo.');
+                    btn.disabled = false;
+                    btn.textContent = 'Enviar contraseña nueva';
+                    return;
+                }
+
+                // Respuesta genérica (no confirma si la cuenta existe)
+                mostrarAviso(data.mensaje || 'Si el usuario y el correo coinciden con una cuenta, te enviamos una contraseña nueva.');
+                btn.disabled = false;
+                btn.textContent = 'Enviar contraseña nueva';
+                document.getElementById('recuperarForm').reset();
+            } catch (err) {
+                mostrarError('Error de conexión. Revisá tu internet e intentá de nuevo.');
+                btn.disabled = false;
+                btn.textContent = 'Enviar contraseña nueva';
+            }
+        });
+    </script>
+</body>
+</html>
