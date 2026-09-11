@@ -43,9 +43,26 @@ async function cargarConfiguracion() {
 }
 
 /**
+ * Aplica la plantilla visual al documento actual.
+ * En la home cada template ya declara el atributo; el carrito es una página
+ * compartida y lo recibe desde la configuración de la tienda activa.
+ */
+function aplicarPlantilla(config) {
+    const permitidas = new Set(['moderna', 'comercial']);
+    const plantilla = String(config.plantilla || '').trim();
+    if (!document.body || !permitidas.has(plantilla)) return;
+    document.body.dataset.storeTemplate = plantilla;
+    document.documentElement.dataset.storeTemplate = plantilla;
+}
+
+/**
  * Aplica todos los valores de configuración al DOM
  */
 function aplicarConfiguracion(config) {
+
+    // El carrito comparte la configuración por tienda con la home. Este hook
+    // solo cambia la capa visual; no altera el estado ni el flujo de compra.
+    aplicarPlantilla(config);
 
     // 0. Guardar número de WhatsApp para carrito.js
     if (config.whatsapp_numero) {
@@ -172,8 +189,9 @@ function aplicarColores(config) {
         ['color_boton_texto', '--color-categoria-texto'],
         // Título del Hero
         ['hero_titulo_color', '--color-hero-titulo'],
-        // Fondo general de la página
+        // Fondo general de la página (legacy) + fondo del hero de cada plantilla.
         ['hero_fondo', '--color-fondo'],
+        ['hero_fondo', '--color-hero-fondo'],
     ];
 
     for (const [clave, variable] of mapaColores) {
@@ -276,6 +294,21 @@ function aplicarLogo(config) {
 
 function aplicarHero(config) {
 
+    // Los shells visuales pueden usar una imagen real dentro del hero o, como
+    // fallback, el fondo configurable. La estructura permanece compartida a
+    // nivel de datos, pero no obliga a ambas plantillas a pintar igual.
+    const heroImage = document.querySelector('[data-hero-image]');
+    if (heroImage) {
+        if (config.hero_imagen) {
+            heroImage.src = config.hero_imagen;
+            heroImage.alt = config.hero_titulo || config.tienda_nombre || 'Imagen de portada';
+            heroImage.hidden = false;
+        } else {
+            heroImage.removeAttribute('src');
+            heroImage.hidden = true;
+        }
+    }
+
     // Hero título.
     // El servidor ya inyecta el h1 real (hero_titulo o tienda_nombre). Si no hay
     // hero_titulo configurado, se conserva lo servido (fallback SEO Etapa 5).
@@ -301,13 +334,13 @@ function aplicarHero(config) {
 
         const hero = document.querySelector('.hero');
 
-        if (hero) {
-
+        // La imagen interna es el tratamiento de las plantillas nuevas; el
+        // background legacy se conserva para public/index.html.
+        if (hero && !heroImage) {
             hero.style.backgroundImage = `url("${config.hero_imagen}")`;
             hero.style.backgroundSize = 'cover';
             hero.style.backgroundPosition = 'center center';
             hero.style.backgroundRepeat = 'no-repeat';
-
         }
 
     } else if (config.hero_fondo) {
@@ -336,67 +369,71 @@ async function renderizarCategorias() {
 
     const contenedor = document.getElementById('categorias');
     const menuLateral = document.getElementById('menuCategorias');
+    const superficies = Array.from(document.querySelectorAll('[data-category-surface]'));
 
-    if (!contenedor) return;
+    if (!contenedor && superficies.length === 0) return;
 
     try {
-
         const slug = obtenerSlug();
         const cacheBuster = '&_=' + Date.now();
         const url = slug ? '/categorias/public?slug=' + slug + cacheBuster : '/categorias/public?_=' + Date.now();
-
         const respuesta = await fetch(url);
 
         if (!respuesta.ok) {
-
             console.error('Error al cargar categorías:', respuesta.status);
-
             return;
-
         }
 
         const categorias = await respuesta.json();
+        const nombreCategoria = (cat) => cat.nombre_personalizado || cat.nombre;
+        const iconoFlecha = '<span class="category-arrow" aria-hidden="true">›</span>';
 
-        // Renderizar en contenedor horizontal (desktop)
-        let html = '';
-        html += `
-            <button class="activo" data-cat-id="0" onclick="filtrarCategoria(0)">
-                Todos
-            </button>
-        `;
-        categorias.forEach((cat) => {
-            html += `
-                <button data-cat-id="${cat.id}" onclick="filtrarCategoria(${cat.id})">
-                    ${cat.nombre}
-                </button>
-            `;
+        function botonesPara(superficie) {
+            const tipo = superficie ? superficie.dataset.categorySurface : 'legacy';
+            const todosLabel = tipo === 'moderna-bento' ? 'Todos los productos' : 'Todos';
+            if (tipo === 'legacy') {
+                let html = `<button type="button" class="activo" data-cat-id="0" aria-pressed="true" onclick="filtrarCategoria(0)">${todosLabel}</button>`;
+                categorias.forEach((cat) => {
+                    html += `<button type="button" data-cat-id="${cat.id}" aria-pressed="false" onclick="filtrarCategoria(${cat.id})">${nombreCategoria(cat)}</button>`;
+                });
+                return html;
+            }
+            const iconoFlecha = '<span class="category-arrow" aria-hidden="true">›</span>';
+            let html = `<button type="button" class="activo" data-cat-id="0" aria-pressed="true" onclick="filtrarCategoria(0)">
+                <span class="category-index" aria-hidden="true">01</span><span class="category-label">${todosLabel}</span>${iconoFlecha}
+            </button>`;
+            categorias.forEach((cat, index) => {
+                html += `<button type="button" data-cat-id="${cat.id}" aria-pressed="false" onclick="filtrarCategoria(${cat.id})">
+                    <span class="category-index" aria-hidden="true">${String(index + 2).padStart(2, '0')}</span><span class="category-label">${nombreCategoria(cat)}</span>${iconoFlecha}
+                </button>`;
+            });
+            return html;
+        }
+
+        superficies.forEach((superficie) => {
+            superficie.innerHTML = botonesPara(superficie);
         });
-        contenedor.innerHTML = html;
 
-        // Renderizar también en menú lateral (mobile)
+        // Compatibilidad con public/index.html, que no usa las superficies nuevas.
+        if (superficies.length === 0 && contenedor) {
+            contenedor.innerHTML = botonesPara(null);
+        }
+
         if (menuLateral) {
-            let htmlMenu = '';
-            htmlMenu += `
-                <button class="activo" data-cat-id="0" onclick="filtrarCategoria(0);toggleMenuCategorias()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    Todos
-                </button>
-            `;
+            let htmlMenu = `<button type="button" class="activo" data-cat-id="0" aria-pressed="true" onclick="filtrarCategoria(0);toggleMenuCategorias()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Todos
+            </button>`;
             categorias.forEach((cat) => {
-                htmlMenu += `
-                    <button data-cat-id="${cat.id}" onclick="filtrarCategoria(${cat.id});toggleMenuCategorias()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                        ${cat.nombre}
-                    </button>
-                `;
+                htmlMenu += `<button type="button" data-cat-id="${cat.id}" aria-pressed="false" onclick="filtrarCategoria(${cat.id});toggleMenuCategorias()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    ${nombreCategoria(cat)}
+                </button>`;
             });
             menuLateral.innerHTML = htmlMenu;
         }
-
     } catch (error) {
-
         console.error('Error al renderizar categorías:', error);
-
     }
 
 }
@@ -427,8 +464,10 @@ function renderizarRedes(config) {
             html += `
                 <a href="${url}"
                    target="_blank"
+                   rel="noopener noreferrer"
                    class="social-btn ${red.icono}">
                     ${getIconoSocial(red.icono)}
+                    ${document.body.dataset.storeTemplate ? `<span class="social-label">${red.label}</span>` : ''}
                 </a>
             `;
 
@@ -469,11 +508,20 @@ function getIconoSocial(tipo) {
 
 function renderizarWhatsApp(config) {
 
-    // Botón flotante desactivado - el WhatsApp se usa solo desde el carrito
-    // Eliminar el botón si existe por si estaba de antes
-    const floatBtn = document.querySelector('.whatsapp-float');
-    if (floatBtn) {
-        floatBtn.remove();
+    const accion = document.querySelector('[data-whatsapp-action]');
+    if (!accion) return;
+
+    const numero = String(config.whatsapp_numero || '').trim();
+    const activo = config.whatsapp_activo !== 'false';
+    const disponible = Boolean(numero) && activo;
+
+    accion.hidden = !disponible;
+    if (disponible) {
+        // La acción lleva al mismo carrito/checkout existente; no crea otro
+        // flujo de pedido ni modifica el mensaje configurado en carrito.js.
+        accion.href = obtenerRutaCarrito();
+    } else {
+        accion.removeAttribute('href');
     }
 
 }
@@ -503,9 +551,9 @@ function renderizarMarquee(config) {
     const generarItems = () => {
         let items = '';
         textos.forEach((texto, i) => {
-            items += `<span>${texto}</span>`;
+            items += `<span class="marquee-item">${texto}</span>`;
             if (i < textos.length - 1) {
-                items += `<span>•</span>`;
+                items += `<span class="marquee-separator" aria-hidden="true">•</span>`;
             }
         });
         return items;
@@ -525,8 +573,11 @@ function renderizarMarquee(config) {
 
 function aplicarFondoPagina(config) {
 
-    // El fondo ahora se aplica vía --color-fondo en aplicarColores()
-    // hero_fondo se mapea directamente a --color-fondo
+    // En las plantillas visuales hero_fondo pertenece al hero. El papel de
+    // catálogo y la composición editorial son tokens estructurales de cada
+    // plantilla y no deben ser reemplazados por un color inline en <body>.
+    if (document.body.dataset.storeTemplate) return;
+
     if (config.hero_fondo) {
         document.body.style.background = config.hero_fondo;
         document.body.style.backgroundAttachment = 'fixed';
@@ -562,6 +613,12 @@ function aplicarTipografia(config) {
 
     if (!config.font_family) return;
 
+    // 'Arial' es el valor por defecto del sistema (se inserta en el alta de la
+    // tienda), no una elección real del dueño. Se saltea para que las plantillas
+    // visuales impongan su tipografía propia. La tienda clásica no se ve
+    // afectada porque store.css ya define Arial como --font-family.
+    if (config.font_family === 'Arial') return;
+
     // Mapa de valores guardados a familias CSS completas
     const mapaFuentes = {
         'Arial': { family: 'Arial, sans-serif', google: '' },
@@ -592,8 +649,11 @@ function aplicarTipografia(config) {
         }
     }
 
-    // 2. Aplicar la tipografía al body (afecta a toda la tienda)
-    document.body.style.fontFamily = fuente.family;
+    // 2. En las plantillas visuales la familia seleccionada solo refuerza
+    // identidad de marca; no reemplaza la tipografía estructural del layout.
+    if (!document.body.dataset.storeTemplate) {
+        document.body.style.fontFamily = fuente.family;
+    }
 
     // 3. Aplicar específicamente al logo/nombre de la tienda
     const logo = document.querySelector('.logo');

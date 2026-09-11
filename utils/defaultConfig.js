@@ -21,6 +21,7 @@ const DEFAULT_CONFIG_ROWS = [
     ['color_texto', '#111827', 'color', 'oculto'],
     ['color_boton', '#000000', 'color', 'apariencia'],
     ['color_boton_texto', '#ffffff', 'color', 'apariencia'],
+    ['plantilla', '', 'texto', 'apariencia'],
     ['hero_titulo', 'Título de portada', 'texto', 'hero'],
     ['hero_descripcion', 'Descripción de portada - Contá lo que quieras destacar', 'texto', 'hero'],
     ['hero_fondo', '#ffffff', 'texto', 'hero'],

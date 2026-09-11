@@ -470,59 +470,81 @@ function carruselIrA(dot, index) {
     iniciarAutoPlay(carrusel);
 }
 
+function actualizarContadorProductos(total) {
+    document.querySelectorAll('[data-product-count]').forEach((elemento) => {
+        elemento.textContent = total + (total === 1 ? ' producto' : ' productos');
+    });
+}
+
+function renderizarPrecioProducto(producto) {
+    if (producto.descuento) {
+        const precioFinal = (producto.precio * (1 - producto.descuento / 100)).toFixed(2);
+        return `<span class="precio-original">$ ${producto.precio}</span><span class="precio-descuento">$ ${precioFinal}</span>`;
+    }
+    return `$ ${producto.precio}`;
+}
+
+function renderizarProductoCard(producto) {
+    const template = document.body && document.body.dataset.storeTemplate ? document.body.dataset.storeTemplate : 'classic';
+    const esComercial = template === 'comercial';
+    const esModerna = template === 'moderna';
+    const esDestacado = Boolean(producto.nuevo);
+    const tieneStock = Number(producto.stock) > 0;
+    const badges = [
+        esDestacado ? '<span class="badge-nuevo">Destacado</span>' : '',
+        producto.descuento ? `<span class="badge-descuento">-${producto.descuento}%</span>` : '',
+    ].join('');
+    const stock = producto.stock === undefined || producto.stock === null
+        ? ''
+        : `<div class="stock">${tieneStock ? 'Stock: ' + producto.stock : 'Sin stock'}</div>`;
+    
+    let textoBtn = 'Agregar al carrito';
+    if (esComercial) textoBtn = 'Agregar';
+
+    const boton = tieneStock
+        ? `<button class="btn-agregar-carrito" data-id="${producto.id}" aria-label="Agregar ${producto.nombre} al carrito"><span class="product-add-icon" aria-hidden="true">+</span><span class="product-add-text">${esModerna ? '' : textoBtn}</span></button>`
+        : '<button class="btn-agregar-carrito" disabled>Sin stock</button>';
+    const clases = ['producto', 'aos-visible'];
+    if (esComercial && esDestacado) clases.push('featured-card');
+    const botonEnMedia = esModerna ? boton : '';
+    const botonEnInfo = esModerna ? '' : boton;
+    const estadoMedia = !tieneStock && esModerna ? '<span class="stock-overlay">Sin stock</span>' : '';
+
+    const div = document.createElement('article');
+    div.className = clases.join(' ');
+    div.dataset.productId = producto.id;
+    div.innerHTML = `
+        ${badges}
+        <div class="producto-media">
+            ${renderizarCarrusel(producto.imagenes)}
+            ${estadoMedia}
+            ${botonEnMedia}
+        </div>
+        <div class="producto-info">
+            <h3>${producto.nombre}</h3>
+            ${producto.descripcion ? `<p>${producto.descripcion}</p>` : ''}
+            <div class="precio">${renderizarPrecioProducto(producto)}</div>
+            ${stock}
+            ${botonEnInfo}
+        </div>
+    `;
+    return div;
+}
+
 function renderizarProductos(productos) {
-
-    const contenedor =
-
-        document.getElementById('productos');
+    const contenedor = document.getElementById('productos');
+    if (!contenedor) return;
 
     contenedor.innerHTML = '';
-
-
+    actualizarContadorProductos(productos.length);
 
     if (productos.length === 0) {
-
         contenedor.innerHTML = '<div class="sin-resultados">No se encontraron productos</div>';
-
         return;
-
     }
 
-
-
     productos.forEach(producto => {
-
-        let badges = '';
-
-        if (producto.nuevo) {
-            badges += '<span class="badge-nuevo">NUEVO</span>';
-        }
-
-        if (producto.descuento) {
-            badges += `<span class="badge-descuento">-${producto.descuento}%</span>`;
-        }
-
-        const div = document.createElement('div');
-        div.className = 'producto';
-        div.innerHTML = `
-            ${badges}
-            ${renderizarCarrusel(producto.imagenes)}
-            <div class="producto-info">
-                <h3>${producto.nombre}</h3>
-                <p>${producto.descripcion}</p>
-                <div class="precio">
-                    ${producto.descuento
-                        ? `<span class="precio-original">$ ${producto.precio}</span><span class="precio-descuento">$ ${(producto.precio * (1 - producto.descuento / 100)).toFixed(2)}</span>`
-                        : `$ ${producto.precio}`
-                    }
-                </div>
-                <div class="stock">Stock: ${producto.stock}</div>
-                ${producto.stock > 0
-                    ? `<button class="btn-agregar-carrito" data-id="${producto.id}">Agregar al carrito</button>`
-                    : `<button disabled>Sin stock</button>`
-                }
-            </div>
-        `;
+        const div = renderizarProductoCard(producto);
 
         // Click en la card (excepto botón) -> abrir modal
         div.addEventListener('click', function(e) {
@@ -531,9 +553,9 @@ function renderizarProductos(productos) {
             abrirModalProducto(producto);
         });
 
-        // Click en botón "Agregar al carrito"
+        // Click en botón "Agregar al carrito": usa el mismo estado de carrito.
         const btn = div.querySelector('.btn-agregar-carrito');
-        if (btn) {
+        if (btn && !btn.disabled) {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 agregarCarrito(producto.id);
@@ -543,18 +565,17 @@ function renderizarProductos(productos) {
         contenedor.appendChild(div);
     });
 
-    // Iniciar auto-play y touch slider en todos los carruseles
-
-    document.querySelectorAll('.carrusel').forEach(carrusel => {
-
+    // Iniciar auto-play y touch slider en todos los carruseles existentes.
+    document.querySelectorAll('#productos .carrusel').forEach(carrusel => {
         actualizarCarrusel(carrusel, 0);
-
-    iniciarAutoPlay(carrusel);
-
+        iniciarAutoPlay(carrusel);
         initTouchSlider(carrusel);
-
     });
 
+    const esModerna = document.body && document.body.dataset.storeTemplate === 'moderna';
+    if (esModerna) {
+        setupModernaObserver();
+    }
 }
 
 
@@ -643,13 +664,15 @@ function agregarCarrito(id) {
 
 function filtrarCategoria(id) {
 
-    // Sincronizar clase .activo en ambos contenedores de categorías
-    document.querySelectorAll('#categorias button, #menuCategorias button').forEach(btn => {
+    // Sincronizar clase .activo en todas las superficies de la plantilla.
+    document.querySelectorAll('[data-category-surface] button, #categorias button, #menuCategorias button').forEach(btn => {
         btn.classList.remove('activo');
+        btn.setAttribute('aria-pressed', 'false');
     });
-    // Activar botón correspondiente: data-cat-id="0" para Todos, o el ID real
-    document.querySelectorAll(`#categorias button[data-cat-id="${id}"], #menuCategorias button[data-cat-id="${id}"]`).forEach(btn => {
+    // Activar botón correspondiente: data-cat-id="0" para Todos, o el ID real.
+    document.querySelectorAll(`[data-category-surface] button[data-cat-id="${id}"], #categorias button[data-cat-id="${id}"], #menuCategorias button[data-cat-id="${id}"]`).forEach(btn => {
         btn.classList.add('activo');
+        btn.setAttribute('aria-pressed', 'true');
     });
 
     // Activar animación de entrada en las cards al cambiar de categoría
@@ -994,6 +1017,33 @@ function initTouchSlider(carrusel) {
 }
 
 
+function setupModernaObserver() {
+    if (!document.body || document.body.dataset.storeTemplate !== 'moderna') return;
+    
+    // Marcar de inmediato todos los elementos existentes por si el observer tarda o no se dispara
+    document.querySelectorAll('#categorias button, #productos .producto').forEach(el => {
+        el.classList.add('aos-visible');
+    });
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px 100px 0px',
+        threshold: 0.01
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('aos-visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('#categorias button, #productos .producto').forEach(el => {
+        observer.observe(el);
+    });
+}
+
 // Auto-abrir modal si hay ?producto=ID en la URL
 function abrirProductoDesdeURL() {
     const params = new URLSearchParams(window.location.search);
@@ -1004,5 +1054,13 @@ function abrirProductoDesdeURL() {
         setTimeout(() => abrirModalProducto(producto), 300);
     }
 }
+
+// Forzar inicio de página arriba en carga móvil / desktop
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+window.addEventListener('load', () => {
+    window.scrollTo(0, 0);
+});
 
 cargarProductos();

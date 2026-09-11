@@ -4,1298 +4,319 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index, follow">
-    <title>Tu Tienda Online en Minutos | Plataforma para Pymes y Emprendedores</title>
-    <meta name="description" content="Creá tu tienda online en minutos, sin programar. Carrito, pagos con Mercado Pago, promociones y personalización total para pymes y emprendimientos.">
+    <title>Creá tu tienda online | Shop SaaS</title>
+    <meta name="description" content="Creá una tienda online con identidad propia, catálogo, carrito y medios de pago. Mirá ejemplos reales de tiendas creadas con Shop SaaS.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primario: #4f46e5;
-            --primario-oscuro: #4338ca;
-            --primario-claro: #eef2ff;
-            --acento: #10b981;
-            --texto: #0f172a;
-            --texto-suave: #475569;
-            --fondo: #ffffff;
-            --fondo-suave: #f8fafc;
-            --borde: #e2e8f0;
-            --radius: 16px;
-            --sombra: 0 10px 30px rgba(79, 70, 229, 0.08);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            color: var(--texto);
-            background: var(--fondo);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3, .logo {
-            font-family: 'Sora', sans-serif;
-        }
-
-        .container {
-            max-width: 1140px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .cta {
-            display: inline-block;
-            background: var(--primario);
-            color: #fff;
-            font-weight: 700;
-            font-size: 16px;
-            padding: 14px 30px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform .15s ease, background .15s ease, box-shadow .15s ease;
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-        }
-
-        .cta:hover {
-            background: var(--primario-oscuro);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.35);
-        }
-
-        .cta-secundario {
-            display: inline-block;
-            background: transparent;
-            color: var(--primario);
-            font-weight: 700;
-            font-size: 16px;
-            padding: 14px 28px;
-            border-radius: 12px;
-            border: 2px solid var(--primario);
-            cursor: pointer;
-            text-decoration: none;
-            transition: background .15s ease, transform .15s ease;
-        }
-
-        .cta-secundario:hover {
-            background: var(--primario-claro);
-            transform: translateY(-2px);
-        }
-
-        /* ===== NAVBAR ===== */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--borde);
-        }
-
-        .navbar .container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 70px;
-        }
-
-        .logo {
-            font-weight: 800;
-            font-size: 22px;
-            color: var(--primario);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .logo .badge {
-            background: var(--primario);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            letter-spacing: .5px;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--texto-suave);
-            font-weight: 500;
-            font-size: 15px;
-            transition: color .15s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--primario);
-        }
-
-        .nav-cta {
-            padding: 10px 22px;
-            font-size: 14px;
-        }
-
-        .nav-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        .nav-toggle span {
-            display: block;
-            width: 24px;
-            height: 2px;
-            background: var(--texto);
-            margin: 5px 0;
-            border-radius: 2px;
-            transition: .3s;
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            padding: 160px 0 100px;
-            position: relative;
-            background:
-                radial-gradient(800px 400px at 90% -10%, rgba(79, 70, 229, 0.12), transparent 60%),
-                radial-gradient(600px 350px at 0% 10%, rgba(16, 185, 129, 0.10), transparent 60%);
-        }
-
-        .hero .container {
-            display: grid;
-            grid-template-columns: 1.1fr 1fr;
-            gap: 60px;
-            align-items: center;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--primario-claro);
-            color: var(--primario);
-            font-weight: 600;
-            font-size: 14px;
-            padding: 8px 16px;
-            border-radius: 30px;
-            margin-bottom: 24px;
-        }
-
-        .hero-badge .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--acento);
-        }
-
-        .hero h1 {
-            font-size: 52px;
-            line-height: 1.12;
-            font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: -1px;
-        }
-
-        .hero h1 .grad {
-            background: linear-gradient(135deg, var(--primario), var(--acento));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: var(--texto-suave);
-            margin-bottom: 32px;
-            max-width: 520px;
-        }
-
-        .hero-ctas {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 36px;
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .stat .num {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--texto);
-            font-family: 'Sora', sans-serif;
-        }
-
-        .stat .lab {
-            font-size: 14px;
-            color: var(--texto-suave);
-        }
-
-        /* Mockup */
-        .mockup {
-            position: relative;
-        }
-
-        .mockup-window {
-            background: #fff;
-            border: 1px solid var(--borde);
-            border-radius: var(--radius);
-            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.15);
-            overflow: hidden;
-        }
-
-        .mockup-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f1f5f9;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--borde);
-        }
-
-        .mockup-bar .pill {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #f87171;
-        }
-        .mockup-bar .pill:nth-child(2) { background: #fbbf24; }
-        .mockup-bar .pill:nth-child(3) { background: #34d399; }
-
-        .mockup-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--borde);
-        }
-
-        .mockup-nav .m-logo {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: var(--primario);
-        }
-
-        .mockup-nav .m-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .mockup-nav .m-links i {
-            width: 40px;
-            height: 8px;
-            border-radius: 4px;
-            background: #e2e8f0;
-        }
-
-        .mockup-nav .m-cta {
-            width: 70px;
-            height: 28px;
-            border-radius: 8px;
-            background: var(--primario);
-            opacity: .9;
-        }
-
-        .mockup-hero {
-            padding: 24px 20px;
-            text-align: center;
-            background: linear-gradient(135deg, var(--primario-claro), #fff);
-        }
-
-        .mockup-hero h4 {
-            font-family: 'Sora', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .mockup-hero p {
-            width: 70%;
-            margin: 0 auto;
-            color: var(--texto-suave);
-            font-size: 13px;
-        }
-
-        .mockup-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            padding: 20px;
-        }
-
-        .mockup-card {
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .mockup-card .img {
-            height: 70px;
-            background: linear-gradient(135deg, #c7d2fe, #e0e7ff);
-        }
-        .mockup-card .img:nth-child(2) { background: linear-gradient(135deg, #a7f3d0, #d1fae5); }
-        .mockup-card .img:nth-child(3) { background: linear-gradient(135deg, #fde68a, #fef3c7); }
-
-        .mockup-card .txt {
-            padding: 10px;
-        }
-        .mockup-card .txt i {
-            display: block;
-            width: 80%;
-            height: 8px;
-            border-radius: 4px;
-            background: #e2e8f0;
-            margin-bottom: 6px;
-        }
-        .mockup-card .txt i:last-child {
-            width: 50%;
-            background: #c7d2fe;
-        }
-
-        .float-badge {
-            position: absolute;
-            right: -20px;
-            bottom: 30px;
-            background: #fff;
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            box-shadow: 0 15px 30px rgba(15, 23, 42, 0.12);
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .float-badge .check {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: var(--acento);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-        }
-
-        .float-badge b { display: block; font-size: 14px; }
-        .float-badge span { font-size: 12px; color: var(--texto-suave); }
-
-        /* ===== SECCIONES ===== */
-        section {
-            padding: 90px 0;
-        }
-
-        .section-label {
-            display: block;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primario);
-            margin-bottom: 12px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 16px;
-        }
-
-        .section-sub {
-            text-align: center;
-            color: var(--texto-suave);
-            font-size: 17px;
-            max-width: 640px;
-            margin: 0 auto 50px;
-        }
-
-        /* Beneficios */
-        .beneficios {
-            background: var(--fondo-suave);
-        }
-
-        .beneficios-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-        }
-
-        .beneficio {
-            background: #fff;
-            border: 1px solid var(--borde);
-            border-radius: var(--radius);
-            padding: 32px;
-            transition: transform .2s ease, box-shadow .2s ease;
-        }
-
-        .beneficio:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--sombra);
-        }
-
-        .beneficio .icono {
-            width: 56px;
-            height: 56px;
-            border-radius: 14px;
-            background: var(--primario-claro);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .beneficio .icono svg { stroke: var(--primario); }
-
-        .beneficio h3 {
-            font-size: 19px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .beneficio p {
-            color: var(--texto-suave);
-            font-size: 15px;
-        }
-
-        /* Como funciona */
-        .pasos {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-            position: relative;
-        }
-
-        .paso {
-            text-align: center;
-            padding: 20px;
-            position: relative;
-        }
-
-        .paso .numero {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            background: var(--primario);
-            color: #fff;
-            font-family: 'Sora', sans-serif;
-            font-size: 26px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 24px rgba(79, 70, 229, 0.3);
-        }
-
-        .paso h3 { font-size: 19px; margin-bottom: 10px; }
-        .paso p { color: var(--texto-suave); font-size: 15px; }
-
-        /* Features */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-        }
-
-        .feature {
-            display: flex;
-            gap: 18px;
-            background: var(--fondo-suave);
-            border: 1px solid var(--borde);
-            border-radius: var(--radius);
-            padding: 26px;
-        }
-
-        .feature .icono {
-            flex-shrink: 0;
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: var(--primario);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .feature .icono svg { stroke: #fff; }
-
-        .feature h3 { font-size: 17px; margin-bottom: 6px; }
-        .feature p { color: var(--texto-suave); font-size: 14.5px; }
-
-        /* Planes */
-        .planes {
-            background: var(--fondo-suave);
-        }
-
-        .planes-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-            align-items: stretch;
-        }
-
-        .plan {
-            background: #fff;
-            border: 1px solid var(--borde);
-            border-radius: 20px;
-            padding: 34px;
-            display: flex;
-            flex-direction: column;
-            transition: transform .2s ease;
-        }
-
-        .plan:hover { transform: translateY(-6px); }
-
-        .plan.destacado {
-            border: 2px solid var(--primario);
-            position: relative;
-            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
-        }
-
-        .plan .etiqueta {
-            position: absolute;
-            top: -14px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primario);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 5px 16px;
-            border-radius: 20px;
-            white-space: nowrap;
-        }
-
-        .plan h3 { font-size: 18px; margin-bottom: 4px; }
-        .plan .desc { color: var(--texto-suave); font-size: 14px; margin-bottom: 20px; }
-
-        .plan .precio {
-            font-size: 42px;
-            font-weight: 800;
-            font-family: 'Sora', sans-serif;
-            margin-bottom: 4px;
-        }
-        .plan .precio span {
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            color: var(--texto-suave);
-        }
-        .plan .periocidad { color: var(--texto-suave); font-size: 14px; margin-bottom: 24px; }
-
-        .plan ul {
-            list-style: none;
-            margin-bottom: 28px;
-            flex: 1;
-        }
-
-        .plan ul li {
-            padding: 8px 0;
-            font-size: 15px;
-            color: var(--texto);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .plan ul li::before {
-            content: "✓";
-            color: var(--acento);
-            font-weight: 800;
-        }
-
-        .plan .cta-plan {
-            width: 100%;
-            text-align: center;
-        }
-
-        .plan:not(.destacado) .cta-plan {
-            background: var(--fondo-suave);
-            color: var(--primario);
-            box-shadow: none;
-        }
-        .plan:not(.destacado) .cta-plan:hover {
-            background: var(--primario-claro);
-        }
-
-        /* Testimonios */
-        .testimonios-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-        }
-
-        .testimonio {
-            background: var(--fondo-suave);
-            border: 1px solid var(--borde);
-            border-radius: var(--radius);
-            padding: 28px;
-        }
-
-        .testimonio .estrellas {
-            color: #f59e0b;
-            margin-bottom: 14px;
-            letter-spacing: 2px;
-        }
-
-        .testimonio p { font-size: 15px; color: var(--texto); margin-bottom: 20px; }
-
-        .testimonio .autor {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .testimonio .avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: var(--primario-claro);
-            color: var(--primario);
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .testimonio .autor b { display: block; font-size: 14px; }
-        .testimonio .autor span { font-size: 13px; color: var(--texto-suave); }
-
-        /* FAQ */
-        .faq {
-            max-width: 760px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            background: #fff;
-        }
-
-        .faq-q {
-            width: 100%;
-            background: none;
-            border: none;
-            padding: 20px;
-            text-align: left;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--texto);
-        }
-
-        .faq-q .chev {
-            transition: transform .3s ease;
-            color: var(--primario);
-        }
-
-        .faq-item.open .faq-q .chev {
-            transform: rotate(180deg);
-        }
-
-        .faq-a {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height .3s ease;
-        }
-
-        .faq-a p {
-            padding: 0 20px 20px;
-            color: var(--texto-suave);
-            font-size: 15px;
-        }
-
-        /* CTA final */
-        .cta-final {
-            background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
-            border-radius: 24px;
-            text-align: center;
-            padding: 70px 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-final h2 {
-            color: #fff;
-            font-size: 38px;
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .cta-final p {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 18px;
-            margin-bottom: 32px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-final .btn-blanco {
-            background: #fff;
-            color: var(--primario);
-        }
-        .cta-final .btn-blanco:hover {
-            background: #f8fafc;
-        }
-
-        /* Footer */
-        footer {
-            background: #0f172a;
-            color: #94a3b8;
-            padding: 60px 0 30px;
-        }
-
-        footer .container {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 40px;
-        }
-
-        footer .logo {
-            color: #fff;
-            margin-bottom: 14px;
-        }
-
-        footer p { font-size: 14px; max-width: 300px; }
-
-        footer h4 {
-            color: #fff;
-            font-size: 15px;
-            margin-bottom: 16px;
-            font-family: 'Sora', sans-serif;
-        }
-
-        footer ul { list-style: none; }
-
-        footer ul li { margin-bottom: 10px; }
-
-        footer ul li a {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        footer ul li a:hover { color: #fff; }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            margin-top: 40px;
-            padding-top: 24px;
-            text-align: center;
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .hero .container {
-                grid-template-columns: 1fr;
-                gap: 50px;
-            }
-            .hero h1 { font-size: 40px; }
-            .beneficios-grid,
-            .pasos,
-            .planes-grid,
-            .testimonios-grid { grid-template-columns: 1fr; }
-            .features-grid { grid-template-columns: 1fr; }
-            .nav-links { display: none; }
-            .nav-toggle { display: block; }
-            footer .container {
-                grid-template-columns: 1fr 1fr;
-            }
-            .section-title { font-size: 30px; }
-        }
-
-        @media (max-width: 600px) {
-            footer .container { grid-template-columns: 1fr; }
-            .float-badge { display: none; }
-        }
-
-        .nav-links.mobile-open {
-            display: flex;
-            flex-direction: column;
-            position: absolute;
-            top: 70px;
-            left: 0;
-            right: 0;
-            background: #fff;
-            border-bottom: 1px solid var(--borde);
-            padding: 20px;
-            align-items: flex-start;
-            box-shadow: 0 20px 30px rgba(15, 23, 42, 0.08);
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/landing.css">
 </head>
 <body>
+    <header class="site-header" id="inicio">
+        <div class="container site-header__inner">
+            <a class="brand" href="#inicio" aria-label="Shop SaaS, volver al inicio">
+                <span class="brand__mark" aria-hidden="true">S</span>
+                <span>Shop SaaS</span>
+            </a>
 
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="logo">
-                Shop<span class="badge">SaaS</span>
-            </div>
-            <div class="nav-links" id="navLinks">
-                <a href="#beneficios">Beneficios</a>
+            <nav class="site-nav" id="siteNav" aria-label="Navegación principal">
+                <a href="#ejemplos-reales">Ejemplos reales</a>
                 <a href="#como-funciona">Cómo funciona</a>
                 <a href="#planes">Planes</a>
-                <a href="#faq">FAQ</a>
-                <a href="/registro" class="cta nav-cta">Crear mi tienda</a>
-            </div>
-            <button class="nav-toggle" id="navToggle" aria-label="Menú">
+                <a href="#preguntas">Preguntas</a>
+            </nav>
+
+            <a class="button button--dark button--nav" href="/registro">Crear mi tienda</a>
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menú" aria-controls="siteNav" aria-expanded="false">
                 <span></span><span></span><span></span>
             </button>
         </div>
-    </nav>
-
-    <!-- HERO -->
-    <header class="hero">
-        <div class="container">
-            <div class="hero-texto">
-                <span class="hero-badge"><span class="dot"></span> Nueva plataforma para pymes y emprendedores</span>
-                <h1>Creá tu tienda online <span class="grad">en minutos</span>, sin programar</h1>
-                <p>Todo lo que necesitás para vender por internet: carrito de compras, pagos con Mercado Pago, promociones y un diseño que se adapta a tu marca.</p>
-                <div class="hero-ctas">
-                    <a href="/registro" class="cta">Empezar gratis</a>
-                    <a href="#como-funciona" class="cta-secundario">Ver cómo funciona</a>
-                </div>
-                <div class="hero-stats">
-                    <div class="stat"><div class="num">100%</div><div class="lab">Personalizable</div></div>
-                    <div class="stat"><div class="num">1</div><div class="lab">Tienda por cuenta</div></div>
-                    <div class="stat"><div class="num">24/7</div><div class="lab">Tu tienda activa</div></div>
-                </div>
-            </div>
-            <div class="mockup">
-                <div class="mockup-window">
-                    <div class="mockup-bar">
-                        <span class="pill"></span><span class="pill"></span><span class="pill"></span>
-                    </div>
-                    <div class="mockup-nav">
-                        <div class="m-logo"></div>
-                        <div class="m-links"><i></i><i></i><i></i></div>
-                        <div class="m-cta"></div>
-                    </div>
-                    <div class="mockup-hero">
-                        <h4>Tu Marca</h4>
-                        <p>Productos y promociones seleccionados para tus clientes</p>
-                    </div>
-                    <div class="mockup-grid">
-                        <div class="mockup-card"><div class="img"></div><div class="txt"><i></i><i></i></div></div>
-                        <div class="mockup-card"><div class="img"></div><div class="txt"><i></i><i></i></div></div>
-                        <div class="mockup-card"><div class="img"></div><div class="txt"><i></i><i></i></div></div>
-                    </div>
-                </div>
-                <div class="float-badge">
-                    <div class="check">✓</div>
-                    <div>
-                        <b>Tienda lista</b>
-                        <span>en minutos</span>
-                    </div>
-                </div>
-            </div>
-        </div>
     </header>
 
-    <!-- BENEFICIOS -->
-    <section class="beneficios" id="beneficios">
-        <div class="container">
-            <span class="section-label">Beneficios</span>
-            <h2 class="section-title">Todo lo que tu negocio necesita</h2>
-            <p class="section-sub">Una estructura pensada para que puedas enfocarte en vender, no en la tecnología.</p>
-            <div class="beneficios-grid">
-                <div class="beneficio">
-                    <div class="icono">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    <main>
+        <section class="hero section-pad" aria-labelledby="hero-title">
+            <div class="container hero__grid">
+                <div class="hero__visual reveal reveal--from-right" id="heroCarousel" role="region" aria-roledescription="carrusel" aria-label="Ejemplos destacados de tiendas" data-interval="4200" tabindex="0">
+                    <div class="hero__orb" aria-hidden="true"></div>
+                    <span class="hero__side-label">Ejemplo real</span>
+                    <div class="hero__viewport">
+                        <div class="hero__slides">
+                            <img class="hero__image" src="/images/capturas/sitiosEjemplos/carrusel/Screenshot_1.png" alt="Tienda mobile real de Glitter Show con portada, catálogo y carrito" width="427" height="839" data-title="Glitter Show" data-caption="Campaña · catálogo · carrito" aria-hidden="false" fetchpriority="high">
+                            <img class="hero__image" src="/images/capturas/sitiosEjemplos/carrusel/principal.png" alt="Tienda real de Del Mate con portada y categorías de productos materos" width="608" height="821" data-title="Del Mate" data-caption="Portada · categorías · colección" aria-hidden="true" loading="lazy">
+                            <img class="hero__image" src="/images/capturas/sitiosEjemplos/carrusel/tukitopc.png" alt="Tienda real de Tukito con productos creativos y categorías" width="609" height="963" data-title="Tukito" data-caption="Productos creativos · novedades" aria-hidden="true" loading="lazy">
+                            <img class="hero__image" src="/images/capturas/sitiosEjemplos/carrusel/principaVibral.png" alt="Tienda mobile real de Vibra Complementos con moda y textiles" width="439" height="844" data-title="Vibra Complementos" data-caption="Moda · textiles · catálogo mobile" aria-hidden="true" loading="lazy">
+                            <img class="hero__image" src="/images/capturas/sitiosEjemplos/carrusel/mate%20principal%20mobile.png" alt="Tienda mobile real de Del Mate con portada y categorías materas" width="411" height="831" data-title="Del Mate" data-caption="Portada · categorías · vista mobile" aria-hidden="true" loading="lazy">
+                        </div>
                     </div>
-                    <h3>Categorías y productos</h3>
-                    <p>Organizá tu catálogo con categorías propias, promociones, ofertas y stock actualizado.</p>
+                    <button class="hero__arrow hero__arrow--prev" type="button" data-hero-prev aria-label="Captura anterior">&lt;</button>
+                    <button class="hero__arrow hero__arrow--next" type="button" data-hero-next aria-label="Captura siguiente">&gt;</button>
+                    <div class="hero__caption" aria-live="polite">
+                        <strong id="heroCaptionTitle">Glitter Show</strong>
+                        <span id="heroCaptionText">Campaña · catálogo · carrito</span>
+                    </div>
+                    <div class="hero__carousel-dots" role="tablist" aria-label="Seleccionar captura destacada"></div>
                 </div>
-                <div class="beneficio">
-                    <div class="icono">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+
+                <div class="hero__copy reveal">
+                    <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Plataforma multitienda · producto real</p>
+                    <h1 id="hero-title">Tu tienda online puede verse <em>así.</em></h1>
+                    <p class="hero__lede">Creá una tienda con identidad propia, catálogo, carrito y medios de pago. No es una maqueta: son ejemplos reales funcionando dentro de la plataforma.</p>
+                    <div class="button-row">
+                        <a class="button button--dark" href="/registro">Crear mi tienda gratis</a>
+                        <a class="button button--outline" href="#ejemplos-reales">Ver ejemplos reales</a>
                     </div>
-                    <h3>Pagos online</h3>
-                    <p>Integración con Mercado Pago para que tus clientes paguen de forma segura y simple.</p>
-                </div>
-                <div class="beneficio">
-                    <div class="icono">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    <p class="hero__note"><span class="status-dot" aria-hidden="true"></span><strong id="heroNoteTitle">Glitter Show</strong> · ejemplo real de tienda mobile</p>
+                    <div class="proof-pills" aria-label="Pruebas del producto">
+                        <span><b>Identidad</b> propia</span>
+                        <span><b>Catálogo</b> visible</span>
+                        <span><b>Compra</b> desde el celular</span>
                     </div>
-                    <h3>Sin programar</h3>
-                    <p>Configurá colores, logo, textos y tipografía desde un panel amigable. Listo en minutos.</p>
-                </div>
-                <div class="beneficio">
-                    <div class="icono">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    </div>
-                    <h3>Pedidos organizados</h3>
-                    <p>Recibí y gestioná los pedidos de tus clientes con estado y seguimiento desde tu panel.</p>
-                </div>
-                <div class="beneficio">
-                    <div class="icono">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2 1.1 0 2-.9 2-2 0-1.1-.9-2-2-2z"/></svg>
-                    </div>
-                    <h3>Tu propia identidad</h3>
-                    <p>Logo, colores, marca y estilo 100% personalizados. Cada tienda es única.</p>
-                </div>
-                <div class="beneficio">
-                    <div class="icono">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 7 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 7 23 7 23 13"/></svg>
-                    </div>
-                    <h3>Diseño responsive</h3>
-                    <p>Tu tienda se ve perfecta en celulares, tablets y computadoras. Tus clientes compran desde donde sea.</p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- COMO FUNCIONA -->
-    <section id="como-funciona">
-        <div class="container">
-            <span class="section-label">Cómo funciona</span>
-            <h2 class="section-title">Empezá a vender en 3 pasos</h2>
-            <p class="section-sub">Simple, directo y sin complicaciones técnicas.</p>
-            <div class="pasos">
-                <div class="paso">
-                    <div class="numero">1</div>
-                    <h3>Cargá tus productos</h3>
-                    <p>Agregá nombre, precio, fotos, stock y descripción de cada producto de tu negocio.</p>
+        <section class="proof-bar" aria-label="Pruebas del producto">
+            <div class="container proof-bar__inner">
+                <strong>La plataforma se adapta a tu marca.</strong>
+                <p>Una misma base para rubros, estilos y formas de vender diferentes.</p>
+                <div class="proof-bar__list"><span>Tiendas reales</span><span>Catálogos</span><span>Checkout</span></div>
+            </div>
+        </section>
+
+        <section class="section-pad flow-section" id="como-funciona" aria-labelledby="flow-title">
+            <div class="container flow__grid">
+                <div class="flow__intro reveal">
+                    <p class="eyebrow">Experiencia de compra</p>
+                    <h2 id="flow-title">Mirá cómo compra tu cliente.</h2>
+                    <p>Desde el catálogo hasta el pedido, cada paso ocurre dentro de una tienda clara y preparada para vender.</p>
+                    <a class="button button--outline" href="/registro">Quiero crear la mía</a>
                 </div>
-                <div class="paso">
-                    <div class="numero">2</div>
-                    <h3>Personalizá tu tienda</h3>
-                    <p>Elegí colores, logo, tipografías y textos que representen tu marca.</p>
-                </div>
-                <div class="paso">
-                    <div class="numero">3</div>
-                    <h3>¡Empezá a vender!</h3>
-                    <p>Compartí el link de tu tienda y recibí pedidos con pagos online de tus clientes.</p>
+
+                <div class="flow-line" role="list" aria-label="Recorrido real de compra">
+                    <article class="flow-step reveal" role="listitem">
+                        <span class="step-number">01</span>
+                        <img src="/images/capturas/sitiosEjemplos/sitio%204/mobile%20diseno%20clasico/catalogo%27.png" alt="Catálogo mobile real de Vibra Complementos" width="447" height="872" loading="lazy">
+                        <div>
+                            <span class="step-tag">Catálogo</span>
+                            <h3>Explora productos y categorías.</h3>
+                            <p>Cards con imágenes, nombre, precio, stock y una acción de compra clara.</p>
+                        </div>
+                    </article>
+                    <article class="flow-step reveal" role="listitem">
+                        <span class="step-number">02</span>
+                        <img src="/images/capturas/sitiosEjemplos/sitio%204/mobile%20diseno%20clasico/modalproducto.png" alt="Detalle de producto mobile real de Vibra Complementos" width="447" height="872" loading="lazy">
+                        <div>
+                            <span class="step-tag">Detalle de producto</span>
+                            <h3>Consulta lo que importa.</h3>
+                            <p>Imagen, descripción, stock y precio en una vista enfocada antes de agregar al carrito.</p>
+                        </div>
+                    </article>
+                    <article class="flow-step reveal" role="listitem">
+                        <span class="step-number">03</span>
+                        <img src="/images/capturas/sitiosEjemplos/sitio1/mobile%20Diseno%20comercial/Screenshot_3.png" alt="Carrito mobile real de Glitter Show" width="447" height="872" loading="lazy">
+                        <div>
+                            <span class="step-tag">Carrito</span>
+                            <h3>Revisa cantidades y subtotales.</h3>
+                            <p>El cliente tiene una vista clara de sus productos antes de enviar el pedido.</p>
+                        </div>
+                    </article>
+                    <article class="flow-step reveal" role="listitem">
+                        <span class="step-number">04</span>
+                        <img src="/images/capturas/sitiosEjemplos/sitio%203/mobile/compraConmercadoPago.png" alt="Checkout mobile real de Tukito con Mercado Pago y WhatsApp" width="447" height="872" loading="lazy">
+                        <div>
+                            <span class="step-tag">Mercado Pago / WhatsApp</span>
+                            <h3>Elegí cómo completar el pedido.</h3>
+                            <p>Una experiencia mobile con datos del comprador y dos caminos de contacto o pago.</p>
+                        </div>
+                    </article>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- FEATURES -->
-    <section style="background: var(--fondo-suave);">
-        <div class="container">
-            <span class="section-label">Características</span>
-            <h2 class="section-title">Todo incluido en tu tienda</h2>
-            <p class="section-sub">Herramientas profesionales para que tu negocio crezca.</p>
-            <div class="features-grid">
-                <div class="feature">
-                    <div class="icono">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                    </div>
-                    <div><h3>Catálogo ilimitado</h3><p>Cargá todos los productos que quieras con fotos, precios y descuentos.</p></div>
+        <section class="section-pad styles-section" id="ejemplos-reales" aria-labelledby="styles-title">
+            <div class="container">
+                <div class="section-heading reveal">
+                    <p class="eyebrow">Ejemplos reales</p>
+                    <h2 id="styles-title">Un estilo para cada rubro.</h2>
+                    <p>La tienda puede tener una estética editorial, comercial, creativa o de moda. El resultado no tiene por qué verse igual al de otro negocio.</p>
                 </div>
-                <div class="feature">
-                    <div class="icono">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
-                    <div><h3>Carrito de compras</h3><p>Experiencia de compra simple con resumen, método de entrega y pago.</p></div>
-                </div>
-                <div class="feature">
-                    <div class="icono">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                    </div>
-                    <div><h3>Mercado Pago</h3><p>Recibí pagos online de forma segura y cobrá en tu cuenta.</p></div>
-                </div>
-                <div class="feature">
-                    <div class="icono">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    </div>
-                    <div><h3>Promociones y ofertas</h3><p>Destacá productos con descuento y novedades para atraer clientes.</p></div>
-                </div>
-                <div class="feature">
-                    <div class="icono">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3L4.5 6.5a2 2 0 0 0 0 3l1 1a2 2 0 0 0 3 3l6.5 6.5a2 2 0 0 0 3 0l2-2a2 2 0 0 0 0-3L12 6a2 2 0 0 0-3 0L7 3z"/></svg>
-                    </div>
-                    <div><h3>WhatsApp</h3><p>Tus clientes te contactan directo por WhatsApp para consultas y pedidos.</p></div>
-                </div>
-                <div class="feature">
-                    <div class="icono">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
-                    </div>
-                    <div><h3>SEO incluido</h3><p>Tu tienda posiciona mejor en Google con títulos y descripciones automáticas.</p></div>
+                <div class="styles-grid">
+                    <article class="style-tile style-tile--large reveal">
+                        <img src="/images/capturas/sitiosEjemplos/sitio%204/mobile%20diseno%20clasico/principal.png" alt="Tienda mobile real de Vibra Complementos, moda y textiles" width="447" height="872" loading="lazy">
+                        <div class="style-tile__caption"><strong>Moda y complementos</strong><span>Vibra · color, textiles y catálogo mobile</span></div>
+                    </article>
+                    <article class="style-tile style-tile--medium reveal">
+                        <img src="/images/capturas/sitiosEjemplos/sitio%203/pc%20Diseno%20clasico/principal.png" alt="Tienda desktop real de Tukito, productos creativos" width="1260" height="1000" loading="lazy">
+                        <div class="style-tile__caption"><strong>Productos creativos</strong><span>Tukito · categorías y novedades</span></div>
+                    </article>
+                    <article class="style-tile style-tile--small reveal">
+                        <img src="/images/capturas/sitiosEjemplos/sitio1/mobile%20Diseno%20comercial/Screenshot_1.png" alt="Tienda mobile real de Glitter Show, fiestas y servicios" width="447" height="872" loading="lazy">
+                        <div class="style-tile__caption"><strong>Fiestas y servicios</strong><span>Glitter Show · campaña y conversión</span></div>
+                    </article>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- PLANES -->
-    <section class="planes" id="planes">
-        <div class="container">
-            <span class="section-label">Planes</span>
-            <h2 class="section-title">Precios simples y claros</h2>
-            <p class="section-sub">Elegí el plan que mejor se adapte a tu negocio. Sin permanencia.</p>
-            <div class="planes-grid">
-                <div class="plan">
-                    <h3>Emprendedor</h3>
-                    <p class="desc">Ideal para empezar a vender online.</p>
-                    <div class="precio">Gratis<span></span></div>
-                    <div class="periocidad">Sin costo</div>
-                    <ul>
-                        <li>Tienda online completa</li>
-                        <li>Productos ilimitados</li>
-                        <li>Carrito de compras</li>
-                        <li>Pedidos por WhatsApp</li>
-                        <li>Diseño personalizable</li>
+        <section class="section-pad admin-section" aria-labelledby="admin-title">
+            <div class="container admin__grid">
+                <div class="admin__copy reveal">
+                    <p class="eyebrow">Tiendas reales</p>
+                    <h2 id="admin-title">Una identidad distinta para cada tienda.</h2>
+                    <p>Estas páginas principales muestran cómo cada negocio puede combinar portada, catálogo y una estética propia para vender online.</p>
+                    <ul class="check-list">
+                        <li><span aria-hidden="true">✓</span>Portadas y colores propios</li>
+                        <li><span aria-hidden="true">✓</span>Catálogos listos para vender</li>
+                        <li><span aria-hidden="true">✓</span>Diseños adaptados a cada rubro</li>
                     </ul>
-                    <a href="/registro" class="cta cta-plan">Empezar gratis</a>
                 </div>
-                <div class="plan destacado">
-                    <div class="etiqueta">Más popular</div>
-                    <h3 id="planNombreDestacado">Profesional</h3>
-                    <p class="desc" id="planDescDestacado">Para negocios que quieren crecer.</p>
-                    <div class="precio"><span id="planPrecioDestacado">$5.000</span><span>/mes</span> <span id="planMonedaDestacado" style="font-size:0.65em;color:#8b5cf6;font-weight:600;">ARS</span></div>
-                    <div class="periocidad">Facturación mensual</div>
-                    <ul>
-                        <li>Todo lo del plan Emprendedor</li>
-                        <li>Pagos con Mercado Pago</li>
-                        <li>Promociones y ofertas</li>
-                        <li>Gestión de pedidos avanzada</li>
-                        <li>Dominio / marca propia</li>
-                        <li>Prioridad en soporte</li>
-                    </ul>
-                    <a href="/registro" class="cta cta-plan">Empezar ahora</a>
-                </div>
-                <div class="plan">
-                    <h3>Empresarial</h3>
-                    <p class="desc">Para negocios con mayor volumen.</p>
-                    <div class="precio">A medida<span></span></div>
-                    <div class="periocidad">Consultar</div>
-                    <ul>
-                        <li>Todo lo del plan Profesional</li>
-                        <li>Múltiples usuarios</li>
-                        <li>Reportes avanzados</li>
-                        <li>Integración personalizada</li>
-                        <li>Soporte prioritario 24/7</li>
-                    </ul>
-                    <a href="#contacto" class="cta cta-plan">Contactar</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- TESTIMONIOS -->
-    <section id="testimonios">
-        <div class="container">
-            <span class="section-label">Testimonios</span>
-            <h2 class="section-title">Lo que dicen nuestros clientes</h2>
-            <p class="section-sub">Emprendedores y pymes que ya venden online con nosotros.</p>
-            <div class="testimonios-grid">
-                <div class="testimonio">
-                    <div class="estrellas">★★★★★</div>
-                    <p>"En minutos tuve mi tienda lista. Cargué mis productos y al día siguiente ya estaba vendiendo por WhatsApp. Es increíblemente fácil."</p>
-                    <div class="autor">
-                        <div class="avatar">MA</div>
-                        <div><b>María A.</b><span>Ventas de accesorios</span></div>
+                <div class="admin__carousel reveal" id="adminCarousel" role="region" aria-roledescription="carrusel" aria-label="Ejemplos reales de tiendas" tabindex="0" data-autoplay="true" data-interval="5200">
+                    <div class="admin__viewport">
+                        <div class="admin__track" id="adminCarouselTrack">
+                            <figure class="admin__slide is-active" id="admin-slide-1" role="group" aria-roledescription="diapositiva" aria-label="1 de 5: Glitter Show" aria-hidden="false">
+                                <img src="/images/capturas/sitiosEjemplos/carrusel/Screenshot_1.png" alt="Página principal mobile de Glitter Show, con campaña y catálogo" width="427" height="839" fetchpriority="high">
+                                <figcaption><strong>Glitter Show</strong><span>Fiestas y servicios · campaña mobile</span></figcaption>
+                            </figure>
+                            <figure class="admin__slide" id="admin-slide-2" role="group" aria-roledescription="diapositiva" aria-label="2 de 5: Del Mate" aria-hidden="true">
+                                <img src="/images/capturas/sitiosEjemplos/carrusel/principal.png" alt="Página principal de Del Mate, con portada de productos materos" width="608" height="821" loading="lazy">
+                                <figcaption><strong>Del Mate</strong><span>Productos materos · portada editorial</span></figcaption>
+                            </figure>
+                            <figure class="admin__slide" id="admin-slide-3" role="group" aria-roledescription="diapositiva" aria-label="3 de 5: Tukito" aria-hidden="true">
+                                <img src="/images/capturas/sitiosEjemplos/carrusel/tukitopc.png" alt="Página principal de Tukito, con productos creativos y categorías" width="609" height="963" loading="lazy">
+                                <figcaption><strong>Tukito</strong><span>Productos creativos · categorías y novedades</span></figcaption>
+                            </figure>
+                            <figure class="admin__slide" id="admin-slide-4" role="group" aria-roledescription="diapositiva" aria-label="4 de 5: Vibra Complementos" aria-hidden="true">
+                                <img src="/images/capturas/sitiosEjemplos/carrusel/principaVibral.png" alt="Página principal mobile de Vibra Complementos, con moda y textiles" width="439" height="844" loading="lazy">
+                                <figcaption><strong>Vibra Complementos</strong><span>Moda y textiles · catálogo mobile</span></figcaption>
+                            </figure>
+                            <figure class="admin__slide" id="admin-slide-5" role="group" aria-roledescription="diapositiva" aria-label="5 de 5: Del Mate mobile" aria-hidden="true">
+                                <img src="/images/capturas/sitiosEjemplos/carrusel/mate%20principal%20mobile.png" alt="Página principal mobile de Del Mate, con portada y categorías de productos materos" width="411" height="831" loading="lazy">
+                                <figcaption><strong>Del Mate</strong><span>Portada y categorías · vista mobile</span></figcaption>
+                            </figure>
+                        </div>
                     </div>
-                </div>
-                <div class="testimonio">
-                    <div class="estrellas">★★★★★</div>
-                    <p>"Lo que más me gusta es poder personalizar los colores y el logo. Mi tienda se ve profesional y representa mi marca tal cual."</p>
-                    <div class="autor">
-                        <div class="avatar">JP</div>
-                        <div><b>Juan P.</b><span>Emprendedor gastronómico</span></div>
-                    </div>
-                </div>
-                <div class="testimonio">
-                    <div class="estrellas">★★★★★</div>
-                    <p>"Los pagos con Mercado Pago fueron un antes y un después. Mis clientes pagan online y yo recibo los pedidos ordenados en el panel."</p>
-                    <div class="autor">
-                        <div class="avatar">CR</div>
-                        <div><b>Carolina R.</b><span>Tienda de moda</span></div>
+                    <div class="admin__carousel-controls">
+                        <button class="admin__carousel-arrow" type="button" data-carousel-prev aria-label="Imagen anterior">←</button>
+                        <div class="admin__carousel-dots" role="tablist" aria-label="Seleccionar tienda"></div>
+                        <span class="admin__carousel-counter" aria-live="polite"><strong id="adminCarouselCurrent">01</strong> / <span id="adminCarouselTotal">05</span></span>
+                        <button class="admin__carousel-arrow" type="button" data-carousel-next aria-label="Imagen siguiente">→</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- FAQ -->
-    <section id="faq" style="background: var(--fondo-suave);">
-        <div class="container">
-            <span class="section-label">Preguntas frecuentes</span>
-            <h2 class="section-title">Resolvé tus dudas</h2>
-            <p class="section-sub">Las preguntas que más nos hacen.</p>
-            <div class="faq">
-                <div class="faq-item">
-                    <button class="faq-q">¿Necesito saber programar? <span class="chev">▼</span></button>
-                    <div class="faq-a"><p>No. Todo se configura desde un panel visual y amigable. Solo cargás tus productos, elegís colores y listo.</p></div>
+        <section class="section-pad capabilities-section" id="capacidades" aria-labelledby="capabilities-title">
+            <div class="container">
+                <div class="section-heading reveal">
+                    <p class="eyebrow">Una plataforma, cuatro objetivos</p>
+                    <h2 id="capabilities-title">Todo lo que pasa antes y después del clic.</h2>
+                    <p>Las capacidades aparecen organizadas por el trabajo real de quien vende online.</p>
                 </div>
-                <div class="faq-item">
-                    <button class="faq-q">¿Cuánto tarda en estar lista mi tienda? <span class="chev">▼</span></button>
-                    <div class="faq-a"><p>En pocos minutos. Una vez creada tu cuenta, podés personalizar y cargar productos de inmediato.</p></div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-q">¿Cómo recibo los pagos? <span class="chev">▼</span></button>
-                    <div class="faq-a"><p>Conectás tu cuenta de Mercado Pago y tus clientes podrán pagar online de forma segura. El dinero va directo a tu cuenta.</p></div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-q">¿Qué pasa si necesito ayuda? <span class="chev">▼</span></button>
-                    <div class="faq-a"><p>Contamos con soporte para acompañarte en cada paso. En los planes pagos tenés prioridad en la atención.</p></div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-q">¿Puedo cambiar de plan después? <span class="chev">▼</span></button>
-                    <div class="faq-a"><p>Sí. Sin permanencia, podés cambiar de plan o cancelar cuando quieras.</p></div>
+                <div class="capability-grid">
+                    <article class="capability reveal"><span>01</span><h3>Vender</h3><p>Mostrá productos, categorías, precios, stock y promociones con una tienda que represente tu marca.</p></article>
+                    <article class="capability reveal"><span>02</span><h3>Cobrar</h3><p>Ofrecé caminos concretos para completar el pedido, como Mercado Pago o WhatsApp.</p></article>
+                    <article class="capability reveal"><span>03</span><h3>Administrar</h3><p>Organizá catálogo, categorías, visibilidad y disponibilidad desde tu panel.</p></article>
+                    <article class="capability reveal"><span>04</span><h3>Crecer</h3><p>Presentá una experiencia más clara y profesional a medida que tu negocio suma productos.</p></article>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- CTA FINAL -->
-    <section id="contacto">
-        <div class="container">
-            <div class="cta-final">
-                <h2>¿Listo para vender online?</h2>
-                <p>Creá tu tienda gratis y empezá a recibir pedidos hoy mismo. Es más fácil de lo que pensás.</p>
-                <a href="/registro" class="cta btn-blanco">Crear mi tienda gratis</a>
+        <section class="section-pad pricing-section" id="planes" aria-labelledby="pricing-title">
+            <div class="container">
+                <div class="section-heading reveal">
+                    <p class="eyebrow">Planes</p>
+                    <h2 id="pricing-title">Elegí cómo empezar.</h2>
+                    <p>Una propuesta simple para probar la plataforma y avanzar cuando tu negocio lo necesite.</p>
+                </div>
+                <div class="pricing-grid">
+                    <article class="price-card reveal">
+                        <span class="price-card__tag">Para comenzar</span>
+                        <h3>Emprendedor</h3>
+                        <p>Para probar tu primera tienda.</p>
+                        <strong class="price">Gratis</strong>
+                        <ul><li>Tienda online completa</li><li>Productos ilimitados</li><li>Carrito de compras</li><li>Diseño personalizable</li></ul>
+                        <a class="button button--outline" href="/registro?plan=emprendedor">Empezar gratis</a>
+                    </article>
+                    <article class="price-card price-card--featured reveal">
+                        <span class="price-card__tag">Más elegido</span>
+                        <h3 id="planNombreDestacado">Profesional</h3>
+                        <p>Para negocios que quieren crecer.</p>
+                        <strong class="price"><span id="planPrecioDestacado">$5.000</span> <small id="planMonedaDestacado">ARS</small><small>/mes</small></strong>
+                        <ul><li>Todo lo del plan Emprendedor</li><li>Pagos con Mercado Pago</li><li>Promociones y ofertas</li><li>Gestión avanzada de pedidos</li></ul>
+                        <a class="button button--lime" href="/registro?plan=profesional">Crear mi tienda</a>
+                    </article>
+                    <article class="price-card reveal">
+                        <span class="price-card__tag">A medida</span>
+                        <h3>Empresarial</h3>
+                        <p>Para mayor volumen y necesidades específicas.</p>
+                        <strong class="price">A medida</strong>
+                        <ul><li>Todo lo del plan Profesional</li><li>Múltiples usuarios</li><li>Reportes avanzados</li><li>Soporte prioritario</li></ul>
+                        <a class="button button--outline" href="/registro?plan=empresarial">Consultar</a>
+                    </article>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- FOOTER -->
-    <footer>
-        <div class="container">
-            <div>
-                <div class="logo">Shop<span class="badge">SaaS</span></div>
-                <p>La plataforma de e-commerce para pymes y emprendedores. Creá tu tienda online en minutos.</p>
+        <section class="section-pad case-section" aria-labelledby="case-title">
+            <div class="container case__grid">
+                <div class="case__media reveal">
+                    <img src="/images/capturas/sitiosEjemplos/sitio1/mobile%20Diseno%20comercial/Screenshot_2.png" alt="Detalle real de producto en la tienda Glitter Show" width="447" height="872" loading="lazy">
+                </div>
+                <div class="case__copy reveal">
+                    <p class="eyebrow">Una tienda real como referencia</p>
+                    <h2 id="case-title">La promesa se puede ver.</h2>
+                    <p>Glitter Show combina campaña, catálogo, detalle de producto y carrito en una experiencia pensada para vender desde el celular.</p>
+                    <div class="case-facts"><span>Portada propia</span><span>Productos y stock</span><span>Detalle de producto</span><span>Carrito mobile</span></div>
+                    <a class="button button--dark" href="/registro">Quiero crear algo así</a>
+                </div>
             </div>
-            <div>
-                <h4>Producto</h4>
-                <ul>
-                    <li><a href="#beneficios">Beneficios</a></li>
-                    <li><a href="#como-funciona">Cómo funciona</a></li>
-                    <li><a href="#planes">Planes</a></li>
-                    <li><a href="#faq">FAQ</a></li>
-                </ul>
+        </section>
+
+        <section class="section-pad faq-section" id="preguntas" aria-labelledby="faq-title">
+            <div class="container faq__container">
+                <div class="section-heading section-heading--center reveal">
+                    <p class="eyebrow">Preguntas frecuentes</p>
+                    <h2 id="faq-title">Antes de empezar.</h2>
+                    <p>Las respuestas que ayudan a tomar la decisión.</p>
+                </div>
+                <div class="faq-list">
+                    <article class="faq-item reveal"><h3><button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-1">¿Necesito saber programar?<span aria-hidden="true">＋</span></button></h3><div class="faq-answer" id="faq-answer-1" hidden><p>No. Cargás tus productos y configurás tu tienda desde un panel pensado para administrar el catálogo y la identidad visual.</p></div></article>
+                    <article class="faq-item reveal"><h3><button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-2">¿Puedo personalizar colores, logo y portada?<span aria-hidden="true">＋</span></button></h3><div class="faq-answer" id="faq-answer-2" hidden><p>Sí. El panel permite trabajar con logo, colores, fondo e imagen de portada para que el resultado represente tu marca.</p></div></article>
+                    <article class="faq-item reveal"><h3><button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-3">¿Cómo reciben los pagos mis clientes?<span aria-hidden="true">＋</span></button></h3><div class="faq-answer" id="faq-answer-3" hidden><p>Según la configuración de tu tienda, podés ofrecer Mercado Pago y recibir pedidos por WhatsApp.</p></div></article>
+                    <article class="faq-item reveal"><h3><button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-4">¿Puedo vender desde el celular?<span aria-hidden="true">＋</span></button></h3><div class="faq-answer" id="faq-answer-4" hidden><p>Sí. Las capturas reales muestran catálogos, detalles de producto, carritos y checkout adaptados a pantallas mobile.</p></div></article>
+                    <article class="faq-item reveal"><h3><button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-5">¿Cuánto cuesta empezar?<span aria-hidden="true">＋</span></button></h3><div class="faq-answer" id="faq-answer-5" hidden><p>Podés empezar gratis. En el registro se informa una prueba de 30 días sin tarjeta y sin permanencia.</p></div></article>
+                </div>
             </div>
-            <div>
-                <h4>Recursos</h4>
-                <ul>
-                    <!-- <li><a href="/superadmin/">Panel de administración</a></li> -->
-                    <li><a href="#contacto">Soporte</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
-                </ul>
+        </section>
+
+        <section class="final-cta" id="contacto" aria-labelledby="final-title">
+            <div class="container final-cta__inner">
+                <div>
+                    <p class="eyebrow">Tu próximo paso</p>
+                    <h2 id="final-title">Convertí tu catálogo en una tienda propia.</h2>
+                </div>
+                <div class="final-cta__copy">
+                    <p>Creá una experiencia real para tus clientes, con la identidad y los productos de tu negocio.</p>
+                    <a class="button button--lime" href="/registro">Crear mi tienda gratis</a>
+                </div>
             </div>
-            <div>
-                <h4>Legal</h4>
-                <ul>
-                    <li><a href="/terminos.html">Términos</a></li>
-                    <li><a href="/privacidad.html">Privacidad</a></li>
-                    <li><a href="/cookies.html">Cookies</a></li>
-                </ul>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container site-footer__inner">
+            <a class="brand brand--footer" href="#inicio"><span class="brand__mark" aria-hidden="true">S</span><span>Shop SaaS</span></a>
+            <div class="site-footer__links">
+                <a href="#ejemplos-reales">Ejemplos reales</a>
+                <a href="#como-funciona">Cómo funciona</a>
+                <a href="#planes">Planes</a>
+                <a href="/terminos.html">Términos</a>
+                <a href="/privacidad.html">Privacidad</a>
+                <a href="/cookies.html">Cookies</a>
             </div>
+            <span>© <span id="year"></span> Shop SaaS</span>
         </div>
-        <div class="footer-bottom">© <span id="year"></span> Shop SaaS - Todos los derechos reservados</div>
     </footer>
 
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Precio y nombre del plan Profesional desde la config SaaS global.
-        // El precio se muestra siempre en pesos argentinos (ARS).
-        // Si el endpoint no responde se conservan los valores estáticos del HTML.
-        (async function cargarPlanDesdeConfig() {
-            try {
-                const res = await fetch('/api/saas/info-publica', {
-                    headers: { 'Accept': 'application/json' }
-                });
-                if (!res.ok) return;
-                const data = await res.json();
-                const cfg = data && data.config;
-                if (!cfg) return;
-
-                function formatearPrecioArs(valor) {
-                    const n = Number(valor);
-                    if (Number.isNaN(n)) return '';
-                    return n.toLocaleString('es-AR', { maximumFractionDigits: 0 });
-                }
-
-                if (cfg.precioMensualArs) {
-                    const elPrecio = document.getElementById('planPrecioDestacado');
-                    if (elPrecio) elPrecio.textContent = '$' + formatearPrecioArs(cfg.precioMensualArs);
-                    const elMoneda = document.getElementById('planMonedaDestacado');
-                    if (elMoneda) elMoneda.textContent = 'ARS';
-                }
-                if (cfg.planNombre) {
-                    const elNombre = document.getElementById('planNombreDestacado');
-                    if (elNombre) elNombre.textContent = cfg.planNombre;
-                }
-            } catch (err) {
-                // Sin cambios: la landing mantiene el precio por defecto
-            }
-        })();
-
-        // Menú móvil
-        const toggle = document.getElementById('navToggle');
-        const links = document.getElementById('navLinks');
-        toggle.addEventListener('click', () => {
-            links.classList.toggle('mobile-open');
-        });
-        links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-            links.classList.remove('mobile-open');
-        }));
-
-        // FAQ acordeón
-        document.querySelectorAll('.faq-q').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const item = btn.parentElement;
-                const answer = btn.nextElementSibling;
-                const isOpen = item.classList.contains('open');
-
-                document.querySelectorAll('.faq-item').forEach(i => {
-                    i.classList.remove('open');
-                    i.querySelector('.faq-a').style.maxHeight = null;
-                });
-
-                if (!isOpen) {
-                    item.classList.add('open');
-                    answer.style.maxHeight = answer.scrollHeight + 'px';
-                }
-            });
-        });
-
-        // Cierre de sesión del admin al navegar en la landing (si aplica)
-        // Transiciones suaves al hacer clic en anclas dentro de la misma página
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    </script>
+    <script src="/js/landing.js"></script>
 </body>
 </html>

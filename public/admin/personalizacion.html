@@ -202,6 +202,27 @@
 
             <!-- FORMULARIO DE CONFIGURACIÓN -->
 
+            <!-- 0. DISEÑO DE LA TIENDA (PLANTILLA) -->
+            <div class="form-card">
+
+                <div class="form-header">
+
+                    <h2>Diseño de la tienda</h2>
+
+                </div>
+
+                <p style="color:#6b7280;font-size:13px;margin:0 20px 12px;line-height:1.5;">
+                    Elegí el estilo visual de tu tienda. Podés cambiarlo cuando quieras.
+                </p>
+
+                <div class="form-grid" id="grupo-plantilla">
+
+                    <!-- Se llena dinámicamente: plantilla -->
+
+                </div>
+
+            </div>
+
             <!-- 1. INFORMACIÓN GENERAL -->
             <div class="form-card">
 
@@ -466,6 +487,7 @@
         const etiquetas = {
             tienda_nombre: 'Nombre de la tienda',
             tienda_descripcion: 'Descripción',
+            plantilla: 'Diseño de la tienda',
             marquee_textos: 'Textos del marquee (separados por | )',
             hero_titulo: 'Título en Portada',
             hero_descripcion: 'Texto en Portada',
@@ -497,6 +519,7 @@
         const grupos = {
             tienda_nombre: 'general',
             tienda_descripcion: 'general',
+            plantilla: 'apariencia',
             marquee_textos: 'general',
             font_family: 'tipografia',
             hero_titulo: 'hero',
@@ -532,6 +555,7 @@
         const textosDefault = {
             tienda_nombre: 'Mi Tienda',
             tienda_descripcion: 'Descripción de mi tienda - Aquí podés contar qué ofrecés',
+            plantilla: '',
             marquee_textos: '🚚 ENVÍOS A TODO EL PAÍS|💳 HASTA 6 CUOTAS SIN INTERÉS|🔒 COMPRA 100% SEGURA|✨ NUEVOS INGRESOS TODAS LAS SEMANAS|🎁 PROMOCIONES EXCLUSIVAS|⭐ CALIDAD PREMIUM|⚡ ENTREGA RÁPIDA',
             hero_titulo: 'Título de portada',
             hero_descripcion: 'Descripción de portada - Contá lo que quieras destacar',
@@ -631,6 +655,113 @@
         }
 
         function renderizarFormularios(datos) {
+
+            // ============================================
+            // 0. DISEÑO DE LA TIENDA: plantilla (tarjetas visuales)
+            // ============================================
+            const contPlantilla = document.getElementById('grupo-plantilla');
+            if (contPlantilla) {
+                const itemPlantilla = datos.find(d => d.clave === 'plantilla');
+                const valorActual = itemPlantilla ? (itemPlantilla.valor || '') : '';
+
+                const grupo = document.createElement('div');
+                grupo.className = 'input-group';
+
+                const label = document.createElement('label');
+                label.textContent = 'Plantilla visual';
+                grupo.appendChild(label);
+
+                // Input oculto para guardar el valor seleccionado
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.id = 'input-plantilla';
+                hiddenInput.value = valorActual;
+                grupo.appendChild(hiddenInput);
+
+                // Tarjetas de plantilla
+                const plantillas = [
+                    { value: '', title: 'Clásica', desc: 'El diseño actual de tu tienda', bg: '#ffffff', accent: '#111827' },
+                    { value: 'moderna', title: 'Moderna', desc: 'Editorial premium con serif elegante', bg: '#2B2720', accent: '#B08D57' },
+                    { value: 'comercial', title: 'Comercial', desc: 'Alta conversión con acento rojo', bg: '#D9362C', accent: '#141414' },
+                ];
+
+                const cardsContainer = document.createElement('div');
+                cardsContainer.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:8px;';
+
+                function seleccionarPlantilla(valor) {
+                    hiddenInput.value = valor;
+                    cardsContainer.querySelectorAll('.plantilla-card').forEach(c => {
+                        c.classList.remove('plantilla-card-selected');
+                        c.style.borderColor = '#e5e7eb';
+                        c.style.boxShadow = 'none';
+                    });
+                    const selected = cardsContainer.querySelector('.plantilla-card[data-value="' + valor + '"]');
+                    if (selected) {
+                        selected.classList.add('plantilla-card-selected');
+                        selected.style.borderColor = '#3b82f6';
+                        selected.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.2)';
+                    }
+                    guardarCambio('plantilla', valor);
+                }
+
+                plantillas.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'plantilla-card';
+                    card.setAttribute('data-value', p.value);
+                    card.style.cssText = 'padding:14px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;text-align:center;transition:all 0.2s ease;' + (p.value === valorActual ? 'border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,0.2);' : '');
+
+                    // Mini vista previa de la plantilla
+                    const mini = document.createElement('div');
+                    mini.style.cssText = 'width:100%;height:52px;border-radius:6px;margin-bottom:10px;border:1px solid rgba(0,0,0,0.12);overflow:hidden;position:relative;background:' + p.bg + ';';
+
+                    if (p.value === '') {
+                        // Clásica: barra + texto
+                        mini.innerHTML = '<div style="position:absolute;top:4px;left:0;right:0;height:14px;background:#f9fafb;border-bottom:1px solid #e5e7eb;"></div><div style="position:absolute;top:24px;left:50%;transform:translateX(-50%);width:55%;height:7px;background:#d1d5db;border-radius:4px;"></div><div style="position:absolute;top:36px;left:50%;transform:translateX(-50%);width:38%;height:5px;background:#e5e7eb;border-radius:4px;"></div>';
+                    } else if (p.value === 'moderna') {
+                        mini.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:14px;background:#fafaf7;border-bottom:1px solid rgba(0,0,0,0.08);"></div><div style="position:absolute;top:18px;left:0;right:0;height:34px;background:linear-gradient(120deg,#2b2720,#1c1915);"></div><div style="position:absolute;top:24px;left:50%;transform:translateX(-50%);width:45%;height:6px;background:' + p.accent + ';border-radius:2px;opacity:0.85;"></div>';
+                    } else if (p.value === 'comercial') {
+                        mini.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:' + p.bg + ';"></div><div style="position:absolute;top:3px;left:0;right:0;height:11px;background:#ffffff;border-bottom:1px solid #141414;"></div><div style="position:absolute;top:18px;left:0;right:0;height:34px;background:linear-gradient(100deg,#8f1d18,#d9362c);"></div><div style="position:absolute;top:24px;left:12%;width:52%;height:6px;background:#ffffff;border-radius:2px;opacity:0.9;"></div>';
+                    }
+
+                    // Título
+                    const titleEl = document.createElement('div');
+                    titleEl.textContent = p.title;
+                    titleEl.style.cssText = 'font-size:15px;font-weight:600;margin-bottom:3px;color:#111827;';
+
+                    // Descripción
+                    const descEl = document.createElement('div');
+                    descEl.textContent = p.desc;
+                    descEl.style.cssText = 'font-size:12px;line-height:1.35;color:#6b7280;';
+
+                    card.appendChild(mini);
+                    card.appendChild(titleEl);
+                    card.appendChild(descEl);
+
+                    card.addEventListener('click', function() {
+                        seleccionarPlantilla(p.value);
+                    });
+
+                    card.addEventListener('mouseenter', function() {
+                        if (!this.classList.contains('plantilla-card-selected')) {
+                            this.style.borderColor = '#93c5fd';
+                            this.style.transform = 'translateY(-2px)';
+                            this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+                        }
+                    });
+                    card.addEventListener('mouseleave', function() {
+                        if (!this.classList.contains('plantilla-card-selected')) {
+                            this.style.borderColor = '#e5e7eb';
+                            this.style.transform = 'none';
+                            this.style.boxShadow = 'none';
+                        }
+                    });
+
+                    cardsContainer.appendChild(card);
+                });
+
+                grupo.appendChild(cardsContainer);
+                contPlantilla.appendChild(grupo);
+            }
 
             // ============================================
             // 1. INFORMACIÓN GENERAL: tienda_nombre + tienda_descripcion lado a lado
@@ -1296,7 +1427,7 @@
             // ============================================
             // 6. RESTO DE SECCIONES (whatsapp, contacto)
             // ============================================
-            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp', 'logo_forma', 'whatsapp_codigo_area', 'whatsapp_numero_local', 'rubro_actividad', 'ciudad', 'seo_title', 'seo_description'];
+            const clavesCustom = ['tienda_nombre', 'tienda_descripcion', 'plantilla', 'marquee_textos', 'font_family', 'hero_titulo', 'hero_descripcion', 'hero_titulo_color', 'color_boton', 'color_boton_texto', 'hero_fondo', 'hero_imagen', 'redes_instagram', 'redes_facebook', 'redes_tiktok', 'redes_whatsapp', 'logo_forma', 'whatsapp_codigo_area', 'whatsapp_numero_local', 'rubro_actividad', 'ciudad', 'seo_title', 'seo_description'];
 
             datos.forEach(item => {
                 // Saltar items ya renderizados en secciones custom
@@ -1766,6 +1897,19 @@
                             chip.appendChild(textSpan);
                             chip.appendChild(deleteBtn);
                             chipsContainer.appendChild(chip);
+                        });
+                    }
+                }
+                // Re-sincronizar la tarjeta de plantilla seleccionada
+                if (clave === 'plantilla') {
+                    const cardsContainer = document.querySelector('#grupo-plantilla .plantilla-card');
+                    if (cardsContainer) {
+                        const value = String(valor || '');
+                        document.querySelectorAll('#grupo-plantilla .plantilla-card').forEach(c => {
+                            const esSel = c.getAttribute('data-value') === value;
+                            c.classList.toggle('plantilla-card-selected', esSel);
+                            c.style.borderColor = esSel ? '#3b82f6' : '#e5e7eb';
+                            c.style.boxShadow = esSel ? '0 0 0 3px rgba(59,130,246,0.2)' : 'none';
                         });
                     }
                 }

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!--SEO_HEAD-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Shop</title>
+    <link rel="stylesheet" href="/css/template-comercial.css?v=5">
+</head>
+<body data-store-template="comercial">
+    <div id="splashScreen" class="splash-screen" aria-hidden="true">
+        <div class="splash-content">
+            <img id="splashLogo" src="" alt="Logo" class="splash-logo">
+            <div class="splash-dots" aria-hidden="true">
+                <span class="splash-dot"></span><span class="splash-dot"></span><span class="splash-dot"></span>
+            </div>
+        </div>
+    </div>
+
+    <header class="navbar">
+        <div class="commercial-utility-row">
+            <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMenuCategorias()" aria-label="Menú de categorías">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="logo">Mi Shop</div>
+            <div class="search-wrapper" id="searchWrapper">
+                <div class="search-input-wrapper">
+                    <input type="text" id="busqueda" placeholder="Buscar productos..." onkeyup="buscarProductos()" aria-label="Buscar productos">
+                    <button class="search-clear" onclick="limpiarBusqueda()" aria-label="Limpiar búsqueda">✕</button>
+                    <button class="desktop-search-submit" type="button" aria-label="Buscar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <button class="search-toggle" onclick="toggleSearch()" aria-label="Buscar">
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+                </button>
+                <div class="carrito-wrapper">
+                    <button class="carrito-btn" id="carritoBtn" onclick="togglePreviewCarrito(event)" aria-label="Abrir carrito">
+                        <span class="carrito-icono" aria-hidden="true">🛒</span>
+                        <span class="carrito-label">Carrito</span>
+                        <span id="contadorCarrito">0</span>
+                    </button>
+                    <div class="carrito-preview" id="carritoPreview"></div>
+                </div>
+            </div>
+        </div>
+        <nav class="commercial-category-nav" aria-label="Navegación de categorías">
+            <div id="categorias" data-category-surface="comercial-masthead"></div>
+        </nav>
+    </header>
+
+    <aside class="sidebar-categorias" id="sidebarCategorias" aria-label="Categorías móviles">
+        <div class="sidebar-categorias-header">
+            <h3>Categorías</h3>
+            <button class="sidebar-categorias-cerrar" onclick="toggleMenuCategorias()" aria-label="Cerrar menú">&times;</button>
+        </div>
+        <nav class="sidebar-categorias-nav" id="menuCategorias"></nav>
+    </aside>
+    <div class="sidebar-categorias-overlay" id="sidebarOverlay" onclick="toggleMenuCategorias()"></div>
+
+    <main class="store-main">
+        <section class="hero">
+            <div class="hero-copy">
+                <span class="hero-kicker">Campaña de temporada</span>
+                <div class="hero-content">
+                    <h1>Liquidación de invierno</h1>
+                    <p>Encontrá productos para tu hogar, tecnología y herramientas al mejor precio.</p>
+                    <a href="#catalogo" class="hero-cta">Ver productos <span aria-hidden="true">→</span></a>
+                </div>
+            </div>
+            <div class="hero-diagonal" aria-hidden="true"></div>
+            <div class="hero-media">
+                <img class="hero-image" data-hero-image src="" alt="" hidden>
+            </div>
+        </section>
+
+        <section class="premium-marquee" id="marqueeContainer" aria-label="Promociones de la tienda">
+            <div class="premium-marquee-track"></div>
+        </section>
+
+        <section class="comercial-catalog" id="catalogo" aria-labelledby="catalogo-title">
+            <aside class="catalog-rail">
+                <div class="catalog-rail-heading">
+                    <span class="rail-kicker">Explorá por pasillo</span>
+                    <h2>Categorías</h2>
+                </div>
+                <div class="catalog-rail-list" data-category-surface="comercial-rail" aria-label="Filtrar por categoría"></div>
+            </aside>
+            <div class="catalog-main">
+                <div class="catalog-toolbar">
+                    <div>
+                        <span class="section-kicker">Catálogo online</span>
+                        <h2 id="catalogo-title">Todos los productos</h2>
+                    </div>
+                    <span class="product-count" data-product-count>0 productos</span>
+                </div>
+                <section id="productos" class="productos-grid" aria-live="polite"></section>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal()" role="presentation">
+        <div class="modal-contenido" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modalNombre">
+            <button class="modal-cerrar" onclick="cerrarModal()" aria-label="Cerrar producto">&times;</button>
+            <button class="modal-share-btn" id="modalShareBtn" onclick="compartirProducto(event)" aria-label="Compartir producto">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>
+            </button>
+            <div class="modal-carrusel" id="modalCarrusel"></div>
+            <div class="modal-info">
+                <span class="modal-kicker">Ficha de producto</span>
+                <h2 class="modal-nombre" id="modalNombre"></h2>
+                <div class="modal-precio" id="modalPrecio"></div>
+                <div class="modal-stock" id="modalStock"></div>
+                <div class="modal-descripcion" id="modalDescripcion"></div>
+                <button class="modal-btn-carrito" id="modalBtnCarrito">Agregar al carrito</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-kicker">Compra simple, rápida y clara</span>
+                <h2>Mi Shop</h2>
+                <p>Todo para tu hogar en un solo lugar: productos útiles, precios claros y atención cercana.</p>
+            </div>
+            <div class="footer-social" id="footerSocial"></div>
+        </div>
+        <div class="footer-bottom">© 2026 Mi Shop - Todos los derechos reservados</div>
+    </footer>
+
+    <a class="whatsapp-action" data-whatsapp-action href="#" hidden aria-label="Pedir por WhatsApp">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"></path><path d="M8.8 8.6c.2-.4.4-.4.7-.4h.4c.2 0 .4.1.5.4l.6 1.5c.1.2 0 .4-.1.6l-.5.6c.7 1.2 1.5 1.9 2.8 2.5l.5-.6c.2-.2.4-.3.6-.2l1.5.7c.3.1.4.3.3.6-.2.8-.8 1.4-1.6 1.5-2.3.2-6.3-3.2-6.8-5.8-.2-.6.1-1.1.6-1.4Z"></path></svg>
+        <span>Pedir por WhatsApp</span>
+    </a>
+
+    <script src="/js/storeContext.js"></script>
+    <script src="/js/config.js?v=8"></script>
+    <script src="/js/script.js?v=10"></script>
+</body>
+</html>

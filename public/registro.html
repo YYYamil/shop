@@ -3,515 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Crear mi tienda gratis | Shop SaaS</title>
-
-    <style>
-        :root {
-            --primario: #4f46e5;
-            --primario-claro: #eef2ff;
-            --primario-oscuro: #4338ca;
-            --acento: #10b981;
-            --texto: #0f172a;
-            --texto-suave: #64748b;
-            --borde: #e2e8f0;
-            --fondo: #ffffff;
-            --fondo-suave: #f8fafc;
-            --radius: 16px;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            min-height: 100vh;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-            color: var(--texto);
-            background:
-                radial-gradient(circle at top left, rgba(79, 70, 229, .10), transparent 32%),
-                radial-gradient(circle at bottom right, rgba(16, 185, 129, .08), transparent 32%),
-                var(--fondo-suave);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Barra superior */
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 32px;
-        }
-
-        .logo {
-            font-family: 'Sora', 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 20px;
-            letter-spacing: -0.5px;
-            color: var(--texto);
-            text-decoration: none;
-        }
-
-        .logo .badge {
-            background: var(--primario);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 20px;
-            vertical-align: middle;
-            margin-left: 4px;
-        }
-
-        .topbar a.volver {
-            color: var(--texto-suave);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: color .2s;
-        }
-        .topbar a.volver:hover { color: var(--primario); }
-
-        /* Contenedor */
-        .wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 20px 60px;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 560px;
-            background: var(--fondo);
-            border: 1px solid var(--borde);
-            border-radius: 24px;
-            box-shadow: 0 25px 60px rgba(15, 23, 42, .10);
-            padding: 44px 42px;
-        }
-
-        .card .step-badge {
-            display: inline-block;
-            background: var(--primario-claro);
-            color: var(--primario);
-            font-size: 12px;
-            font-weight: 700;
-            padding: 5px 14px;
-            border-radius: 20px;
-            margin-bottom: 16px;
-        }
-
-        .card h1 {
-            font-family: 'Sora', 'Inter', sans-serif;
-            font-size: 30px;
-            font-weight: 800;
-            letter-spacing: -0.8px;
-            margin-bottom: 8px;
-        }
-
-        .card .subtitulo {
-            color: var(--texto-suave);
-            font-size: 15px;
-            line-height: 1.55;
-            margin-bottom: 28px;
-        }
-
-        .input-group { margin-bottom: 18px; }
-
-        .input-group label {
-            display: block;
-            font-size: 13.5px;
-            font-weight: 700;
-            color: var(--texto);
-            margin-bottom: 7px;
-        }
-
-        .input-group label .opcional {
-            font-weight: 500;
-            color: var(--texto-suave);
-        }
-
-        .input-group input[type="text"],
-        .input-group input[type="password"],
-        .input-group input[type="email"] {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            background: #fff;
-            font-size: 15px;
-            color: var(--texto);
-            transition: border-color .2s, box-shadow .2s;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--primario);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, .15);
-        }
-
-        /* Campo de contraseña con botón mostrar/ocultar (ojo) */
-        .password-wrap {
-            position: relative;
-        }
-
-        .password-wrap input {
-            padding-right: 48px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 8px;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            padding: 8px;
-            margin: 0;
-            cursor: pointer;
-            color: var(--texto-suave);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: color .2s, background .2s;
-        }
-
-        .toggle-password svg {
-            display: none;
-        }
-
-        .toggle-password svg.visible {
-            display: block;
-        }
-
-        .toggle-password:hover {
-            color: var(--primario);
-            background: var(--primario-claro);
-        }
-
-        .toggle-password:focus-visible {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, .25);
-        }
-
-        .hint {
-            font-size: 12.5px;
-            color: var(--texto-suave);
-            margin-top: 6px;
-        }
-
-        .hint .url {
-            color: var(--texto);
-            font-weight: 600;
-        }
-
-        .hint.ok { color: var(--acento); font-weight: 600; }
-        .hint.error { color: #dc2626; font-weight: 600; }
-
-        /* Beneficios compactos */
-        .perks {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 22px 0 8px;
-        }
-
-        .perk {
-            background: var(--fondo-suave);
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            font-size: 11.5px;
-            font-weight: 600;
-            color: var(--texto-suave);
-        }
-
-        .perk b {
-            display: block;
-            font-size: 15px;
-            color: var(--texto);
-            margin-bottom: 2px;
-        }
-
-        .btn {
-            width: 100%;
-            margin-top: 10px;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
-            color: #fff;
-            font-size: 16px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: transform .15s, box-shadow .2s;
-            box-shadow: 0 12px 28px rgba(79, 70, 229, .3);
-        }
-
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(79, 70, 229, .4); }
-        .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        .legal {
-            margin-top: 18px;
-            text-align: center;
-            font-size: 12px;
-            color: var(--texto-suave);
-            line-height: 1.5;
-        }
-
-        .card .login-link {
-            margin-top: 22px;
-            text-align: center;
-            font-size: 14px;
-            color: var(--texto-suave);
-        }
-
-        .card .login-link a {
-            color: var(--primario);
-            font-weight: 700;
-            text-decoration: none;
-        }
-        .card .login-link a:hover { text-decoration: underline; }
-
-        .error-box {
-            display: none;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #b91c1c;
-            font-size: 14px;
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 18px;
-        }
-
-        .error-box.show { display: block; }
-
-        footer {
-            text-align: center;
-            padding: 24px;
-            color: #94a3b8;
-            font-size: 13px;
-        }
-
-        @media (max-width: 600px) {
-            .card { padding: 32px 22px; border-radius: 18px; }
-            .perks { grid-template-columns: 1fr; }
-            .card h1 { font-size: 25px; }
-        }
-    </style>
+    <meta name="description" content="Creá tu tienda online en menos de un minuto con Shop SaaS.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/registro.css">
 </head>
 <body>
-
-    <div class="topbar">
-        <a class="logo" href="/">Shop<span class="badge">SaaS</span></a>
-        <a class="volver" href="/">&larr; Volver al inicio</a>
-    </div>
-
-    <div class="wrapper">
-        <div class="card">
-            <span class="step-badge">EMPIEZA GRATIS</span>
-            <h1>Creá tu tienda online</h1>
-            <p class="subtitulo">En menos de un minuto tenés tu tienda lista para cargar productos. Sin tarjeta, sin permanencia.</p>
-
-            <div class="error-box" id="errorBox"></div>
-
-            <form id="registroForm" novalidate autocomplete="on">
-                <div class="input-group">
-                    <label for="nombre">Nombre de tu tienda</label>
-                    <input type="text" id="nombre" name="nombre" placeholder="Ej: Deportes Rodríguez" maxlength="60" required>
-                    <p class="hint">Lo vas a poder cambiar después desde Personalizar.</p>
-                </div>
-
-                <div class="input-group">
-                    <label for="slug">Dirección web <span class="opcional">(opcional)</span></label>
-                    <input type="text" id="slug" name="slug" placeholder="deportes-rodriguez" maxlength="63" autocomplete="off">
-                    <p class="hint" id="slugHint">Tu tienda quedará en <span class="url" id="urlPreview">tu-dominio.com/tu-tienda/</span></p>
-                </div>
-
-                <div class="input-group">
-                    <label for="email">Correo electrónico</label>
-                    <input type="email" id="email" name="email" placeholder="Ej: juan@correo.com" maxlength="120" required autocomplete="email">
-                    <p class="hint">Lo usamos para recuperar tu contraseña si la olvidás. No lo compartimos con nadie.</p>
-                </div>
-
-                <div class="input-group">
-                    <label for="usuario">Usuario</label>
-                    <input type="text" id="usuario" name="usuario" placeholder="Ej: juanperez" maxlength="30" required autocomplete="username">
-                    <p class="hint">Lo usás para entrar al panel de administración.</p>
-                </div>
-
-                <div class="input-group">
-                    <label for="password">Contraseña</label>
-                    <div class="password-wrap">
-                        <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" minlength="6" required autocomplete="new-password">
-                        <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false">
-                            <svg id="iconEye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            <svg id="iconEyeOff" class="visible" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                        </button>
-                    </div>
-                    <p class="hint">Nadie puede verla. Guardala en un lugar seguro.</p>
-                </div>
-
-                <div class="perks">
-                    <div class="perk"><b>30 días</b>Gratis</div>
-                    <div class="perk"><b>0</b>Tarjeta</div>
-                    <div class="perk"><b>1</b>Tienda</div>
-                </div>
-
-                <button type="submit" class="btn" id="btnCrear">Crear mi tienda gratis</button>
-            </form>
-
-            <p class="legal">Al crearla aceptás los <a href="/terminos.html">Términos del servicio</a> y la <a href="/privacidad.html">Política de privacidad</a>.</p>
-
-            <div class="login-link">
-                ¿Ya tenés una tienda? <a href="/admin/login.html" id="linkLogin">Ingresá a tu panel</a>
-            </div>
+    <header class="registro-header">
+        <div class="registro-container registro-header__inner">
+            <a class="registro-brand" href="/" aria-label="Shop SaaS, volver al inicio">
+                <span class="registro-brand__mark" aria-hidden="true">S</span>
+                <span>Shop SaaS</span>
+            </a>
+            <a class="registro-back" href="/">&larr; Volver al inicio</a>
         </div>
-    </div>
+    </header>
 
-    <footer>© <span id="year"></span> Shop SaaS - Todos los derechos reservados</footer>
+    <main class="registro-main">
+        <div class="registro-container registro-layout">
+            <aside class="registro-intro" aria-labelledby="registro-title">
+                <p class="registro-eyebrow"><span aria-hidden="true"></span> Empezá gratis</p>
+                <h1 id="registro-title">Creá tu tienda online.</h1>
+                <p class="registro-intro__lede">En menos de un minuto tenés tu tienda lista para cargar productos. Sin tarjeta, sin permanencia.</p>
+                <div class="registro-intro__rule" aria-hidden="true"></div>
+                <p class="registro-intro__note">Una base clara para mostrar tu marca, vender desde el celular y administrar todo desde un solo lugar.</p>
+                <ul class="registro-proof" aria-label="Beneficios de empezar">
+                    <li><strong>30 días</strong><span>Gratis para probar</span></li>
+                    <li><strong>0</strong><span>Tarjeta requerida</span></li>
+                    <li><strong>1</strong><span>Tienda incluida</span></li>
+                </ul>
+            </aside>
 
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
+            <section class="registro-panel" aria-labelledby="form-title">
+                <div class="registro-panel__intro">
+                    <p class="registro-panel__eyebrow">Tu próximo paso</p>
+                    <h2 id="form-title">Dale un lugar propio a tu negocio.</h2>
+                    <p>Completá tus datos y empezá a personalizar tu tienda.</p>
+                </div>
 
-        // ---------- Utilidades ----------
-        function slugDesdeNombre(nombre) {
-            return nombre
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '')
-                .trim()
-                .replace(/[\s_]+/g, '-')
-                .replace(/-+/g, '-')
-                .replace(/^-+|-+$/g, '');
-        }
+                <div class="error-box" id="errorBox" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
 
-        function setUrlPreview() {
-            const nombre = document.getElementById('nombre').value;
-            const slugInput = document.getElementById('slug').value.trim();
-            const slug = slugInput || slugDesdeNombre(nombre) || 'tu-tienda';
-            const host = window.location.host;
-            document.getElementById('urlPreview').textContent = host + '/' + slug + '/';
-        }
+                <form id="registroForm" novalidate autocomplete="on">
+                    <div class="input-group">
+                        <label for="nombre">Nombre de tu tienda</label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej: Deportes Rodríguez" maxlength="60" required aria-describedby="nombreHelp">
+                        <p class="hint" id="nombreHelp">Lo vas a poder cambiar después desde Personalizar.</p>
+                    </div>
 
-        function mostrarError(msg) {
-            const box = document.getElementById('errorBox');
-            box.textContent = msg;
-            box.classList.add('show');
-        }
+                    <div class="input-group">
+                        <label for="slug">Dirección web <span class="opcional">(opcional)</span></label>
+                        <input type="text" id="slug" name="slug" placeholder="deportes-rodriguez" maxlength="63" autocomplete="off" aria-describedby="slugHint">
+                        <p class="hint" id="slugHint" aria-live="polite">Tu tienda quedará en <span class="url" id="urlPreview">tu-dominio.com/tu-tienda/</span></p>
+                    </div>
 
-        function limpiarError() {
-            document.getElementById('errorBox').classList.remove('show');
-        }
+                    <div class="input-group">
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email" name="email" placeholder="Ej: juan@correo.com" maxlength="120" required autocomplete="email" aria-describedby="emailHelp">
+                        <p class="hint" id="emailHelp">Lo usamos para recuperar tu contraseña si la olvidás. No lo compartimos con nadie.</p>
+                    </div>
 
-        // ---------- Mostrar / ocultar contraseña (ojo) ----------
-        const passwordInput = document.getElementById('password');
-        const togglePassword = document.getElementById('togglePassword');
-        togglePassword.addEventListener('click', () => {
-            const mostrar = passwordInput.type === 'password';
-            passwordInput.type = mostrar ? 'text' : 'password';
-            togglePassword.setAttribute('aria-pressed', String(mostrar));
-            togglePassword.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
-            document.getElementById('iconEye').classList.toggle('visible', mostrar);
-            document.getElementById('iconEyeOff').classList.toggle('visible', !mostrar);
-            passwordInput.focus();
-        });
+                    <div class="input-group">
+                        <label for="usuario">Usuario</label>
+                        <input type="text" id="usuario" name="usuario" placeholder="Ej: juanperez" maxlength="30" required autocomplete="username" aria-describedby="usuarioHelp">
+                        <p class="hint" id="usuarioHelp">Lo usás para entrar al panel de administración.</p>
+                    </div>
 
-        // ---------- Slug en vivo (nombre → slug sugerido) ----------
-        let slugTocado = false;
-        document.getElementById('nombre').addEventListener('input', () => {
-            if (!slugTocado) {
-                document.getElementById('slug').value = slugDesdeNombre(document.getElementById('nombre').value);
-            }
-            setUrlPreview();
-        });
-        document.getElementById('slug').addEventListener('input', () => {
-            slugTocado = true;
-            setUrlPreview();
-            validarSlug();
-        });
-        document.getElementById('slug').addEventListener('blur', () => {
-            if (!document.getElementById('slug').value.trim()) slugTocado = false;
-        });
+                    <div class="input-group">
+                        <label for="password">Contraseña</label>
+                        <div class="password-wrap">
+                            <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" minlength="6" required autocomplete="new-password" aria-describedby="passwordHelp">
+                            <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false">
+                                <svg id="iconEye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                <svg id="iconEyeOff" class="visible" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                            </button>
+                        </div>
+                        <p class="hint" id="passwordHelp">Nadie puede verla. Guardala en un lugar seguro.</p>
+                    </div>
 
-        // Validación en vivo del slug contra el backend
-        let timerSlug = null;
-        function validarSlug() {
-            const slug = document.getElementById('slug').value.trim();
-            const hint = document.getElementById('slugHint');
-            if (!slug) {
-                hint.className = 'hint';
-                hint.innerHTML = 'Tu tienda quedará en <span class="url" id="urlPreview">tu-dominio.com/tu-tienda/</span>';
-                setUrlPreview();
-                return;
-            }
-            clearTimeout(timerSlug);
-            timerSlug = setTimeout(async () => {
-                try {
-                    const resp = await fetch('/api/saas/disponibilidad?slug=' + encodeURIComponent(slug));
-                    const data = await resp.json();
-                    if (!data.valido || data.reservado) {
-                        hint.className = 'hint error';
-                        hint.textContent = 'Ese identificador no está disponible o está reservado.';
-                    } else if (!data.disponible) {
-                        hint.className = 'hint error';
-                        hint.textContent = 'Ese identificador ya está en uso.';
-                    } else {
-                        hint.className = 'hint ok';
-                        hint.textContent = '¡Disponible! Tu tienda quedará en /' + slug + '/';
-                    }
-                } catch (e) {
-                    hint.className = 'hint';
-                    hint.textContent = '';
-                }
-            }, 350);
-        }
+                    <button type="submit" class="registro-submit" id="btnCrear">Crear mi tienda gratis</button>
+                </form>
 
-        // ---------- Envío del formulario ----------
-        document.getElementById('registroForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            limpiarError();
+                <p class="legal">Al crearla aceptás los <a href="/terminos.html">Términos del servicio</a> y la <a href="/privacidad.html">Política de privacidad</a>.</p>
 
-            const nombre = document.getElementById('nombre').value.trim();
-            const slug = document.getElementById('slug').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const usuario = document.getElementById('usuario').value.trim();
-            const password = document.getElementById('password').value;
+                <div class="login-link">
+                    ¿Ya tenés una tienda? <a href="/admin/login.html" id="linkLogin">Ingresá a tu panel</a>
+                </div>
+            </section>
+        </div>
+    </main>
 
-            if (!nombre) { mostrarError('Ingresá el nombre de tu tienda.'); return; }
-            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { mostrarError('Ingresá un correo electrónico válido.'); return; }
-            if (!usuario) { mostrarError('Ingresá un nombre de usuario.'); return; }
-            if (password.length < 6) { mostrarError('La contraseña debe tener al menos 6 caracteres.'); return; }
+    <footer class="registro-footer">© <span id="year"></span> Shop SaaS · Una plataforma multitienda para vender online.</footer>
 
-            const btn = document.getElementById('btnCrear');
-            btn.disabled = true;
-            btn.textContent = 'Creando tu tienda…';
-
-            try {
-                const resp = await fetch('/api/saas/registro', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, slug, usuario, email, password })
-                });
-                const data = await resp.json();
-
-                if (!resp.ok || data.error) {
-                    mostrarError(data.error || 'No se pudo crear tu tienda. Intentá de nuevo.');
-                    btn.disabled = false;
-                    btn.textContent = 'Crear mi tienda gratis';
-                    return;
-                }
-
-                // Éxito: la sesión ya quedó iniciada. Ir al dashboard de la tienda.
-                window.location.href = '/' + data.tiendaSlug + '/admin/dashboard.html';
-            } catch (err) {
-                mostrarError('Error de conexión. Revisá tu internet e intentá de nuevo.');
-                btn.disabled = false;
-                btn.textContent = 'Crear mi tienda gratis';
-            }
-        });
-    </script>
+    <script src="/js/registro.js"></script>
 </body>
 </html>

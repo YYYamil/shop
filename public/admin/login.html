@@ -572,22 +572,45 @@
 
     </style>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/login.css">
+
 </head>
 
-<body>
+<body class="login-page">
 
     <!-- Decoración -->
 
     <div class="bg-blur blur-1"></div>
     <div class="bg-blur blur-2"></div>
 
-    <!-- Card -->
+    <main class="login-shell">
+        <aside class="login-showcase" aria-label="Shop SaaS">
+            <a class="login-brand" href="/" aria-label="Shop SaaS, volver al inicio">
+                <span class="login-brand__mark" aria-hidden="true">S</span>
+                <span>Shop SaaS</span>
+            </a>
+            <div class="login-showcase__content">
+                <p class="login-eyebrow">Panel de tu tienda</p>
+                <h2>Volvé a donde pasa <em>todo.</em></h2>
+                <p class="login-showcase__copy">Administrá productos, pedidos y la identidad de tu tienda desde un solo lugar.</p>
+            </div>
+            <ul class="login-proof" aria-label="Beneficios del panel">
+                <li>Catálogo y stock</li>
+                <li>Pedidos y pagos</li>
+                <li>Tu marca siempre presente</li>
+            </ul>
+        </aside>
 
-    <div class="login-card" id="loginCard">
+        <!-- Card -->
 
-        <div class="login-logo">
+        <div class="login-card" id="loginCard">
 
-            🛍️
+        <div class="login-logo" aria-hidden="true">
+
+            S
 
         </div>
 
@@ -621,7 +644,7 @@
                     autocomplete="username"
                 >
                 <p class="hint-detalle">
-                    Escribí tu usuario y te mostramos tu tienda automáticamente.
+                    Escribí tu usuario y presioná Enter o Buscar mi tienda para encontrar tu tienda.
                 </p>
 
             </div>
@@ -745,13 +768,14 @@
 
         <div class="login-error" id="loginError"></div>
 
-        <div class="login-footer">
+            <div class="login-footer">
 
-            Mi Shop Admin © 2026
+                Mi Shop Admin © 2026
+
+            </div>
 
         </div>
-
-    </div>
+    </main>
 
     <script src="/js/storeContext.js"></script>
     <script>
@@ -1020,20 +1044,17 @@
             detectarTienda();
         }
 
-        var timerBuscar = null;
+        // La búsqueda NO se dispara automáticamente mientras se tipea: eso
+        // buscaba con el usuario incompleto y mostraba error antes de terminar
+        // de escribir. Solo se detecta la tienda al presionar Enter o el botón.
         inputUsuario.addEventListener('input', function () {
             limpiarError();
             limpiarResultado();
+            btnBuscar.disabled = this.value.trim().length < 2;
+        });
 
-            var val = this.value.trim();
-            if (val.length < 2) {
-                btnBuscar.disabled = true;
-                return;
-            }
-            btnBuscar.disabled = false;
-
-            clearTimeout(timerBuscar);
-            timerBuscar = setTimeout(detectarTienda, 600);
+        inputUsuario.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') btnPrincipalClick();
         });
 
         inputSlugManual.addEventListener('keydown', function (e) {

@@ -9,8 +9,10 @@
 //   - Open Graph y Twitter Card
 // Además expone la generación de /robots.txt y /sitemap.xml dinámicos.
 //
-// NO usa motor de plantillas: lee public/index.html (archivo estático) e
-// inyecta el bloque SEO dentro del <head> reemplazando el marcador <!--SEO_HEAD-->.
+// NO usa motor de plantillas: lee el archivo estático de la plantilla activa
+// (public/index.html por defecto, o public/templates/<plantilla>.html si la
+// tienda eligió otra) e inyecta el bloque SEO dentro del <head> reemplazando
+// el marcador <!--SEO_HEAD-->.
 // Todos los textos inyectados se escapan para evitar XSS/inyección HTML.
 
 const db = require('../database/db');
@@ -19,7 +21,15 @@ const path = require('path');
 const { ESTADOS, obtenerEstadoTienda } = require('../utils/saasUtils');
 
 const INDEX_HTML_PATH = path.join(__dirname, '..', 'public', 'index.html');
+const TEMPLATES_DIR = path.join(__dirname, '..', 'public', 'templates');
 const MARCA_SEO_HEAD = '<!--SEO_HEAD-->';
+
+// Plantillas visuales disponibles. Solo estas claves son aceptadas (valores
+// validados: evita path traversal y valores inventados).
+const TEMPLATES_DISPONIBLES = {
+    moderna: true,
+    comercial: true,
+};
 
 // Claves sensibles que jamás deben salir hacia el HTML
 const SECRET_CONFIG_KEYS = new Set([
@@ -33,6 +43,31 @@ const SECRET_CONFIG_KEYS = new Set([
 
 let cacheIndexHTML = null;
 let cacheIndexMtime = null;
+
+// Caché por archivo de plantilla (invalida al cambiar el mtime del archivo)
+const cachePlantillas = new Map();
+function obtenerHTMLPlantilla(rutaArchivo) {
+    const stat = fs.statSync(rutaArchivo);
+    const entrada = cachePlantillas.get(rutaArchivo);
+    if (!entrada || entrada.mtime !== stat.mtimeMs) {
+        cachePlantillas.set(rutaArchivo, {
+            mtime: stat.mtimeMs,
+            html: fs.readFileSync(rutaArchivo, 'utf8'),
+        });
+    }
+    return cachePlantillas.get(rutaArchivo).html;
+}
+
+// Resuelve qué archivo HTML se usa para la home según la config de la tienda.
+// Valor vacío o no reconocido → public/index.html (fallback: apariencia actual).
+function resolverRutaTemplate(config) {
+    const plantilla = String(config.plantilla || '').trim();
+    if (TEMPLATES_DISPONIBLES[plantilla]) {
+        const ruta = path.join(TEMPLATES_DIR, plantilla + '.html');
+        if (fs.existsSync(ruta)) return ruta;
+    }
+    return INDEX_HTML_PATH;
+}
 
 /* ============================================
    HELPERS
@@ -503,7 +538,7 @@ function renderizarTienda(req, res, next, slug) {
         }
 
         const config = obtenerConfig(tienda.id);
-        const htmlBase = obtenerIndexHTML();
+        const htmlBase = obtenerHTMLPlantilla(resolverRutaTemplate(config));
 
         // Quitar el <title> estático genérico (lo reemplaza el bloque SEO)
         let html = htmlBase.replace(/<title[^>]*>[\s\S]*?<\/title>/i, '');

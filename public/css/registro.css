@@ -1,0 +1,112 @@
+:root {
+    --ink: #111827;
+    --ink-soft: #273244;
+    --paper: #f7f5ef;
+    --white: #fffdf8;
+    --muted: #667085;
+    --line: #dddcd4;
+    --lime: #d9f75a;
+    --green: #3c8b54;
+    --green-soft: #e6eee4;
+    --danger: #b42318;
+    --danger-soft: #fff1f0;
+    --success: #247a42;
+    --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-display: 'Sora', var(--font-body);
+    --container-auth: 1120px;
+    --field-height: 50px;
+    --touch-target: 44px;
+    --radius-panel: 18px;
+    --radius-field: 10px;
+    --shadow-panel: 0 22px 50px rgba(17, 24, 39, .11);
+    --ease-out: cubic-bezier(.22, .61, .36, 1);
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; }
+body { min-width: 320px; min-height: 100vh; margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+.registro-container { width: min(var(--container-auth), calc(100% - 36px)); margin-inline: auto; }
+.registro-header { border-bottom: 1px solid rgba(17, 24, 39, .12); background: rgba(247, 245, 239, .94); backdrop-filter: blur(14px); }
+.registro-header__inner { display: flex; min-height: 68px; align-items: center; justify-content: space-between; gap: 16px; }
+.registro-brand { display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -.05em; text-decoration: none; white-space: nowrap; }
+.registro-brand__mark { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 8px; background: var(--ink); color: var(--lime); font-size: 13px; }
+.registro-back { min-height: var(--touch-target); display: inline-flex; align-items: center; color: #596273; font-size: 12px; font-weight: 600; text-decoration: none; }
+.registro-back:hover { color: var(--ink); }
+
+.registro-main { padding-block: 28px 54px; }
+.registro-layout { display: grid; gap: 16px; }
+.registro-intro { display: flex; min-height: 390px; flex-direction: column; padding: 28px 24px 24px; border-radius: var(--radius-panel); background: var(--ink); color: #fff; overflow: hidden; position: relative; }
+.registro-intro::after { position: absolute; right: -80px; bottom: -105px; width: 240px; height: 240px; border-radius: 50%; background: rgba(217, 247, 90, .13); content: ''; }
+.registro-eyebrow, .registro-panel__eyebrow { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--lime); font-size: 10px; font-weight: 700; letter-spacing: .17em; line-height: 1.3; text-transform: uppercase; }
+.registro-eyebrow span { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--lime); }
+.registro-intro h1 { max-width: 520px; margin: 26px 0 16px; font-family: var(--font-display); font-size: clamp(40px, 12vw, 66px); letter-spacing: -.07em; line-height: .98; }
+.registro-intro__lede { max-width: 470px; margin: 0; color: #c6cfdb; font-size: 16px; line-height: 1.55; }
+.registro-intro__rule { width: 100%; height: 1px; margin: 30px 0 18px; background: rgba(255, 255, 255, .2); }
+.registro-intro__note { max-width: 440px; margin: 0; color: #aeb8c7; font-size: 13px; }
+.registro-proof { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0; margin: auto 0 0; list-style: none; }
+.registro-proof li { display: grid; gap: 3px; min-width: 0; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .2); }
+.registro-proof strong { font-family: var(--font-display); font-size: 20px; letter-spacing: -.06em; }
+.registro-proof span { color: #aeb8c7; font-size: 10px; line-height: 1.3; }
+
+.registro-panel { padding: 26px 20px 24px; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--white); box-shadow: var(--shadow-panel); }
+.registro-panel__intro { margin-bottom: 25px; }
+.registro-panel__eyebrow { color: var(--green); }
+.registro-panel h2 { margin: 14px 0 8px; font-family: var(--font-display); font-size: clamp(27px, 7vw, 38px); letter-spacing: -.065em; line-height: 1.05; }
+.registro-panel__intro > p:last-child { margin: 0; color: var(--muted); font-size: 14px; }
+
+.error-box { padding: 12px 14px; margin-bottom: 18px; border: 1px solid #f2b8b5; border-radius: 10px; background: var(--danger-soft); color: var(--danger); font-size: 13px; font-weight: 600; line-height: 1.45; }
+.input-group { margin-bottom: 17px; }
+.input-group label { display: block; margin-bottom: 7px; color: var(--ink); font-size: 13px; font-weight: 700; }
+.input-group label .opcional { color: var(--muted); font-weight: 500; }
+.input-group input { width: 100%; min-height: var(--field-height); padding: 12px 14px; border: 1px solid #cfd2cf; border-radius: var(--radius-field); background: #fff; color: var(--ink); font-size: 16px; transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+.input-group input::placeholder { color: #8b929d; }
+.input-group input:hover { border-color: #9da5af; }
+.input-group input:focus { border-color: var(--ink); background: #fff; box-shadow: 0 0 0 4px rgba(217, 247, 90, .42); outline: 0; }
+.input-group input[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 4px rgba(180, 35, 24, .12); }
+.password-wrap { position: relative; }
+.password-wrap input { padding-right: 52px; }
+.toggle-password { position: absolute; top: 50%; right: 5px; display: flex; width: 40px; height: 40px; align-items: center; justify-content: center; padding: 8px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; transform: translateY(-50%); }
+.toggle-password:hover { background: var(--green-soft); color: var(--ink); }
+.toggle-password svg { display: none; width: 20px; height: 20px; }
+.toggle-password svg.visible { display: block; }
+.hint { min-height: 18px; margin: 6px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.hint .url { color: var(--ink); font-weight: 600; }
+.hint.ok { color: var(--success); font-weight: 600; }
+.hint.error { color: var(--danger); font-weight: 600; }
+
+.registro-submit { display: inline-flex; width: 100%; min-height: 52px; align-items: center; justify-content: center; padding: 14px 18px; margin-top: 5px; border: 1px solid transparent; border-radius: 999px; background: var(--lime); color: var(--ink); font-size: 14px; font-weight: 800; line-height: 1.2; cursor: pointer; transition: transform .2s var(--ease-out), background-color .2s ease, box-shadow .2s ease; }
+.registro-submit:hover { background: #c8ea43; box-shadow: 0 12px 24px rgba(17, 24, 39, .12); transform: translateY(-2px); }
+.registro-submit:disabled { background: #bdc6b4; color: #536071; cursor: not-allowed; box-shadow: none; transform: none; }
+.legal { margin: 18px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; text-align: center; }
+.legal a, .login-link a { color: var(--ink); font-weight: 700; text-underline-offset: 3px; }
+.legal a:hover, .login-link a:hover { color: var(--green); }
+.login-link { padding-top: 18px; margin-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; text-align: center; }
+
+.registro-footer { padding: 23px 18px; color: #7b8491; font-size: 11px; text-align: center; }
+
+@media (min-width: 700px) {
+    .registro-container { width: min(var(--container-auth), calc(100% - 64px)); }
+    .registro-main { padding-block: 48px 80px; }
+    .registro-intro { padding: 40px 36px 32px; }
+    .registro-panel { padding: 36px 34px 30px; }
+}
+
+@media (min-width: 940px) {
+    .registro-header__inner { min-height: 76px; }
+    .registro-main { display: flex; align-items: center; min-height: calc(100vh - 132px); }
+    .registro-layout { width: 100%; grid-template-columns: minmax(0, .88fr) minmax(460px, .72fr); gap: 42px; align-items: stretch; }
+    .registro-intro { min-height: 650px; padding: 52px 46px 42px; }
+    .registro-intro h1 { font-size: clamp(52px, 5vw, 76px); }
+    .registro-panel { padding: 42px 42px 32px; }
+    .registro-panel__intro { margin-bottom: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
