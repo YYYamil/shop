@@ -1,6 +1,7 @@
 const db = require('../database/db');
 const fs = require('fs');
 const path = require('path');
+const { DEFAULT_CONFIG_ROWS } = require('../utils/defaultConfig');
 
 const SECRET_CONFIG_KEYS = new Set([
     'mp_access_token',
@@ -76,8 +77,33 @@ exports.getConfigBySlug = (req, res) => {
 exports.getConfigAdmin = (req, res) => {
     try {
         const tiendaId = req.tiendaId || 1;
-        const rows = db.prepare('SELECT * FROM configuracion WHERE tienda_id = ? ORDER BY grupo, clave').all(tiendaId);
-        res.json(rows.filter(row => !SECRET_CONFIG_KEYS.has(row.clave)));
+        const rows = db.prepare('SELECT clave, valor, tipo, grupo FROM configuracion WHERE tienda_id = ?').all(tiendaId);
+        const presentes = new Set(rows.map(r => r.clave));
+
+        const combinado = [...rows];
+
+        // Claves globales (tienda_id NULL) como respaldo si la tienda aún no tiene fila propia
+        const globals = db.prepare("SELECT clave, valor, tipo, grupo FROM configuracion WHERE tienda_id IS NULL AND clave NOT LIKE 'saas.%'").all();
+        for (const g of globals) {
+            if (!presentes.has(g.clave)) {
+                combinado.push(g);
+                presentes.add(g.clave);
+            }
+        }
+
+        // Defaults del alta de tienda para claves que todavía no existen:
+        // el panel renderiza cada sección según las claves presentes, así que
+        // sin esto las tiendas creadas sin defaultConfig ocultarían secciones.
+        for (const [clave, valor, tipo, grupo] of DEFAULT_CONFIG_ROWS) {
+            if (!presentes.has(clave)) {
+                combinado.push({ clave, valor, tipo, grupo });
+            }
+        }
+
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.json(combinado.filter(row => !SECRET_CONFIG_KEYS.has(row.clave)));
     } catch (err) {
         console.error('Error al obtener configuracion admin:', err.message);
         res.status(500).json({ error: 'Error al obtener configuracion' });
