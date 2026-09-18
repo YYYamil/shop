@@ -1132,29 +1132,51 @@
         // ---------- Inicialización ----------
 
         function cargarDatosDeSlug(slug) {
-            // Pide el nombre real de la tienda para mostrarlo en la tarjeta
+            // Pide los datos reales de la tienda (nombre, estado) para:
+            //   1) mostrar la etiqueta real en la pastilla
+            //   2) validar que el slug existe/está activo (si no, volver a la
+            //      búsqueda con un error claro en vez del confuso
+            //      "Primero elegí tu tienda.")
             fetch('/auth/tiendas-por-usuario?slug=' + encodeURIComponent(slug))
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
-                    if (data.ok && data.tiendas && data.tiendas.length) {
-                        var t = data.tiendas[0];
-                        document.getElementById('pillNombre').textContent = t.nombre;
+                    var t = (data.ok && data.tiendas && data.tiendas.length)
+                        ? data.tiendas[0]
+                        : null;
+
+                    if (!t) {
+                        volverABuscar();
+                        campoSlugManual.style.display = 'block';
+                        inputSlugManual.value = slug;
+                        btnBuscar.disabled = false;
+                        inputSlugManual.focus();
+                        mostrarError('No encontramos la tienda "' + slug + '". Verificá el identificador y probá de nuevo.');
+                        return;
                     }
+
+                    if (t.activo === false) {
+                        volverABuscar();
+                        mostrarError('Tu tienda está suspendida. Renová tu plan para volver a ingresar.');
+                        return;
+                    }
+
+                    if (tiendaSeleccionada) {
+                        tiendaSeleccionada.nombre = t.nombre;
+                        tiendaSeleccionada.activo = t.activo;
+                    }
+                    document.getElementById('pillNombre').textContent = t.nombre;
                 })
-                .catch(function () { /* queda el slug como nombre */ });
+                .catch(function () { /* error de red: queda el slug como nombre */ });
         }
 
         function init() {
             if (slugInicial) {
-                // Llegó desde /:slug/admin/login.html → tienda ya identificada
-                document.getElementById('pillNombre').textContent = slugInicial;
-                document.getElementById('pillUrl').textContent = urlDeTienda(slugInicial);
-
-                pasoBuscar.style.display = 'none';
-                pasoLogin.style.display = 'block';
-                limpiarError();
+                // Llegó desde /:slug/admin/login.html → tienda ya identificada.
+                // irALogin() deja la tienda SELECCIONADA (slug) para que login()
+                // pueda enviar la petición con slug; antes solo se mostraba la
+                // pastilla y el login se cortaba con "Primero elegí tu tienda".
+                irALogin({ slug: slugInicial, nombre: slugInicial, activo: true }, '');
                 cargarDatosDeSlug(slugInicial);
-                inputUsuarioLogin.focus();
             } else {
                 // Login genérico /admin/login.html → buscar la tienda por usuario
                 inputUsuario.focus();

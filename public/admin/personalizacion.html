@@ -683,6 +683,7 @@
                     { value: '', title: 'Clásica', desc: 'El diseño actual de tu tienda', bg: '#ffffff', accent: '#111827' },
                     { value: 'moderna', title: 'Moderna', desc: 'Editorial premium con serif elegante', bg: '#2B2720', accent: '#B08D57' },
                     { value: 'comercial', title: 'Comercial', desc: 'Alta conversión con acento rojo', bg: '#D9362C', accent: '#141414' },
+                    { value: 'mercado', title: 'Mercado', desc: 'Estilo marketplace con acento amarillo', bg: '#FFE600', accent: '#3483FA' },
                 ];
 
                 const cardsContainer = document.createElement('div');
@@ -721,6 +722,8 @@
                         mini.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:14px;background:#fafaf7;border-bottom:1px solid rgba(0,0,0,0.08);"></div><div style="position:absolute;top:18px;left:0;right:0;height:34px;background:linear-gradient(120deg,#2b2720,#1c1915);"></div><div style="position:absolute;top:24px;left:50%;transform:translateX(-50%);width:45%;height:6px;background:' + p.accent + ';border-radius:2px;opacity:0.85;"></div>';
                     } else if (p.value === 'comercial') {
                         mini.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:' + p.bg + ';"></div><div style="position:absolute;top:3px;left:0;right:0;height:11px;background:#ffffff;border-bottom:1px solid #141414;"></div><div style="position:absolute;top:18px;left:0;right:0;height:34px;background:linear-gradient(100deg,#8f1d18,#d9362c);"></div><div style="position:absolute;top:24px;left:12%;width:52%;height:6px;background:#ffffff;border-radius:2px;opacity:0.9;"></div>';
+                    } else if (p.value === 'mercado') {
+                        mini.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;height:16px;background:' + p.bg + ';"></div><div style="position:absolute;top:3px;left:50%;transform:translateX(-50%);width:42%;height:9px;background:#ffffff;border-radius:2px;"></div><div style="position:absolute;top:20px;left:0;right:0;height:8px;background:#ffffff;"></div><div style="position:absolute;top:32px;left:6%;width:38%;height:6px;background:#d1d5db;border-radius:2px;"></div><div style="position:absolute;top:42px;left:6%;width:30%;height:6px;background:' + p.accent + ';border-radius:2px;"></div><div style="position:absolute;top:42px;right:6%;width:12%;height:4px;background:' + p.bg + ';border-radius:2px;"></div>';
                     }
 
                     // Título

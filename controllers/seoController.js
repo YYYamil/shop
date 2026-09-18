@@ -29,6 +29,7 @@ const MARCA_SEO_HEAD = '<!--SEO_HEAD-->';
 const TEMPLATES_DISPONIBLES = {
     moderna: true,
     comercial: true,
+    mercado: true,
 };
 
 // Claves sensibles que jamás deben salir hacia el HTML

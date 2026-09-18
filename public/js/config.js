@@ -48,7 +48,7 @@ async function cargarConfiguracion() {
  * compartida y lo recibe desde la configuración de la tienda activa.
  */
 function aplicarPlantilla(config) {
-    const permitidas = new Set(['moderna', 'comercial']);
+    const permitidas = new Set(['moderna', 'comercial', 'mercado']);
     const plantilla = String(config.plantilla || '').trim();
     if (!document.body || !permitidas.has(plantilla)) return;
     document.body.dataset.storeTemplate = plantilla;
@@ -384,7 +384,10 @@ async function renderizarCategorias() {
             return;
         }
 
-        const categorias = await respuesta.json();
+const categorias = await respuesta.json();
+        // Exponer las categorías globalmente para que el grid de productos
+        // pueda reflejar el nombre de la categoría seleccionada en el título.
+        window.__categoriasGlobal = categorias;
         const nombreCategoria = (cat) => cat.nombre_personalizado || cat.nombre;
         const iconoFlecha = '<span class="category-arrow" aria-hidden="true">›</span>';
 

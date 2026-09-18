@@ -669,10 +669,18 @@ function filtrarCategoria(id) {
         btn.classList.remove('activo');
         btn.setAttribute('aria-pressed', 'false');
     });
-    // Activar botón correspondiente: data-cat-id="0" para Todos, o el ID real.
+// Activar botón correspondiente: data-cat-id="0" para Todos, o el ID real.
     document.querySelectorAll(`[data-category-surface] button[data-cat-id="${id}"], #categorias button[data-cat-id="${id}"], #menuCategorias button[data-cat-id="${id}"]`).forEach(btn => {
         btn.classList.add('activo');
         btn.setAttribute('aria-pressed', 'true');
+    });
+
+    // Actualizar el encabezado del catálogo con la categoría seleccionada.
+    // Si no hay nombre disponible, vuelve al texto genérico "Todos los productos".
+    const categoriaSel = (window.__categoriasGlobal || []).find(c => c.id === id);
+    const nombreCat = categoriaSel ? (categoriaSel.nombre_personalizado || categoriaSel.nombre) : null;
+    document.querySelectorAll('#catalogo-title, #productos-title').forEach(h => {
+        h.textContent = nombreCat ? nombreCat : 'Todos los productos';
     });
 
     // Activar animación de entrada en las cards al cambiar de categoría
