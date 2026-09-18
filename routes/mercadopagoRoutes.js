@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const mercadopagoController = require('../controllers/mercadopagoController');
 
 router.get('/status', mercadopagoController.getStatus);
+router.get('/account', authMiddleware, mercadopagoController.getAccountInfo);
 router.get('/connect', authMiddleware, mercadopagoController.connect);
 router.post('/disconnect', authMiddleware, mercadopagoController.disconnect);
 

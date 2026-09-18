@@ -7,6 +7,7 @@ const MP_AUTH_URL = 'https://auth.mercadopago.com/authorization';
 const MP_TOKEN_URL = 'https://api.mercadopago.com/oauth/token';
 const MP_PAYMENTS_URL = 'https://api.mercadopago.com/v1/payments';
 const MP_PREFERENCES_URL = 'https://api.mercadopago.com/checkout/preferences';
+const MP_USERS_ME_URL = 'https://api.mercadopago.com/users/me';
 
 function getAppId() {
     return process.env.MP_CLIENT_ID || process.env.MP_APP_ID || '';
@@ -95,6 +96,38 @@ function getMercadoPagoCredentials(tiendaId) {
         userId: config.mp_user_id || '',
         tokenExpiresAt: config.mp_token_expires_at ? Number(config.mp_token_expires_at) : 0,
     };
+}
+
+/**
+ * Consulta los datos públicos de la cuenta de Mercado Pago del dueño
+ * usando el access_token de la tienda (GET /users/me). Devuelve null si
+ * el token no es válido o la API responde con error.
+ */
+async function fetchMercadoPagoAccount(accessToken) {
+    if (!accessToken) return null;
+
+    try {
+        const response = await fetch(MP_USERS_ME_URL, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const data = await response.json();
+        return {
+            id: data.id != null ? String(data.id) : null,
+            nickname: data.nickname || '',
+            firstName: data.first_name || '',
+            lastName: data.last_name || '',
+            email: data.email || '',
+            userType: data.user_type || '',
+        };
+    } catch (err) {
+        console.error('[MP] Error al consultar /users/me:', err.message);
+        return null;
+    }
 }
 
 /**
@@ -278,6 +311,46 @@ exports.getStatus = (req, res) => {
     } catch (err) {
         console.error('Error al obtener estado de Mercado Pago:', err.message);
         res.status(500).json({ error: 'Error al obtener estado de Mercado Pago' });
+    }
+};
+
+// GET /api/mercadopago/account - requiere sesión de admin de la tienda.
+// Devuelve los datos de la cuenta de Mercado Pago conectada para que el
+// dueño de la tienda verifique que es SU cuenta la que cobra los pedidos.
+exports.getAccountInfo = async (req, res) => {
+    try {
+        const tienda = getTiendaFromRequest(req);
+        if (!tienda) {
+            return res.status(404).json({ error: 'Tienda no encontrada' });
+        }
+
+        let creds = getMercadoPagoCredentials(tienda.id);
+        if (!creds.accessToken) {
+            return res.json({ ok: true, conectado: false });
+        }
+
+        let account = await fetchMercadoPagoAccount(creds.accessToken);
+
+        const tokenStatus = getTokenStatus(tienda.id);
+        if (!account && tokenStatus === 'expirado') {
+            const refrescado = await refreshMercadoPagoToken(tienda.id);
+            if (refrescado) {
+                creds = getMercadoPagoCredentials(tienda.id);
+                account = await fetchMercadoPagoAccount(creds.accessToken);
+            }
+        } else if (tokenStatus === 'proximo_a_vencer') {
+            refreshMercadoPagoToken(tienda.id).catch(() => {});
+        }
+
+        res.json({
+            ok: true,
+            conectado: Boolean(creds.accessToken),
+            userId: creds.userId || (account ? account.id : null) || null,
+            account,
+        });
+    } catch (err) {
+        console.error('Error al obtener datos de la cuenta de Mercado Pago:', err.message);
+        res.status(500).json({ error: 'Error al obtener datos de la cuenta de Mercado Pago' });
     }
 };
 

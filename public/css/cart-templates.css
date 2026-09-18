@@ -348,30 +348,68 @@ body[data-store-template="moderna"] .carrito-vacio .btn-ir-tienda {
 
 body[data-store-template="moderna"] .footer {
     margin-top: 0;
-    padding: 56px clamp(20px, 5vw, 72px) 20px;
+    padding: 60px clamp(20px, 5vw, 72px) 22px;
     color: var(--cart-moderna-ink);
     background: var(--cart-moderna-paper);
     border-top: 1px solid var(--cart-moderna-line);
 }
 
-body[data-store-template="moderna"] .footer-brand h2 {
-    color: var(--cart-moderna-ink);
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 32px;
-    font-weight: 500;
+/* Replica del footer de la home de la plantilla "Moderna" */
+body[data-store-template="moderna"] .footer-content {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 32px;
+    width: min(1440px, 100%);
+    margin: 0 auto;
 }
 
-body[data-store-template="moderna"] .footer-brand p,
-body[data-store-template="moderna"] .footer-bottom {
+body[data-store-template="moderna"] .footer-brand h2 {
+    margin: 0 0 8px;
+    color: var(--cart-moderna-ink);
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 35px;
+    font-weight: 500;
+    line-height: 1;
+}
+
+/* Mismo kicker que el footer de la home de la plantilla "Moderna". */
+body[data-store-template="moderna"] .footer-brand h2::before {
+    display: block;
+    margin-bottom: 10px;
     color: var(--cart-moderna-muted);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    content: 'Hecho para durar';
+}
+
+body[data-store-template="moderna"] .footer-brand p {
+    max-width: 370px;
+    margin: 0;
+    color: var(--cart-moderna-muted);
+    font-size: 13px;
+}
+
+body[data-store-template="moderna"] .footer-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
 }
 
 body[data-store-template="moderna"] .social-btn {
     width: auto;
     height: auto;
     color: var(--cart-moderna-muted);
+    background: transparent;
     border: 0;
     border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    text-decoration: none;
 }
 
 body[data-store-template="moderna"] .social-btn svg {
@@ -382,6 +420,22 @@ body[data-store-template="moderna"] .social-btn .social-label {
     font-size: 11px;
     letter-spacing: .14em;
     text-transform: uppercase;
+}
+
+body[data-store-template="moderna"] .social-btn:hover {
+    color: var(--cart-moderna-ink);
+    transform: none;
+    box-shadow: none;
+}
+
+body[data-store-template="moderna"] .footer-bottom {
+    width: min(1440px, 100%);
+    margin: 46px auto 0;
+    padding-top: 15px;
+    color: rgba(25, 23, 21, .42);
+    border-top: 1px solid var(--cart-moderna-line);
+    font-size: 11px;
+    text-align: right;
 }
 
 /* Comercial / retail cart */
@@ -726,13 +780,24 @@ body[data-store-template="comercial"] .carrito-vacio .btn-ir-tienda {
 
 body[data-store-template="comercial"] .footer {
     margin-top: 0;
-    padding: 42px clamp(18px, 3vw, 42px) 18px;
+    padding: 42px 24px 18px;
     color: var(--cart-comercial-paper);
     background: var(--cart-comercial-ink);
     border-top: 4px solid var(--cart-comercial-red);
 }
 
+/* Replica del footer de la home de la plantilla "Comercial" */
+body[data-store-template="comercial"] .footer-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 30px;
+    width: min(1560px, 100%);
+    margin: 0 auto;
+}
+
 body[data-store-template="comercial"] .footer-brand h2 {
+    margin: 0 0 7px;
     color: var(--cart-comercial-paper);
     font-family: 'Oswald', Impact, sans-serif;
     font-size: 28px;
@@ -741,17 +806,43 @@ body[data-store-template="comercial"] .footer-brand h2 {
     text-transform: uppercase;
 }
 
-body[data-store-template="comercial"] .footer-brand p,
-body[data-store-template="comercial"] .footer-bottom {
-    color: rgba(244, 240, 227, .7);
+/* Mismo kicker que el footer de la home de la plantilla "Comercial". */
+body[data-store-template="comercial"] .footer-brand h2::before {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--cart-comercial-yellow);
+    font-family: 'Oswald', Impact, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: .19em;
+    text-transform: uppercase;
+    content: 'Compra simple, rápida y clara';
+}
+
+body[data-store-template="comercial"] .footer-brand p {
+    max-width: 410px;
+    margin: 0;
+    color: rgba(244, 240, 227, .72);
+    font-size: 14px;
+}
+
+body[data-store-template="comercial"] .footer-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 23px;
 }
 
 body[data-store-template="comercial"] .social-btn {
     width: auto;
     height: auto;
     color: var(--cart-comercial-paper);
+    background: transparent;
     border: 0;
     border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    text-decoration: underline;
 }
 
 body[data-store-template="comercial"] .social-btn svg {
@@ -760,7 +851,22 @@ body[data-store-template="comercial"] .social-btn svg {
 
 body[data-store-template="comercial"] .social-btn .social-label {
     font-size: 13px;
-    text-decoration: underline;
+}
+
+body[data-store-template="comercial"] .social-btn:hover {
+    color: var(--cart-comercial-yellow);
+    transform: none;
+    box-shadow: none;
+}
+
+body[data-store-template="comercial"] .footer-bottom {
+    width: min(1560px, 100%);
+    margin: 28px auto 0;
+    padding-top: 13px;
+    color: rgba(244, 240, 227, .5);
+    border-top: 1px solid rgba(244, 240, 227, .16);
+    font-size: 12px;
+    text-align: left;
 }
 
 /* Mercado Pago instructions keep the existing IDs and actions but inherit the
@@ -1243,8 +1349,22 @@ body[data-store-template="mercado"] .mp-modal-header h2 {
 }
 
 @media (max-width: 768px) {
+    body[data-store-template="moderna"] .footer-content,
+    body[data-store-template="comercial"] .footer-content,
     body[data-store-template="mercado"] .footer-content {
         flex-direction: column;
+    }
+
+    body[data-store-template="moderna"] .footer-content {
+        align-items: flex-start;
+    }
+
+    body[data-store-template="moderna"] .footer-social {
+        gap: 16px;
+    }
+
+    body[data-store-template="moderna"] .footer-bottom {
+        text-align: left;
     }
 }
 

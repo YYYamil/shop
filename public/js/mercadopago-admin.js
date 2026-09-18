@@ -45,6 +45,56 @@
         }
     }
 
+    function ocultarCuenta() {
+        const bloque = document.getElementById('mpBloqueCuenta');
+        const info = document.getElementById('mpCuentaInfo');
+        if (bloque) bloque.style.display = 'none';
+        if (info) info.innerHTML = '';
+    }
+
+    async function mostrarCuenta() {
+        const bloque = document.getElementById('mpBloqueCuenta');
+        const info = document.getElementById('mpCuentaInfo');
+        if (!bloque || !info) return;
+
+        const slug = obtenerSlugActual();
+        const url = slug ? '/api/mercadopago/account?slug=' + slug : '/api/mercadopago/account';
+
+        try {
+            const respuesta = await fetch(url, { credentials: 'same-origin' });
+            const data = await respuesta.json().catch(() => ({}));
+
+            if (!respuesta.ok || !data || data.ok !== true || !data.conectado) {
+                ocultarCuenta();
+                return;
+            }
+
+            const acc = data.account || {};
+            const lineas = [];
+
+            if (acc.nickname) lineas.push('<strong>' + escapeHtml(acc.nickname) + '</strong>');
+            const titular = [acc.firstName, acc.lastName].filter(Boolean).join(' ');
+            if (titular) lineas.push('Titular: <strong>' + escapeHtml(titular) + '</strong>');
+            if (acc.email) lineas.push('Email: <strong>' + escapeHtml(acc.email) + '</strong>');
+            if (data.userId) lineas.push('ID de usuario en Mercado Pago: <strong>' + escapeHtml(String(data.userId)) + '</strong>');
+
+            info.innerHTML = lineas.length
+                ? lineas.join('<br>')
+                : 'Conectado a una cuenta de Mercado Pago, pero no se pudieron obtener sus datos.';
+
+            bloque.style.display = 'block';
+        } catch (err) {
+            console.error('Error al cargar datos de la cuenta de Mercado Pago:', err);
+            ocultarCuenta();
+        }
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+
     async function cargarEstado() {
         const slug = obtenerSlugActual();
         const url = slug ? '/api/mercadopago/status?slug=' + slug : '/api/mercadopago/status';
@@ -55,13 +105,22 @@
 
             if (!respuesta.ok) {
                 setEstado('no_conectado');
+                ocultarCuenta();
                 return;
             }
 
+            const conectado = data.conectado || data.estadoTexto === 'conectado' || data.estadoTexto === 'proximo_a_vencer';
             setEstado(data.estadoTexto || (data.conectado ? 'conectado' : 'no_conectado'));
+
+            if (conectado) {
+                mostrarCuenta();
+            } else {
+                ocultarCuenta();
+            }
         } catch (err) {
             console.error('Error al cargar estado de Mercado Pago:', err);
             setEstado('no_conectado');
+            ocultarCuenta();
         }
     }
 
