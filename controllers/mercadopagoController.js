@@ -604,7 +604,7 @@ async function ensurePlataformaAccessToken() {
 }
 
 // GET estado de la cuenta global de cobro (solo SuperAdmin)
-exports.getPlataformaMpStatus = (req, res) => {
+exports.getPlataformaMpStatus = async (req, res) => {
     try {
         const creds = getPlataformaCredentials();
         const tieneToken = Boolean(creds.accessToken && creds.publicKey);
@@ -623,11 +623,20 @@ exports.getPlataformaMpStatus = (req, res) => {
             }
         }
 
+        // Datos públicos de la cuenta del SuperAdmin para verificar de quién
+        // es la cuenta de cobro de la mensualidad (GET /users/me con el token).
+        let account = null;
+        if (conectado) {
+            const token = await ensurePlataformaAccessToken();
+            account = token ? await fetchMercadoPagoAccount(token) : null;
+        }
+
         res.json({
             ok: true,
             conectado,
             estadoTexto,
-            userId: creds.userId || null,
+            userId: creds.userId || (account ? account.id : null) || null,
+            account,
             monedaCobro: 'ARS',
         });
     } catch (err) {

@@ -756,6 +756,23 @@ async function cargarEstadoPlataforma() {
         estadoEl.textContent = info.texto + (data.userId ? ' (usuario ' + data.userId + ')' : '') + ' · moneda ARS';
         estadoEl.style.color = info.color;
 
+        const cuentaEl = document.getElementById('mpPlataformaCuenta');
+        if (cuentaEl) {
+            if (data.conectado && data.account) {
+                const lineas = [];
+                if (data.account.nickname) lineas.push('<strong>' + escapeHtml(data.account.nickname) + '</strong>');
+                const titular = [data.account.firstName, data.account.lastName].filter(Boolean).join(' ');
+                if (titular) lineas.push('Titular: <strong>' + escapeHtml(titular) + '</strong>');
+                if (data.account.email) lineas.push('Email: <strong>' + escapeHtml(data.account.email) + '</strong>');
+                if (data.userId) lineas.push('ID de usuario en Mercado Pago: <strong>' + escapeHtml(String(data.userId)) + '</strong>');
+                cuentaEl.innerHTML = lineas.length ? lineas.join('<br>') : 'Cuenta conectada, pero no se pudieron obtener sus datos.';
+                cuentaEl.style.display = 'block';
+            } else {
+                cuentaEl.style.display = 'none';
+                cuentaEl.innerHTML = '';
+            }
+        }
+
         if (data.conectado) {
             const btn = document.createElement('button');
             btn.className = 'btn-secondary';
