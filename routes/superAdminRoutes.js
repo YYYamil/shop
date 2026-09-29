@@ -3,6 +3,7 @@ const router = express.Router();
 
 const superAdminController = require('../controllers/superAdminController');
 const mercadopagoController = require('../controllers/mercadopagoController');
+const cobranzaController = require('../controllers/cobranzaController');
 const authMiddleware = require('../middleware/authMiddleware');
 const superAdminMiddleware = require('../middleware/superAdminMiddleware');
 
@@ -32,6 +33,13 @@ router.get('/backups/:nombre/download', superAdminController.descargarBackup);
 router.get('/mp-plataforma/status', mercadopagoController.getPlataformaMpStatus);
 router.get('/mp-plataforma/connect', mercadopagoController.connectPlataforma);
 router.post('/mp-plataforma/disconnect', mercadopagoController.disconnectPlataforma);
+
+// Cobranza SaaS (BLOQUE 6)
+router.get('/cobranza', cobranzaController.getCobranza);
+router.post('/cobranza/extender', cobranzaController.extenderPlan);
+router.post('/cobranza/ilimitado', cobranzaController.setIlimitado);
+router.post('/cobranza/estado', cobranzaController.manejarEstado);
+router.post('/cobranza/suscripcion/link', mercadopagoController.crearCheckoutSuscripcionAdmin);
 
 // Config SaaS global (BLOQUE 4)
 router.get('/saas-config', superAdminController.getSaasConfig);

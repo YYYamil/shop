@@ -1037,97 +1037,147 @@ exports.crearCheckoutSuscripcionSaaS = async (req, res) => {
             return res.status(400).json({ error: 'La tienda fue desactivada manualmente. Contactá al administrador.' });
         }
 
-        // Token de la cuenta GLOBAL de cobro (SuperAdmin)
-        const accessToken = await ensurePlataformaAccessToken();
-        if (!accessToken) {
-            return res.status(503).json({
-                error: 'El pago online del plan todavía no está disponible. Contactá al administrador.',
-                codigo: 'SAAS_MP_NO_CONFIGURADO',
-            });
-        }
-
-        const meses = 1;
-        const montoArs = parseInt(saasUtils.getGlobalConfig('saas.monto_mensual_ars'), 10);
-        const monto = Number.isInteger(montoArs) && montoArs > 0 ? montoArs : 5000;
-        const planNombre = saasUtils.getGlobalConfig('saas.plan_name') || 'Profesional';
-        const externalReference = `saas:tienda:${tienda.id}`;
         const baseUrl = buildBaseUrl(req, tienda.slug);
-        const notificationBase = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
-
-        // Registro previo (estado pendiente) para trazabilidad e idempotencia
-        const insertPago = db.prepare(`
-            INSERT INTO saas_pagos
-                (tienda_id, plan, monto, moneda, meses, external_reference, preference_id,
-                 payment_id, estado, vencimiento_previo, nueva_fecha_fin)
-            VALUES (?, ?, ?, 'ARS', ?, ?, NULL, NULL, 'pendiente', ?, NULL)
-        `);
-        const vencimientoPrevio = tienda.suscripcion_fin || tienda.trial_fin || null;
-        const saasPagoId = Number(insertPago.run(tiendaId, planNombre.toLowerCase(), monto, meses, externalReference, vencimientoPrevio).lastInsertRowid);
-
-        const payload = {
-            items: [
-                {
-                    title: `Suscripción mensual · ${planNombre}`,
-                    description: 'Mensualidad de tu tienda online (' + tienda.nombre + ')',
-                    quantity: 1,
-                    currency_id: 'ARS',
-                    unit_price: monto,
-                },
-            ],
-            external_reference: externalReference,
-            metadata: {
-                tipo: 'saas',
-                tienda_id: tienda.id,
-                tienda_slug: tienda.slug,
-                saas_pago_id: saasPagoId,
-            },
-            back_urls: {
+        const result = await iniciarCheckoutSuscripcion(tienda, user.usuario || tienda.nombre, {
+            backUrls: {
                 success: `${baseUrl}/admin/dashboard.html?saas=ok`,
                 pending: `${baseUrl}/admin/dashboard.html?saas=pending`,
                 failure: `${baseUrl}/admin/dashboard.html?saas=error`,
             },
-            auto_return: 'approved',
-            binary_mode: true,
-            notification_url: `${notificationBase}/pedidos/webhook/mercadopago`,
-            payer: {
-                name: user.usuario || tienda.nombre,
-            },
-        };
-
-        const response = await fetch(MP_PREFERENCES_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-                'X-Idempotency-Key': crypto.randomUUID(),
-            },
-            body: JSON.stringify(payload),
+            notificationBase: process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`,
         });
 
-        const data = await response.json();
-        if (!response.ok) {
-            // Limpiar el registro pendiente si MP rechazó la preferencia
-            db.prepare('DELETE FROM saas_pagos WHERE id = ?').run(saasPagoId);
-            console.error('[MP-SaaS] Error al crear preferencia de suscripción:', data);
-            return res.status(500).json({ error: 'No se pudo iniciar el pago de la suscripción' });
-        }
-
-        db.prepare('UPDATE saas_pagos SET preference_id = ? WHERE id = ?').run(String(data.id), saasPagoId);
-
-        res.json({
-            ok: true,
-            saasPagoId,
-            preferenceId: data.id,
-            initPoint: data.init_point || data.sandbox_init_point,
-            externalReference,
-            monto,
-            moneda: 'ARS',
-        });
+        return res.json({ ok: true, ...result });
     } catch (err) {
         console.error('[MP-SaaS] Error en crearCheckoutSuscripcionSaaS:', err.message);
-        res.status(500).json({ error: 'No se pudo iniciar el pago de la suscripción' });
+        if (err.codigo === 'SAAS_MP_NO_CONFIGURADO') {
+            return res.status(503).json({ error: err.message, codigo: err.codigo });
+        }
+        return res.status(500).json({ error: 'No se pudo iniciar el pago de la suscripción' });
     }
 };
+
+// POST /api/superadmin/cobranza/suscripcion/link — genera el link de pago de la
+// mensualidad de una tienda (SuperAdmin). El link se le envía al dueño de la
+// tienda para que pague con su medio de pago. Reutiliza el mismo checkout del
+// dueño autenticado (misma cuenta de cobro global y misma fuente de datos).
+exports.crearCheckoutSuscripcionAdmin = async (req, res) => {
+    const tiendaId = parseInt(req.body && req.body.tienda_id, 10);
+    if (!Number.isInteger(tiendaId) || tiendaId <= 0) {
+        return res.status(400).json({ error: 'Falta el id de la tienda' });
+    }
+
+    try {
+        const tienda = db.prepare('SELECT * FROM tiendas WHERE id = ?').get(tiendaId);
+        if (!tienda) {
+            return res.status(404).json({ error: 'Tienda no encontrada' });
+        }
+
+        const baseUrl = buildBaseUrl(req, tienda.slug);
+        const result = await iniciarCheckoutSuscripcion(tienda, tienda.nombre, {
+            backUrls: {
+                success: `${baseUrl}/admin/dashboard.html?saas=ok`,
+                pending: `${baseUrl}/admin/dashboard.html?saas=pending`,
+                failure: `${baseUrl}/admin/dashboard.html?saas=error`,
+            },
+            notificationBase: process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`,
+        });
+
+        return res.json({ ok: true, ...result });
+    } catch (err) {
+        console.error('[MP-SaaS] Error en crearCheckoutSuscripcionAdmin:', err.message);
+        if (err.codigo === 'SAAS_MP_NO_CONFIGURADO') {
+            return res.status(503).json({ error: err.message, codigo: err.codigo });
+        }
+        return res.status(500).json({ error: 'No se pudo generar el link de pago de la suscripción' });
+    }
+};
+
+// Crea la preferencia de pago de la mensualidad para una tienda. Es el núcleo
+// compartido entre el dueño autenticado (crearCheckoutSuscripcionSaaS) y el
+// SuperAdmin (crearCheckoutSuscripcionAdmin). Inserta la fila en saas_pagos
+// (estado 'pendiente'), la completa con la preference_id y devuelve el init_point.
+// Lanza Error con código `SAAS_MP_NO_CONFIGURADO` si la cuenta global no existe.
+async function iniciarCheckoutSuscripcion(tienda, pagadorNombre, opts) {
+    // Token de la cuenta GLOBAL de cobro (SuperAdmin)
+    const accessToken = await ensurePlataformaAccessToken();
+    if (!accessToken) {
+        const err = new Error('El pago online del plan todavía no está disponible. Contactá al administrador.');
+        err.codigo = 'SAAS_MP_NO_CONFIGURADO';
+        throw err;
+    }
+
+    const meses = 1;
+    const montoArs = parseInt(saasUtils.getGlobalConfig('saas.monto_mensual_ars'), 10);
+    const monto = Number.isInteger(montoArs) && montoArs > 0 ? montoArs : 5000;
+    const planNombre = saasUtils.getGlobalConfig('saas.plan_name') || 'Profesional';
+    const externalReference = `saas:tienda:${tienda.id}`;
+
+    // Registro previo (estado pendiente) para trazabilidad e idempotencia
+    const insertPago = db.prepare(`
+        INSERT INTO saas_pagos
+            (tienda_id, plan, monto, moneda, meses, external_reference, preference_id,
+             payment_id, estado, vencimiento_previo, nueva_fecha_fin)
+        VALUES (?, ?, ?, 'ARS', ?, ?, NULL, NULL, 'pendiente', ?, NULL)
+    `);
+    const vencimientoPrevio = tienda.suscripcion_fin || tienda.trial_fin || null;
+    const saasPagoId = Number(insertPago.run(tienda.id, planNombre.toLowerCase(), monto, meses, externalReference, vencimientoPrevio).lastInsertRowid);
+
+    const payload = {
+        items: [
+            {
+                title: `Suscripción mensual · ${planNombre}`,
+                description: 'Mensualidad de tu tienda online (' + tienda.nombre + ')',
+                quantity: 1,
+                currency_id: 'ARS',
+                unit_price: monto,
+            },
+        ],
+        external_reference: externalReference,
+        metadata: {
+            tipo: 'saas',
+            tienda_id: tienda.id,
+            tienda_slug: tienda.slug,
+            saas_pago_id: saasPagoId,
+        },
+        back_urls: opts.backUrls,
+        auto_return: 'approved',
+        binary_mode: true,
+        notification_url: `${opts.notificationBase}/pedidos/webhook/mercadopago`,
+        payer: {
+            name: pagadorNombre,
+        },
+    };
+
+    const response = await fetch(MP_PREFERENCES_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            'X-Idempotency-Key': crypto.randomUUID(),
+        },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        // Limpiar el registro pendiente si MP rechazó la preferencia
+        db.prepare('DELETE FROM saas_pagos WHERE id = ?').run(saasPagoId);
+        console.error('[MP-SaaS] Error al crear preferencia de suscripción:', data);
+        throw new Error('No se pudo iniciar el pago de la suscripción');
+    }
+
+    db.prepare('UPDATE saas_pagos SET preference_id = ? WHERE id = ?').run(String(data.id), saasPagoId);
+
+    return {
+        saasPagoId,
+        preferenceId: data.id,
+        initPoint: data.init_point || data.sandbox_init_point,
+        externalReference,
+        monto,
+        moneda: 'ARS',
+    };
+}
 
 async function fetchPaymentWithAccessToken(paymentId, accessToken) {
     const response = await fetch(`${MP_PAYMENTS_URL}/${paymentId}`, {

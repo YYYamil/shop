@@ -242,6 +242,10 @@
             background: #dbeafe;
             color: #1e40af;
         }
+        .badge-warn {
+            background: #fef3c7;
+            color: #92400e;
+        }
         .badge-plan {
             display: inline-block;
             margin-top: 3px;
@@ -610,6 +614,9 @@
             <div class="nav-item active" data-section="tiendas" onclick="mostrarSeccion('tiendas')">
                 <span class="icon">🏪</span> Tiendas
             </div>
+            <div class="nav-item" data-section="cobranza" onclick="mostrarSeccion('cobranza')">
+                <span class="icon">💰</span> Cobranza
+            </div>
             <div class="nav-item" data-section="backups" onclick="mostrarSeccion('backups')">
                 <span class="icon">💾</span> Backups
             </div>
@@ -668,6 +675,54 @@
                             </tr>
                         </thead>
                         <tbody id="tablaTiendas"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sección Cobranza (BLOQUE 6) -->
+            <div id="seccionCobranza" class="hidden">
+                <div class="stats-grid" id="cobranzaStats" style="margin-bottom:16px;"></div>
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>💰 Cobranza de mensualidades</h3>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <select id="filtroCobranzaEstado" onchange="filtroCobranza()" style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;">
+                                <option value="">Todos los estados</option>
+                                <option value="ilimitado">Ilimitado</option>
+                                <option value="demo">Demo</option>
+                                <option value="activa">Activa</option>
+                                <option value="proxima_a_vencer">Próxima a vencer</option>
+                                <option value="vencida">Vencida</option>
+                                <option value="suspendida">Suspendida</option>
+                            </select>
+                            <input type="text" id="filtroCobranzaBusqueda" placeholder="Buscar tienda…"
+                                oninput="filtroCobranza()"
+                                style="padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;min-width:180px;" />
+                            <button class="btn-secondary" onclick="cargarCobranza()">↻ Recargar</button>
+                        </div>
+                    </div>
+                    <div style="padding:12px 20px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b;">
+                        Mensualidades del SaaS por tienda. <strong>Extender</strong> suma meses (los días se suman desde
+                        el fin vigente o desde hoy). <strong>Link</strong> genera un link de pago de Mercado Pago para
+                        enviarle al dueño. <strong>♾️</strong> marca la tienda como ilimitada (nunca vence).
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tienda</th>
+                                <th>Plan</th>
+                                <th>Estado</th>
+                                <th>Vence</th>
+                                <th>Días</th>
+                                <th>Último pago</th>
+                                <th>MP</th>
+                                <th style="min-width:220px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCobranza">
+                            <tr><td colspan="9" style="text-align:center;color:#94a3b8;">Cargando cobranza…</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -746,6 +801,10 @@
                                 <option value="config_saas_actualizada">Config SaaS</option>
                                 <option value="suscripcion_activada">Suscripción activada</option>
                                 <option value="suscripcion_renovada">Suscripción renovada</option>
+                                <option value="plan_extendido">Plan extendido</option>
+                                <option value="plan_ilimitado">Marcada como Ilimitado</option>
+                                <option value="tienda_suspendida">Tienda suspendida</option>
+                                <option value="tienda_reactivada">Tienda reactivada</option>
                                 <option value="mp_plataforma_conectada">Cuenta de cobro conectada</option>
                                 <option value="mp_plataforma_desconectada">Cuenta de cobro desconectada</option>
                             </select>
@@ -869,8 +928,28 @@
         </div>
     </div>
 
+    <!-- Modal Acción Cobranza -->
+    <div id="modalCobranza" class="modal-overlay hidden" onclick="cerrarModal(event, 'modalCobranza')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="cobranzaModalTitle">Extender plan</h2>
+            <p id="cobranzaModalSub" style="font-size:14px;color:#64748b;margin-bottom:20px;"></p>
+            <div class="form-group" id="cobranzaWrapMeses">
+                <label>Cantidad de meses</label>
+                <input type="number" id="cobranzaMeses" min="1" max="24" step="1" value="1" />
+            </div>
+            <div class="form-group">
+                <label id="cobranzaMotivoLabel">Motivo</label>
+                <input type="text" id="cobranzaMotivo" placeholder="ej: El cliente abonó por transferencia" />
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="cerrarModal(null, 'modalCobranza')">Cancelar</button>
+                <button class="btn-primary" onclick="ejecutarAccionCobranza()"><span id="cobranzaBtnLabel">Confirmar</span></button>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/auth.js?v=4"></script>
-    <script src="/superadmin/superadmin.js?v=5"></script>
+    <script src="/superadmin/superadmin.js?v=6"></script>
     <script>
         // Toggle sidebar en mobile
         function toggleSidebar() {

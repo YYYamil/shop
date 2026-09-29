@@ -15,6 +15,8 @@ function mostrarSeccion(seccion) {
     // Ocultar todas las secciones
     document.getElementById('seccionTiendas').classList.add('hidden');
     document.getElementById('seccionBackups').classList.add('hidden');
+    const secCobra = document.getElementById('seccionCobranza');
+    if (secCobra) secCobra.classList.add('hidden');
     const secSaas = document.getElementById('seccionSaasConfig');
     if (secSaas) secSaas.classList.add('hidden');
     const secEv = document.getElementById('seccionEventos');
@@ -24,6 +26,7 @@ function mostrarSeccion(seccion) {
     // elemento HTML (ej.: 'saasconfig' → 'seccionSaasConfig').
     const MAPA_SECCIONES = {
         tiendas: 'seccionTiendas',
+        cobranza: 'seccionCobranza',
         backups: 'seccionBackups',
         saasconfig: 'seccionSaasConfig',
         eventos: 'seccionEventos'
@@ -39,6 +42,8 @@ function mostrarSeccion(seccion) {
     // Cargar datos según la sección
     if (seccion === 'backups') {
         cargarBackups();
+    } else if (seccion === 'cobranza') {
+        cargarCobranza();
     } else if (seccion === 'saasconfig') {
         cargarSaasConfig();
         cargarEstadoPlataforma();
@@ -852,16 +857,21 @@ function etiquetaTipoEvento(tipo) {
         'suscripcion_renovada': 'Suscripción renovada',
         'mp_plataforma_conectada': 'Cuenta de cobro conectada',
         'mp_plataforma_desconectada': 'Cuenta de cobro desconectada',
+        // BLOQUE 6 — Acciones manuales desde Cobranza
+        'plan_extendido': 'Plan extendido',
+        'plan_ilimitado': 'Marcada como Ilimitado',
+        'tienda_suspendida': 'Tienda suspendida',
+        'tienda_reactivada': 'Tienda reactivada',
     };
     return map[tipo] || tipo;
 }
 
 function claseTipoEvento(tipo) {
-    if (tipo === 'tienda_eliminada') return 'badge-inactive';
-    if (tipo === 'tienda_creada') return 'badge-active';
+    if (tipo === 'tienda_eliminada' || tipo === 'tienda_suspendida') return 'badge-inactive';
+    if (tipo === 'tienda_creada' || tipo === 'tienda_reactivada') return 'badge-active';
     if (tipo === 'config_saas_actualizada' || tipo === 'mp_plataforma_conectada' || tipo === 'mp_plataforma_desconectada') return 'badge-plan-demo';
-    // suscripcion_activada / suscripcion_renovada → badge de pago
-    if (tipo === 'suscripcion_activada' || tipo === 'suscripcion_renovada') return 'badge-plan-pago';
+    if (tipo === 'plan_ilimitado') return 'badge-plan-ilimitado';
+    // suscripcion_activada / suscripcion_renovada / plan_extendido → badge de pago
     return 'badge-plan-pago';
 }
 
@@ -953,3 +963,250 @@ async function guardarSaasConfig(clave, valor) {
 // NOTA: La inicialización se hace desde index.html después de verificarAuth()
 // para asegurar que la sesión esté lista antes de cargar datos.
 // Ver: public/superadmin/index.html
+
+
+/* ===== COBRANZA DE MENSUALIDADES (BLOQUE 6) ===== */
+
+let cobranzaCache = { tiendas: [], warningDays: 3, montoMensual: 5000, planNombre: 'Profesional', conteo: {} };
+let cobranzaAccion = null;   // 'extender' | 'ilimitado' | 'suspender' | 'reactivar'
+let cobranzaTiendaId = null;
+
+function claseBadgeCobranza(estado) {
+    const map = {
+        ilimitado: 'badge-plan-ilimitado',
+        demo: 'badge-demo',
+        activa: 'badge-active',
+        proxima_a_vencer: 'badge-warn',
+        vencida: 'badge-inactive',
+        suspendida: 'badge-inactive',
+    };
+    return map[estado] || 'badge-plan-pago';
+}
+
+function formatoFechaCobranza(fecha) {
+    if (!fecha) return '—';
+    const txt = String(fecha).replace(' ', 'T');
+    const d = new Date(txt);
+    if (isNaN(d.getTime())) return String(fecha);
+    return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function textoDias(dias) {
+    if (dias === null || dias === undefined || Number.isNaN(dias)) return '—';
+    if (dias < 0) return '<span style="color:#991b1b;font-weight:600;">vencido hace ' + Math.abs(dias) + ' día(s)</span>';
+    if (dias === 0) return '<span style="color:#b45309;font-weight:600;">vence hoy</span>';
+    if (dias <= cobranzaCache.warningDays) return '<span style="color:#b45309;font-weight:600;">' + dias + ' día(s)</span>';
+    return String(dias) + ' día(s)';
+}
+
+async function cargarCobranza() {
+    try {
+        const res = await fetch('/api/superadmin/cobranza', { credentials: 'same-origin' });
+        if (res.status === 401) {
+            window.location = '/superadmin/login.html';
+            return;
+        }
+        const data = await res.json();
+        if (!data || data.ok !== true) {
+            document.getElementById('tablaCobranza').innerHTML =
+                '<tr><td colspan="9" style="text-align:center;color:#ef4444;">Error al cargar la cobranza</td></tr>';
+            return;
+        }
+        cobranzaCache = data;
+        renderizarResumenCobranza();
+        renderizarTablaCobranza();
+    } catch (err) {
+        console.error('Error al cargar cobranza:', err);
+        document.getElementById('tablaCobranza').innerHTML =
+            '<tr><td colspan="9" style="text-align:center;color:#ef4444;">Error de conexión</td></tr>';
+    }
+}
+
+function renderizarResumenCobranza() {
+    const cont = document.getElementById('cobranzaStats');
+    if (!cont) return;
+    const c = cobranzaCache.conteo || {};
+    const tarjetas = [
+        { valor: cobranzaCache.montoMensual.toLocaleString('es-AR') + ' ARS', label: 'Mensualidad (' + cobranzaCache.planNombre + ')' },
+        { valor: (c.activa || 0), label: 'Activas' },
+        { valor: (c.proxima_a_vencer || 0), label: 'Próximas a vencer' },
+        { valor: (c.demo || 0), label: 'Demo' },
+        { valor: (c.vencida || 0), label: 'Vencidas' },
+        { valor: (c.suspendida || 0), label: 'Suspendidas' },
+        { valor: (c.ilimitado || 0), label: 'Ilimitadas' },
+    ];
+    cont.innerHTML = tarjetas.map(t =>
+        '<div class="stat-card"><div class="stat-value">' + t.valor + '</div><div class="stat-label">' + t.label + '</div></div>'
+    ).join('');
+}
+
+function filtroCobranza() {
+    renderizarTablaCobranza();
+}
+
+function renderizarTablaCobranza() {
+    const tbody = document.getElementById('tablaCobranza');
+    if (!tbody) return;
+    const selEstado = document.getElementById('filtroCobranzaEstado');
+    const estado = (selEstado && selEstado.value) || '';
+    const inputBus = document.getElementById('filtroCobranzaBusqueda');
+    const busqueda = ((inputBus && inputBus.value) || '').trim().toLowerCase();
+
+    const filas = cobranzaCache.tiendas.filter(t => {
+        if (estado && t.estado !== estado) return false;
+        if (busqueda) {
+            const hay = (t.nombre.toLowerCase().includes(busqueda)) || (t.slug.toLowerCase().includes(busqueda));
+            if (!hay) return false;
+        }
+        return true;
+    });
+
+    if (!filas.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#94a3b8;">Sin tiendas para el filtro seleccionado</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filas.map(t => {
+        let vence = '—';
+        if (t.estado === 'ilimitado') {
+            vence = '<span style="color:#64748b;">nunca</span>';
+        } else if (t.estado === 'demo') {
+            vence = 'Trial · ' + formatoFechaCobranza(t.trial_fin);
+        } else if (t.suscripcion_fin) {
+            vence = formatoFechaCobranza(t.suscripcion_fin);
+        }
+
+        const planClass = t.plan === 'ilimitado' ? 'badge-plan-ilimitado' : (t.plan === 'demo' ? 'badge-plan-demo' : 'badge-plan-pago');
+        const ultPago = t.ultimo_pago
+            ? (Number(t.ultimo_pago.monto) || 0).toLocaleString('es-AR') + ' ARS · ' + formatoFechaCobranza(t.ultimo_pago.fecha)
+            : '<span style="color:#94a3b8;">Sin pagos</span>';
+        const mp = t.mp_conectado ? '<span class="badge badge-active">Conectado</span>' : '<span class="badge badge-inactive">—</span>';
+
+        return `
+        <tr>
+            <td style="color:#94a3b8;">${t.id}</td>
+            <td>
+                <strong>${escapeHtml(t.nombre)}</strong>
+                <br><code>/${escapeHtml(t.slug)}</code>
+            </td>
+            <td><span class="badge badge-plan ${planClass}">${escapeHtml(t.plan_label)}</span></td>
+            <td><span class="badge ${claseBadgeCobranza(t.estado)}">${escapeHtml(t.estado_label || t.estado)}</span></td>
+            <td style="white-space:nowrap;">${vence}</td>
+            <td>${textoDias(t.dias_restantes)}</td>
+            <td>${ultPago}</td>
+            <td>${mp}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-success" onclick="abrirModalCobranza('extender', ${t.id})" title="Extender el plan varios meses">🔁 Extender</button>
+                    <button class="btn-primary" onclick="generarLinkPago(${t.id})" title="Generar link de pago de la mensualidad">💳 Link</button>
+                    <button class="btn-warning" onclick="abrirModalCobranza('ilimitado', ${t.id})" title="Marcar como ilimitada">♾️</button>
+                    ${t.activo ? `
+                    <button class="btn-danger" onclick="abrirModalCobranza('suspender', ${t.id})" title="Suspender la tienda">⏸️</button>
+                    ` : `
+                    <button class="btn-success" onclick="abrirModalCobranza('reactivar', ${t.id})" title="Reactivar la tienda">▶️</button>
+                    `}
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function abrirModalCobranza(accion, id) {
+    const t = cobranzaCache.tiendas.find(x => x.id === id);
+    if (!t) return;
+    cobranzaAccion = accion;
+    cobranzaTiendaId = id;
+
+    document.getElementById('cobranzaModalTitle').textContent = ({
+        extender: 'Extender plan',
+        ilimitado: 'Marcar como Ilimitado',
+        suspender: 'Suspender tienda',
+        reactivar: 'Reactivar tienda',
+    })[accion];
+
+    document.getElementById('cobranzaModalSub').innerHTML =
+        '<strong>' + escapeHtml(t.nombre) + '</strong> · ' + escapeHtml(t.plan_label) + ' · ' +
+        escapeHtml(t.estado_label || t.estado);
+
+    const wrapMeses = document.getElementById('cobranzaWrapMeses');
+    const btnLabel = document.getElementById('cobranzaBtnLabel');
+    if (accion === 'extender') {
+        wrapMeses.classList.remove('hidden');
+        btnLabel.textContent = 'Extender';
+    } else {
+        wrapMeses.classList.add('hidden');
+        btnLabel.textContent =
+            accion === 'ilimitado' ? 'Marcar Ilimitado' : (accion === 'reactivar' ? 'Reactivar' : 'Suspender');
+    }
+    document.getElementById('cobranzaMeses').value = '1';
+    document.getElementById('cobranzaMotivo').value = '';
+
+    const modal = document.getElementById('modalCobranza');
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+}
+
+async function ejecutarAccionCobranza() {
+    const motivo = document.getElementById('cobranzaMotivo').value.trim();
+    const mesesInput = parseInt(document.getElementById('cobranzaMeses').value, 10);
+    const meses = Number.isInteger(mesesInput) && mesesInput > 0 ? mesesInput : 1;
+
+    if (!motivo) {
+        mostrarToast('Escribí el motivo', 'error');
+        return;
+    }
+
+    let url, body = { tienda_id: cobranzaTiendaId, motivo };
+    const etiquetas = { extender: 'Plan extendido', ilimitado: 'Tienda marcada como ilimitada', suspender: 'Tienda suspendida', reactivar: 'Tienda reactivada' };
+
+    if (cobranzaAccion === 'extender') {
+        url = '/api/superadmin/cobranza/extender';
+        body.meses = meses;
+    } else if (cobranzaAccion === 'ilimitado') {
+        url = '/api/superadmin/cobranza/ilimitado';
+    } else {
+        url = '/api/superadmin/cobranza/estado';
+        body.accion = cobranzaAccion;
+    }
+
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.ok) {
+            mostrarToast('✅ ' + etiquetas[cobranzaAccion], 'success');
+            cerrarModal(null, 'modalCobranza');
+            cargarCobranza();
+        } else {
+            mostrarToast('❌ ' + (data.error || 'No se pudo guardar'), 'error');
+        }
+    } catch (err) {
+        console.error('Error en acción de cobranza:', err);
+        mostrarToast('Error de conexión', 'error');
+    }
+}
+
+async function generarLinkPago(id) {
+    try {
+        const res = await fetch('/api/superadmin/cobranza/suscripcion/link', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ tienda_id: id }),
+        });
+        const data = await res.json();
+        if (data.ok && data.initPoint) {
+            mostrarToast('✅ Link de pago generado', 'success');
+            window.open(data.initPoint, '_blank');
+        } else {
+            mostrarToast('❌ ' + (data.error || 'No se pudo generar el link'), 'error');
+        }
+    } catch (err) {
+        console.error('Error al generar link de pago:', err);
+        mostrarToast('Error de conexión', 'error');
+    }
+}
