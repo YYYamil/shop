@@ -11,6 +11,7 @@ const STOPWORDS = new Set([
 
 const MAX_RESULTADOS = 10;
 const MAX_CATALOGO = 100;
+const INCLUIR_CATEGORIA = true;
 
 function normalizar(texto) {
     return String(texto || '')
@@ -26,6 +27,32 @@ function extraerTokens(consulta) {
         if (limpio.length >= 2 && !STOPWORDS.has(limpio)) tokens.push(limpio);
     });
     return tokens;
+}
+
+function variantes(token) {
+    const set = new Set([token]);
+    if (token.length > 3 && token.endsWith('es')) {
+        set.add(token.slice(0, -2));
+        set.add(token.slice(0, -1));
+    } else if (token.length > 2 && token.endsWith('s')) {
+        set.add(token.slice(0, -1));
+    }
+    if (token.length > 2 && !token.endsWith('s')) {
+        set.add(token + 's');
+        if (token.endsWith('a') || token.endsWith('e') || token.endsWith('i') || token.endsWith('o') || token.endsWith('u')) {
+            set.add(token + 'es');
+        }
+    }
+    return set;
+}
+
+function coincide(texto, tokens) {
+    return tokens.every((t) => {
+        for (const v of variantes(t)) {
+            if (texto.includes(v)) return true;
+        }
+        return false;
+    });
 }
 
 function parseImagen(imagenes) {
@@ -80,9 +107,16 @@ exports.buscarProductos = (req, res) => {
 
         let coincidencias = filas;
         if (tokens.length > 0) {
+            // La categoria solo suma como campo de busqueda cuando la consulta
+            // tiene 2+ palabras ("tote bags"). Con una sola palabra ("tote") manda
+            // el nombre, para no devolver productos de categorias hermanas.
+            const usarCategoria = INCLUIR_CATEGORIA && tokens.length >= 2;
             coincidencias = filas.filter((p) => {
-                const texto = normalizar(p.nombre) + ' ' + normalizar(p.descripcion);
-                return tokens.every((t) => texto.includes(t));
+                const base = normalizar(p.nombre) + ' ' + normalizar(p.descripcion);
+                if (coincide(base, tokens)) return true;
+                if (!usarCategoria) return false;
+                const soloCategoria = normalizar(p.categoria);
+                return coincide(soloCategoria, tokens);
             });
         }
 
