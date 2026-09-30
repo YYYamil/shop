@@ -528,6 +528,13 @@ function renderTiendaSuspendida(req, res, tienda) {
 // - Slug inexistente → next() → 404 real (evita soft-404).
 // - Slug conocido pero fuera de servicio (baja manual o calendario vencido)
 //   → página profesional de cierre con HTTP 503 (no se vende ni se indexa).
+function inyectarChatWidget(html) {
+    const script = '<script src="/js/chat-widget.js?v=2"></script>';
+    const idx = html.toLowerCase().lastIndexOf('</body>');
+    if (idx === -1) return html + '\n' + script;
+    return html.slice(0, idx) + script + '\n' + html.slice(idx);
+}
+
 function renderizarTienda(req, res, next, slug) {
     try {
         const tienda = buscarTienda(slug);
@@ -550,6 +557,11 @@ function renderizarTienda(req, res, next, slug) {
         // Etapa 5: reemplazar los textos genéricos (navbar, hero, footer) por el
         // contenido REAL de la tienda. Así el HTML inicial es indexable y específico.
         html = inyectarContenidoVisible(html, tienda, config);
+
+        // BLOQUE 7: asistente conversacional. Se inyecta antes de </body> el
+        // widget de chat (botón flotante + panel). Solo el flujo conversacional
+        // por ahora; la búsqueda de productos con IA irá en una fase posterior.
+        html = inyectarChatWidget(html);
 
         // Mismos headers que hoy (la Etapa 6 optimizará Cache-Control)
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');

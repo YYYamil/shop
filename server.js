@@ -32,6 +32,8 @@ const superAdminRoutes = require('./routes/superAdminRoutes');
 
 const saasRoutes = require('./routes/saasRoutes');
 
+const chatRoutes = require('./routes/chatRoutes');
+
 const seoController = require('./controllers/seoController');
 
 
@@ -137,6 +139,8 @@ app.use('/api/mercadopago', mercadopagoRoutes);
 app.use('/api/superadmin', superAdminRoutes);
 
 app.use('/api/saas', saasRoutes);
+
+app.use('/api/chat', chatRoutes);
 
 
 
